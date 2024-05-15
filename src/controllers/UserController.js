@@ -9,3 +9,22 @@ exports.getUsers = async () => {
 		return handleException(e);
 	}
 };
+
+exports.addSampleUser = async () => {
+	const user = new User({
+		firstName: "Navid",
+		lastName: "Hero",
+		email: "navid@gmail.com",
+		mobile: "09177048781",
+		isActive: true,
+		hasCompletedSignup: false,
+		referCode: "731086912583",
+		created_at: moment(),
+		emailVerified: false,
+		mobileVerified: false,
+	});
+
+	await user.save();
+
+	return success("sample user added successfully.", user);
+};
