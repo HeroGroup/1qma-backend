@@ -7,7 +7,7 @@ const {
 } = require("../utils");
 const User = require("../models/User");
 const Verification = require("../models/Verification");
-const NEXT_VERIFICATION_MINUTES = 5;
+const NEXT_VERIFICATION_MINUTES = env.nextVerificationMinutes;
 
 exports.init = () => {
 	return {
@@ -28,7 +28,7 @@ exports.init = () => {
 				2: "Educational",
 				3: "Bussiness",
 			},
-			nextVerificationMinutes: 5,
+			nextVerificationMinutes: NEXT_VERIFICATION_MINUTES,
 			furthurQuestions: {
 				1: {
 					question: "What do you usually do in your free time?",
@@ -55,6 +55,7 @@ exports.init = () => {
 		},
 	};
 };
+
 exports.joinToWaitList = async (params) => {
 	// check email is valid
 	if (!validateEmail(params.email)) {

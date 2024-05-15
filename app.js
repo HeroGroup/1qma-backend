@@ -1,10 +1,11 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const app = express();
+const env = require("./env.js");
 const moment = require("moment");
 
+globalThis.env = env;
 globalThis.moment = moment;
-
 globalThis.success = (message, data) => {
 	return {
 		status: 1,
@@ -12,7 +13,6 @@ globalThis.success = (message, data) => {
 		data,
 	};
 };
-
 globalThis.fail = (message, data) => {
 	return {
 		status: -1,
@@ -35,8 +35,7 @@ indexRoutes(app);
 usersRoutes(app);
 authRoutes(app);
 
-const port = process.env.PORT;
-const appName = process.env.APP_NAME;
+const port = env.port;
 app.listen(port, () => {
-	console.log(`${appName} app is listening on port ${port}`);
+	console.log(`${env.appName} app is listening on port ${port}`);
 });

@@ -4,7 +4,7 @@
   "description": "1QMA Games",
   "main": "app.js",
   "scripts": {
-    "start": "PORT=3000 APP_NAME=1QMA node app.js",
+    "start": "node app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Hero Group",

@@ -1,5 +1,5 @@
 const bcrypt = require("bcrypt");
-const SALT_ROUNDS = 10;
+const SALT_ROUNDS = env.saltRounds;
 
 exports.handleException = (e) => {
 	if (!(e instanceof Error)) {
