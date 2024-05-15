@@ -1,22 +1,11 @@
 const User = require("../models/User");
+const { handleException } = require("../utils");
 
 exports.getUsers = async () => {
-	return await User.find(
-		{},
-		{ firstName: 1, lastName: 1, email: 1, isActive: 1 } // projection
-	);
-};
-
-exports.addUser = async (params) => {
-	const newUser = new User({
-		firstName: params.firstName,
-		lastName: params.lastName,
-		email: params.email,
-		password: params.password,
-		isActive: false,
-	});
-
-	await newUser.save();
-
-	return `${params.firstName} ${params.lastName} is now a user.`;
+	try {
+		const users = await User.find({}, { __v: -1 });
+		return { status: 1, message: "users retrieved successfully!", data: users };
+	} catch (e) {
+		return handleException(e);
+	}
 };
