@@ -171,6 +171,7 @@ exports.updateProfile = async (params) => {
 		if (!validateMobile(params.mobile)) {
 			return fail("Enter a valid mobile phone!", params);
 		}
+
 		// check email is available
 		const emailExists = await User.findOne({
 			email: params.email,
@@ -191,25 +192,28 @@ exports.updateProfile = async (params) => {
 			return fail("This phone number is already in use!", params);
 		}
 
-		await User.findOneAndUpdate(
+		let user = await User.findById(params.id);
+
+		const update = {};
+		// send verification codes
+		if (!user.emailVerified || user.email !== params.email) {
+			createEmailVerification(params.email);
+			update["emailVerified"] = false;
+		}
+		if (!user.mobileVerified || user.mobile !== params.mobile) {
+			createMobileVerification(params.mobile);
+			update["mobileVerified"] = false;
+		}
+
+		user = await User.findOneAndUpdate(
 			{ _id: params.id },
 			{
 				...params,
-				emailVerified: false,
-				mobileVerified: false,
+				...update,
 			}
 		);
 
-		// send verification codes
-		if (!user.emailVerified && user.email !== params.email) {
-			createEmailVerification(params.email);
-		}
-		if (!user.mobileVerified && user.mobile !== params.mobile) {
-			createMobileVerification(params.mobile);
-		}
-
-		const user = await User.findById(params.id);
-		delete user["password"];
+		// delete user["password"];
 
 		return success(
 			"Thank you for updating your profile information. Verification messages has been sent to you.",

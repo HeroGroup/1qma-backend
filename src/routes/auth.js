@@ -1,3 +1,5 @@
+const swaggerUI = require("swagger-ui-express");
+const { swaggerSpec } = require("../services/swagger.js");
 const { sanitize } = require("../validator");
 const {
 	joinToWaitList,
@@ -25,6 +27,9 @@ exports.authRoutes = (app) => {
 		req.body = sanitize(req.body);
 		next();
 	});
+
+	app.use("/api-docs", swaggerUI.serve);
+	app.get("/api-docs", swaggerUI.setup(swaggerSpec));
 
 	app.post("/auth/joinToWaitList", async (req, res) => {
 		res.json(await joinToWaitList(req.body));
