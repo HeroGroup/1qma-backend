@@ -28,6 +28,18 @@ exports.authRoutes = (app) => {
 
 	/**
 	 * @openapi
+	 * '/auth/register/init':
+	 *  get:
+	 *     tags:
+	 *     - Authentication
+	 *     summary: Parameters needed to be initialized
+	 */
+	app.get("/auth/register/init", (req, res) => {
+		res.json(init());
+	});
+
+	/**
+	 * @openapi
 	 * '/auth/joinToWaitList':
 	 *  post:
 	 *     tags:
@@ -52,18 +64,6 @@ exports.authRoutes = (app) => {
 	 */
 	app.post("/auth/joinToWaitList", async (req, res) => {
 		res.json(await joinToWaitList(req.body));
-	});
-
-	/**
-	 * @openapi
-	 * '/auth/register/init':
-	 *  get:
-	 *     tags:
-	 *     - Authentication
-	 *     summary: Parameters needed to be initialized
-	 */
-	app.get("/auth/register/init", (req, res) => {
-		res.json(init());
 	});
 
 	/**
@@ -222,7 +222,7 @@ exports.authRoutes = (app) => {
 	 *              id:
 	 *                type: string
 	 *                default: 6644e9072019def5602933cb
-	 *              categories:
+	 *              accountType:
 	 *                type: string
 	 *                default: 1
 	 */
