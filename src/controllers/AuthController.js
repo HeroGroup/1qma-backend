@@ -172,13 +172,21 @@ exports.updateProfile = async (params) => {
 			return fail("Enter a valid mobile phone!", params);
 		}
 		// check email is available
-		const emailExists = await User.findOne({ email: params.email });
+		const emailExists = await User.findOne({
+			email: params.email,
+			emailVerified: true,
+			_id: { $ne: params.id },
+		});
 		if (emailExists) {
 			return fail("This email address is already in use!", params);
 		}
 
 		// check phone is available
-		const mobileExists = await User.findOne({ mobile: params.mobile });
+		const mobileExists = await User.findOne({
+			mobile: params.mobile,
+			mobileVerified: true,
+			_id: { $ne: params.id },
+		});
 		if (mobileExists) {
 			return fail("This phone number is already in use!", params);
 		}
@@ -193,8 +201,12 @@ exports.updateProfile = async (params) => {
 		);
 
 		// send verification codes
-		createEmailVerification(params.email);
-		createMobileVerification(params.mobile);
+		if (!user.emailVerified && user.email !== params.email) {
+			createEmailVerification(params.email);
+		}
+		if (!user.mobileVerified && user.mobile !== params.mobile) {
+			createMobileVerification(params.mobile);
+		}
 
 		const user = await User.findById(params.id);
 		delete user["password"];
