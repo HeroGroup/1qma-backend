@@ -32,6 +32,9 @@ exports.simpleValidation = (input, message) => {
 };
 
 exports.validateEmail = (email) => {
+	if (!email) {
+		return false;
+	}
 	return String(email)
 		.toLowerCase()
 		.match(
@@ -40,5 +43,9 @@ exports.validateEmail = (email) => {
 };
 
 exports.validateMobile = (mobile) => {
-	return mobile && mobile.length === 11;
+	if (!mobile || !mobile.startsWith("+") || mobile.length !== 13) {
+		return false;
+	}
+
+	return true;
 };
