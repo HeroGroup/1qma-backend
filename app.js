@@ -1,5 +1,7 @@
 const express = require("express");
 globalThis.env = require("./env.js");
+const swaggerUI = require("swagger-ui-express");
+const { swaggerSpec } = require("./src/services/swagger.js");
 const { indexRoutes } = require("./src/routes/index");
 const { usersRoutes } = require("./src/routes/users");
 const { authRoutes } = require("./src/routes/auth");
@@ -29,10 +31,14 @@ mongoose
 
 app.use(cors());
 app.use(express.json());
-
 indexRoutes(app);
 usersRoutes(app);
 authRoutes(app);
+app.use(
+	"/api-docs",
+	swaggerUI.serve,
+	swaggerUI.setup(swaggerSpec, { explorer: true })
+);
 
 const port = env.port;
 app.listen(port, () => {
