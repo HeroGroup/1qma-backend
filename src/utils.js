@@ -1,5 +1,5 @@
 const bcrypt = require("bcrypt");
-const SALT_ROUNDS = env.saltRounds;
+const SALT_ROUNDS = parseInt(env.saltRounds);
 
 exports.handleException = (e) => {
 	if (!(e instanceof Error)) {

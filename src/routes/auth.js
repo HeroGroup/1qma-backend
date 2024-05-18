@@ -13,6 +13,9 @@ const {
 	init,
 	forgotPasswordViaEmail,
 	forgotPasswordViaMobile,
+	signout,
+	chooseCategoryPreferences,
+	chooseAccountType,
 } = require("../controllers/AuthController");
 
 exports.authRoutes = (app) => {
@@ -42,6 +45,16 @@ exports.authRoutes = (app) => {
 	// register wizard step 1
 	app.post("/auth/updateProfile", async (req, res) => {
 		res.json(await updateProfile(req.body));
+	});
+
+	// register wizard step 2
+	app.post("/auth/updateCategoryPreferences", async (req, res) => {
+		res.json(await chooseCategoryPreferences(req.body));
+	});
+
+	// register wizard step 3
+	app.post("/auth/updateAccountType", async (req, res) => {
+		res.json(await chooseAccountType(req.body));
 	});
 
 	app.post("/auth/verify/:type", async (req, res) => {
@@ -89,5 +102,9 @@ exports.authRoutes = (app) => {
 		} else {
 			res.json({ status: -1, message: "invalid media" });
 		}
+	});
+
+	app.post("/auth/signout", (req, res) => {
+		res.json(signout(req.body));
 	});
 };

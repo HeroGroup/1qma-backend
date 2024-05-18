@@ -144,6 +144,10 @@ exports.loginWithEmail = async (params) => {
 
 exports.updateProfile = async (params) => {
 	try {
+		if (!params.id) {
+			return fail("invalid user id", params);
+		}
+
 		if (!params.firstName) {
 			return fail("Please consider setting a first name!", params);
 		}
@@ -202,6 +206,48 @@ exports.updateProfile = async (params) => {
 	} catch (e) {
 		return handleException(e);
 	}
+};
+
+exports.chooseCategoryPreferences = async (params) => {
+	if (!params.id) {
+		return fail("invalid user id", params);
+	}
+
+	if (!params.categories) {
+		return fail("No categories were selected!");
+	}
+
+	await User.findOneAndUpdate(
+		{ _id: params.id },
+		{
+			preferedCategories: params.categories,
+		}
+	);
+
+	const user = await User.findById(params.id);
+
+	return success("Category preferences updated successfully!", user);
+};
+
+exports.chooseAccountType = async (params) => {
+	if (!params.id) {
+		return fail("invalid user id", params);
+	}
+
+	if (!params.accountType) {
+		return fail("No account type was selected!");
+	}
+
+	await User.findOneAndUpdate(
+		{ _id: params.id },
+		{
+			accountType: params.accountType,
+		}
+	);
+
+	const user = await User.findById(params.id);
+
+	return success("Category preferences updated successfully!", user);
 };
 
 exports.verifyEmail = async (params) => {
@@ -476,4 +522,8 @@ const createMobileVerification = async (mobile) => {
 	// send sms
 
 	return success("Verification code was sent to you!");
+};
+
+exports.signout = (params) => {
+	return success("user signed out successfully!");
 };

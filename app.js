@@ -1,12 +1,15 @@
 const express = require("express");
-var cors = require("cors");
+globalThis.env = require("./env.js");
+const swaggerUI = require("swagger-ui-express");
+const { swaggerSpec } = require("./src/services/swagger.js");
+const { indexRoutes } = require("./src/routes/index");
+const { usersRoutes } = require("./src/routes/users");
+const { authRoutes } = require("./src/routes/auth");
+const cors = require("cors");
 const mongoose = require("mongoose");
 const app = express();
-const env = require("./env.js");
-const moment = require("moment");
 
-globalThis.env = env;
-globalThis.moment = moment;
+globalThis.moment = require("moment");
 globalThis.success = (message, data) => {
 	return {
 		status: 1,
@@ -22,10 +25,6 @@ globalThis.fail = (message, data) => {
 	};
 };
 
-const { indexRoutes } = require("./src/routes/index");
-const { usersRoutes } = require("./src/routes/users");
-const { authRoutes } = require("./src/routes/auth");
-
 mongoose
 	.connect("mongodb://127.0.0.1:27017/1qma")
 	.catch((err) => console.log(err));
@@ -36,6 +35,8 @@ app.use(express.json());
 indexRoutes(app);
 usersRoutes(app);
 authRoutes(app);
+
+app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(swaggerSpec));
 
 const port = env.port;
 app.listen(port, () => {
