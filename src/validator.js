@@ -15,10 +15,16 @@ exports.sanitize = (input) => {
 					allowedTags: [],
 				});
 			});
-
+			return input;
+		case "array":
+			for (let i = 0; i < input.length; i++) {
+				input[i] = sanitizeHtml(input[i], {
+					allowedTags: [],
+				});
+			}
 			return input;
 		default:
-			break;
+			return input;
 	}
 };
 
