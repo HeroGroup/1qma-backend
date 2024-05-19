@@ -281,7 +281,7 @@ exports.chooseAccountType = async (params) => {
 		return fail("No account type was selected!");
 	}
 
-	if (![1, 2, 3].includes(params.accountType)) {
+	if (!["1", "2", "3"].includes(params.accountType)) {
 		return fail("Invalid account type was selected!");
 	}
 
