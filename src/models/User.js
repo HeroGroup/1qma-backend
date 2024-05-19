@@ -16,6 +16,7 @@ const userSchema = new Schema({
 	referer: mongoose.ObjectId,
 	inWaitList: Boolean,
 	gender: String,
+	education: String,
 	country: String,
 	city: String,
 	preferedCategories: Array,

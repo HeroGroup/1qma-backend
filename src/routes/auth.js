@@ -165,9 +165,9 @@ exports.authRoutes = (app) => {
 	 *              gender:
 	 *                type: string
 	 *                default: male
-	 *              birthdate:
+	 *              education:
 	 *                type: string
-	 *                default: 1988/03/21
+	 *                default: Bachelor
 	 *              country:
 	 *                type: string
 	 *                default: IR
