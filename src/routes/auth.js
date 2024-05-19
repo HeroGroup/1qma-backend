@@ -22,7 +22,12 @@ exports.authRoutes = (app) => {
 	// sanitize middleware
 	app.use((req, res, next) => {
 		// sanitize inputs
-		req.body = sanitize(req.body);
+		const { body: params } = req;
+		const paramNames = Object.keys(params);
+		paramNames.forEach((elm) => {
+			req.body[elm] = sanitize(params[elm]);
+		});
+
 		next();
 	});
 

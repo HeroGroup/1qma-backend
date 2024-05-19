@@ -1,5 +1,6 @@
 const express = require("express");
 globalThis.env = require("./env.js");
+const morgan = require("morgan");
 const swaggerUI = require("swagger-ui-express");
 const { swaggerSpec } = require("./src/services/swagger.js");
 const { indexRoutes } = require("./src/routes/index");
@@ -31,6 +32,8 @@ mongoose
 
 app.use(cors());
 app.use(express.json());
+app.use(morgan("dev"));
+
 indexRoutes(app);
 usersRoutes(app);
 authRoutes(app);

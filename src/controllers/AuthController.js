@@ -232,7 +232,7 @@ exports.chooseCategoryPreferences = async (params) => {
 		return fail("invalid user id", params);
 	}
 
-	if (!params.categories) {
+	if (!params.categories || params.categories.length === 0) {
 		return fail("No categories were selected!");
 	}
 

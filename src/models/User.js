@@ -15,6 +15,11 @@ const userSchema = new Schema({
 	referCode: String,
 	referer: mongoose.ObjectId,
 	inWaitList: Boolean,
+	gender: String,
+	country: String,
+	city: String,
+	preferedCategories: Array,
+	accountType: String,
 });
 
 module.exports = mongoose.model("User", userSchema);
