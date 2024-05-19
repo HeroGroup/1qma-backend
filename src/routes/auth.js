@@ -16,6 +16,7 @@ const {
 	signout,
 	chooseCategoryPreferences,
 	chooseAccountType,
+	choosePreferedLanguage,
 } = require("../controllers/AuthController");
 
 exports.authRoutes = (app) => {
@@ -121,6 +122,34 @@ exports.authRoutes = (app) => {
 	 */
 	app.post("/auth/loginWithEmail", async (req, res) => {
 		res.json(await loginWithEmail(req.body));
+	});
+
+	/**
+	 * @openapi
+	 * '/auth/updateLanguagePreference':
+	 *  post:
+	 *     tags:
+	 *     - Authentication
+	 *     summary: udate user language preference
+	 *     requestBody:
+	 *      required: true
+	 *      content:
+	 *        application/json:
+	 *           schema:
+	 *            type: object
+	 *            required:
+	 *              - id
+	 *              - language
+	 *            properties:
+	 *              id:
+	 *                type: string
+	 *                default: 6644e9072019def5602933cb
+	 *              language:
+	 *                type: string
+	 *                default: en
+	 */
+	app.post("/auth/updateLanguagePreference", async (req, res) => {
+		res.json(await choosePreferedLanguage(req.body));
 	});
 
 	/**

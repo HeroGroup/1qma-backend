@@ -145,6 +145,30 @@ exports.loginWithEmail = async (params) => {
 	}
 };
 
+exports.choosePreferedLanguage = async (params) => {
+	if (!params.id) {
+		return fail("invalid user id", params);
+	}
+
+	if (!params.language) {
+		return fail("No language was selected!");
+	}
+
+	if (!["en"].includes(params.language)) {
+		return fail("invalid language was selected!");
+	}
+
+	const user = await User.findOneAndUpdate(
+		{ _id: params.id },
+		{
+			preferedLanguage: params.language,
+		},
+		{ new: true }
+	);
+
+	return success("Category preferences updated successfully!", user);
+};
+
 exports.updateProfile = async (params) => {
 	try {
 		if (!params.id) {
@@ -213,7 +237,8 @@ exports.updateProfile = async (params) => {
 			{
 				...params,
 				...update,
-			}
+			},
+			{ new: true }
 		);
 
 		// delete user["password"];
@@ -236,14 +261,13 @@ exports.chooseCategoryPreferences = async (params) => {
 		return fail("No categories were selected!");
 	}
 
-	await User.findOneAndUpdate(
+	const user = await User.findOneAndUpdate(
 		{ _id: params.id },
 		{
 			preferedCategories: params.categories,
-		}
+		},
+		{ new: true }
 	);
-
-	const user = await User.findById(params.id);
 
 	return success("Category preferences updated successfully!", user);
 };
@@ -257,14 +281,17 @@ exports.chooseAccountType = async (params) => {
 		return fail("No account type was selected!");
 	}
 
-	await User.findOneAndUpdate(
+	if (![1, 2, 3].includes(params.accountType)) {
+		return fail("Invalid account type was selected!");
+	}
+
+	const user = await User.findOneAndUpdate(
 		{ _id: params.id },
 		{
 			accountType: params.accountType,
-		}
+		},
+		{ new: true }
 	);
-
-	const user = await User.findById(params.id);
 
 	return success("Category preferences updated successfully!", user);
 };

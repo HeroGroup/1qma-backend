@@ -21,6 +21,7 @@ const userSchema = new Schema({
 	city: String,
 	preferedCategories: Array,
 	accountType: String,
+	preferedLanguage: String,
 });
 
 module.exports = mongoose.model("User", userSchema);
