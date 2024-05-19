@@ -15,7 +15,7 @@ exports.init = () => {
 		message: "initialize parametes",
 		data: {
 			languages: {
-				1: "English",
+				en: "English",
 			},
 			categories: {
 				1: "History",
