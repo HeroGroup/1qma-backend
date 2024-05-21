@@ -183,10 +183,6 @@ exports.updateProfile = async (params) => {
 			return fail("Please consider setting a last name!", params);
 		}
 
-		if (!params.password) {
-			return fail("Please consider setting a password!", params);
-		}
-
 		params.password = createHashedPasswordFromPlainText(params.password);
 
 		// check email is valid and unique
@@ -220,6 +216,10 @@ exports.updateProfile = async (params) => {
 		}
 
 		let user = await User.findById(params.id);
+
+		if (!user.password && !params.password) {
+			return fail("Please consider setting a password!", params);
+		}
 
 		const update = {};
 		// send verification codes
@@ -323,12 +323,15 @@ exports.verifyEmail = async (params) => {
 			return fail("The verification code you provided is incorrect!", params);
 		}
 
-		Verification.findOneAndUpdate(
+		await Verification.findOneAndUpdate(
 			{ _id: verifications[0]._id },
 			{ isVerified: true }
 		);
 
-		User.findOneAndUpdate({ email: params.email, emailVerified: true });
+		await User.findOneAndUpdate(
+			{ email: params.email },
+			{ emailVerified: true }
+		);
 
 		return success("Thank you!", params);
 	} catch (e) {
@@ -368,7 +371,7 @@ exports.verifyMobile = async (params) => {
 			{ isVerified: true }
 		);
 
-		User.findOneAndUpdate({ mobile: params.mobile, mobilelVerified: true });
+		User.findOneAndUpdate({ mobile: params.mobile }, { mobilelVerified: true });
 
 		return success("Thank you!", params);
 	} catch (e) {
