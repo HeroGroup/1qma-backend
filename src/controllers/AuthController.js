@@ -5,6 +5,9 @@ const {
 	getRandomInt,
 	createHashedPasswordFromPlainText,
 } = require("../helpers/utils");
+const AccountType = require("../models/AccountType");
+const Category = require("../models/Category");
+const Setting = require("../models/Setting");
 const User = require("../models/User");
 const Verification = require("../models/Verification");
 
@@ -12,6 +15,8 @@ exports.init = async () => {
 	const NEXT_VERIFICATION_MINUTES = await Setting.findOne({
 		key: "NEXT_VERIFICATION_MINUTES",
 	});
+	const accountTypes = await AccountType.find();
+	const categories = await Category.find();
 	return {
 		status: 1,
 		message: "initialize parametes",
@@ -19,21 +24,9 @@ exports.init = async () => {
 			languages: {
 				en: "English",
 			},
-			categories: {
-				1: "History",
-				2: "Psychology",
-				3: "Geography",
-				4: "blah",
-				5: "blah",
-				6: "blah",
-				7: "Free Discussion",
-			},
-			accountTypes: {
-				1: "Basic",
-				2: "Educational",
-				3: "Bussiness",
-			},
-			nextVerificationMinutes: NEXT_VERIFICATION_MINUTES,
+			categories,
+			accountTypes,
+			nextVerificationMinutes: NEXT_VERIFICATION_MINUTES.value,
 			furthurQuestions: {
 				1: {
 					question: "What do you usually do in your free time?",
@@ -529,7 +522,7 @@ const createEmailVerification = async (email) => {
 		target: email,
 		verificationCode: "1111", // getRandomInt(999, 9999),
 		createdAt: moment(),
-		validUnitl: moment().add(NEXT_VERIFICATION_MINUTES, "m"),
+		validUnitl: moment().add(NEXT_VERIFICATION_MINUTES.value, "m"),
 		isVerified: false,
 	});
 
@@ -570,7 +563,7 @@ const createMobileVerification = async (mobile) => {
 		target: mobile,
 		verificationCode: "1111", // getRandomInt(999, 9999),
 		createdAt: moment(),
-		validUnitl: moment().add(NEXT_VERIFICATION_MINUTES, "m"),
+		validUnitl: moment().add(NEXT_VERIFICATION_MINUTES.value, "m"),
 		isVerified: false,
 	});
 

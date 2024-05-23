@@ -9,6 +9,7 @@ const app = express();
 globalThis.env = require("./env.js");
 
 const authRoutes = require("./src/routes/auth");
+const accountTypesRoutes = require("./src/routes/accountTypes");
 const categoriesRoutes = require("./src/routes/categories");
 const indexRoutes = require("./src/routes/index");
 const settingsRoutes = require("./src/routes/settings");
@@ -42,6 +43,7 @@ app.use(express.json());
 app.use(morgan("dev"));
 
 app.use("/auth", authRoutes);
+app.use("/admin/accountTypes", accountTypesRoutes);
 app.use("/admin/categories", categoriesRoutes);
 app.use("/admin/users", usersRoutes);
 app.use("/admin/settings", settingsRoutes);
