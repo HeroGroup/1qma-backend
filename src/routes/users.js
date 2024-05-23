@@ -1,7 +1,19 @@
-const { getUsers, addSampleUser } = require("../controllers/UserController");
+const express = require("express");
+const router = express.Router();
 
-exports.usersRoutes = (app) => {
-	app.get("/users", async (req, res) => {
-		res.json(await getUsers());
-	});
-};
+const { getUsers } = require("../controllers/UserController");
+
+/**
+ * @openapi
+ * '/admin/users':
+ *  get:
+ *     tags:
+ *     - Admin
+ *     - Users
+ *     summary: get all users
+ */
+router.get("/", async (req, res) => {
+	res.json(await getUsers());
+});
+
+module.exports = router;

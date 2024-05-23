@@ -4,12 +4,14 @@ const {
 	handleException,
 	getRandomInt,
 	createHashedPasswordFromPlainText,
-} = require("../utils");
+} = require("../helpers/utils");
 const User = require("../models/User");
 const Verification = require("../models/Verification");
-const NEXT_VERIFICATION_MINUTES = env.nextVerificationMinutes;
 
-exports.init = () => {
+exports.init = async () => {
+	const NEXT_VERIFICATION_MINUTES = await Setting.findOne({
+		key: "NEXT_VERIFICATION_MINUTES",
+	});
 	return {
 		status: 1,
 		message: "initialize parametes",
@@ -498,6 +500,9 @@ exports.updatePasswordThroughMobile = async (params) => {
 };
 
 const createEmailVerification = async (email) => {
+	const NEXT_VERIFICATION_MINUTES = await Setting.findOne({
+		key: "NEXT_VERIFICATION_MINUTES",
+	});
 	// check latest verification
 	const verifications = await Verification.find({
 		type: "email",
@@ -536,6 +541,9 @@ const createEmailVerification = async (email) => {
 };
 
 const createMobileVerification = async (mobile) => {
+	const NEXT_VERIFICATION_MINUTES = await Setting.findOne({
+		key: "NEXT_VERIFICATION_MINUTES",
+	});
 	// check latest verification
 	const verifications = await Verification.find({
 		type: "mobile",
