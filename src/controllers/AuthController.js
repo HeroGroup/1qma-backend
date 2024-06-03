@@ -77,6 +77,23 @@ exports.joinToWaitList = async (params) => {
 		return fail("This phone number is already in use!", params);
 	}
 
+	const newUser = new User({
+		referCode: `${getRandomInt(999, 9999)}${getRandomInt(
+			999,
+			9999
+		)}${getRandomInt(999, 9999)}`,
+		email: params.email,
+		emailVerified: false,
+		mobile: params.mobile,
+		mobileVerified: false,
+		inWaitList: true,
+		isActive: false,
+		hasCompletedSignup: false,
+		created_at: moment(),
+	});
+
+	newUser.save();
+
 	// send verification codes to email and mobile
 	createEmailVerification(params.email);
 	createMobileVerification(params.mobile);
