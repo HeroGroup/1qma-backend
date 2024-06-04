@@ -13,7 +13,6 @@ const router = express.Router();
  *  get:
  *     tags:
  *     - Admin
- *     - Account Types
  *     summary: get all account types
  */
 router.get("/", async (req, res) => {
@@ -26,7 +25,6 @@ router.get("/", async (req, res) => {
  *  post:
  *     tags:
  *     - Admin
- *     - Account Types
  *     summary: add account type
  *     requestBody:
  *      required: true
@@ -53,7 +51,6 @@ router.post("/add", async (req, res) => {
  *  post:
  *     tags:
  *     - Admin
- *     - Account Types
  *     summary: update account type
  *     requestBody:
  *      required: true
@@ -85,7 +82,6 @@ router.post("/update", async (req, res) => {
  *  post:
  *     tags:
  *     - Admin
- *     - Account Types
  *     summary: delete account type
  *     requestBody:
  *      required: true

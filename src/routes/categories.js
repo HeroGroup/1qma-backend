@@ -13,7 +13,6 @@ const {
  *  get:
  *     tags:
  *     - Admin
- *     - Categories
  *     summary: get all settings
  */
 router.get("/", async (req, res) => {
@@ -26,7 +25,6 @@ router.get("/", async (req, res) => {
  *  post:
  *     tags:
  *     - Admin
- *     - Categories
  *     summary: add category
  *     requestBody:
  *      required: true
@@ -53,7 +51,6 @@ router.post("/add", async (req, res) => {
  *  post:
  *     tags:
  *     - Admin
- *     - Categories
  *     summary: update category
  *     requestBody:
  *      required: true
@@ -85,7 +82,6 @@ router.post("/update", async (req, res) => {
  *  post:
  *     tags:
  *     - Admin
- *     - Categories
  *     summary: delete category
  *     requestBody:
  *      required: true

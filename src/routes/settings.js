@@ -13,7 +13,6 @@ const {
  *  get:
  *     tags:
  *     - Admin
- *     - Settings
  *     summary: get all settings
  */
 router.get("/", async (req, res) => {
@@ -26,7 +25,6 @@ router.get("/", async (req, res) => {
  *  post:
  *     tags:
  *     - Admin
- *     - Settings
  *     summary: add setting
  *     requestBody:
  *      required: true
@@ -59,7 +57,6 @@ router.post("/add", async (req, res) => {
  *  post:
  *     tags:
  *     - Admin
- *     - Settings
  *     summary: update setting
  *     requestBody:
  *      required: true

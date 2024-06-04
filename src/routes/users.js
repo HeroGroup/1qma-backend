@@ -9,7 +9,6 @@ const { getUsers } = require("../controllers/UserController");
  *  get:
  *     tags:
  *     - Admin
- *     - Users
  *     summary: get all users
  */
 router.get("/", async (req, res) => {
