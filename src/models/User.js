@@ -10,6 +10,7 @@ const userSchema = new Schema({
 	mobileVerified: Boolean,
 	password: String,
 	isActive: Boolean,
+	userType: String,
 	hasCompletedSignup: Boolean,
 	created_at: Date,
 	referCode: String,
