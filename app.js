@@ -42,15 +42,15 @@ app.use(cors());
 app.use(express.json());
 app.use(morgan("dev"));
 
-app.use("/auth", authRoutes);
-app.use("/admin/accountTypes", accountTypesRoutes);
-app.use("/admin/categories", categoriesRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/admin/accountTypes", accountTypesRoutes);
+app.use("/api/admin/categories", categoriesRoutes);
 app.use("/api/admin/users", usersRoutes);
-app.use("/admin/settings", settingsRoutes);
-app.use("/", indexRoutes);
+app.use("/api/admin/settings", settingsRoutes);
+app.use("/api/", indexRoutes);
 
 app.use(
-	"/api-docs",
+	"/api/api-docs",
 	swaggerUI.serve,
 	swaggerUI.setup(swaggerSpec, { explorer: true })
 );
