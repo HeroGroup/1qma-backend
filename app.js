@@ -45,7 +45,7 @@ app.use(morgan("dev"));
 app.use("/auth", authRoutes);
 app.use("/admin/accountTypes", accountTypesRoutes);
 app.use("/admin/categories", categoriesRoutes);
-app.use("/admin/users", usersRoutes);
+app.use("/api/admin/users", usersRoutes);
 app.use("/admin/settings", settingsRoutes);
 app.use("/", indexRoutes);
 
