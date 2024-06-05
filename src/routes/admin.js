@@ -29,3 +29,5 @@ const router = express.Router();
 router.post("/login", async (req, res) => {
 	res.json(await login(req.body));
 });
+
+module.exports = router;
