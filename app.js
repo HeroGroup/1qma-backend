@@ -52,7 +52,7 @@ app.use("/admin/settings", settingsRoutes);
 app.use("/", indexRoutes);
 
 app.use(
-	"/api/docs",
+	"/api-docs",
 	swaggerUI.serve,
 	swaggerUI.setup(swaggerSpec, { explorer: true })
 );
