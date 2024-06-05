@@ -141,7 +141,7 @@ exports.loginWithEmail = async (params) => {
 			return fail("Enter password!", params);
 		}
 
-		const user = await User.findOne({ email: params.email });
+		const user = await User.findOne({ email: params.email, isActive: true });
 		if (!user || !bcrypt.compareSync(params.password, user.password)) {
 			return fail("Invalid email and password combination!", params);
 		}

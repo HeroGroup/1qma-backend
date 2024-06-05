@@ -1,10 +1,14 @@
 const express = require("express");
-const { login } = require("../controllers/AdminController");
+const {
+	login,
+	createAdminUser,
+	dashboard,
+} = require("../controllers/AdminController");
 const router = express.Router();
 
 /**
  * @openapi
- * '/admin/loginWithEmail':
+ * '/admin/login':
  *  post:
  *     tags:
  *     - Admin
@@ -21,13 +25,29 @@ const router = express.Router();
  *            properties:
  *              email:
  *                type: string
- *                default: navid@gmail.com
+ *                default: navid@1qma.games
  *              password:
  *                type: string
- *                default: somepassword
+ *                default: admin
  */
 router.post("/login", async (req, res) => {
 	res.json(await login(req.body));
+});
+
+router.get("/createAdminUser", async (req, res) => {
+	res.json(await createAdminUser(req.body));
+});
+
+/**
+ * @openapi
+ * '/admin/dashboard':
+ *  get:
+ *     tags:
+ *     - Admin
+ *     summary: get dashboard parameters
+ */
+router.get("/dashboard", async (req, res) => {
+	res.json(await dashboard(req.body));
 });
 
 module.exports = router;

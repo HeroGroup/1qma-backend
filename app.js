@@ -9,7 +9,7 @@ const app = express();
 globalThis.env = require("./env.js");
 
 const authRoutes = require("./src/routes/auth");
-const adminRoutes = require("./src/routes/admin");
+const adminRoutes = require("./src/routes/_admin");
 const accountTypesRoutes = require("./src/routes/accountTypes");
 const categoriesRoutes = require("./src/routes/categories");
 const indexRoutes = require("./src/routes/index");
