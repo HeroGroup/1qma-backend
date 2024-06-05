@@ -34,9 +34,9 @@ router.post("/login", async (req, res) => {
 	res.json(await login(req.body));
 });
 
-router.get("/createAdminUser", async (req, res) => {
-	res.json(await createAdminUser(req.body));
-});
+// router.get("/createAdminUser", async (req, res) => {
+// 	res.json(await createAdminUser(req.body));
+// });
 
 /**
  * @openapi
