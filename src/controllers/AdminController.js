@@ -2,7 +2,7 @@ const bcrypt = require("bcrypt");
 const User = require("../models/User");
 const { validateEmail } = require("../validator");
 
-exports.loginWithEmail = async (params) => {
+exports.login = async (params) => {
 	try {
 		// check email is valid
 		if (!validateEmail(params.email)) {

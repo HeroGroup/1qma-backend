@@ -9,6 +9,7 @@ const app = express();
 globalThis.env = require("./env.js");
 
 const authRoutes = require("./src/routes/auth");
+const adminRoutes = require("./src/routes/admin");
 const accountTypesRoutes = require("./src/routes/accountTypes");
 const categoriesRoutes = require("./src/routes/categories");
 const indexRoutes = require("./src/routes/index");
@@ -42,15 +43,16 @@ app.use(cors());
 app.use(express.json());
 app.use(morgan("dev"));
 
-app.use("/api/auth", authRoutes);
-app.use("/api/admin/accountTypes", accountTypesRoutes);
-app.use("/api/admin/categories", categoriesRoutes);
-app.use("/api/admin/users", usersRoutes);
-app.use("/api/admin/settings", settingsRoutes);
-app.use("/api/", indexRoutes);
+app.use("/auth", authRoutes);
+app.use("/admin", adminRoutes);
+app.use("/admin/accountTypes", accountTypesRoutes);
+app.use("/admin/categories", categoriesRoutes);
+app.use("/admin/users", usersRoutes);
+app.use("/admin/settings", settingsRoutes);
+app.use("/", indexRoutes);
 
 app.use(
-	"/api/api-docs",
+	"/api/docs",
 	swaggerUI.serve,
 	swaggerUI.setup(swaggerSpec, { explorer: true })
 );
