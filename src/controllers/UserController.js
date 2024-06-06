@@ -4,7 +4,24 @@ const { handleException } = require("../helpers/utils");
 exports.getUsers = async () => {
 	try {
 		const users = await User.find();
-		return { status: 1, message: "users retrieved successfully!", data: users };
+		return success("users retrieved successfully!", users);
+	} catch (e) {
+		return handleException(e);
+	}
+};
+
+exports.toggleActive = async (params) => {
+	try {
+		const user = await User.findOneAndUpdate(
+			{ _id: params.id },
+			{
+				isActive: params.active,
+			},
+			{
+				new: true,
+			}
+		);
+		return success("users updated successfully!", user);
 	} catch (e) {
 		return handleException(e);
 	}
