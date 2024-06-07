@@ -116,7 +116,7 @@ exports.registerWithReferal = async (params) => {
 				firstName: refererUser.firstName,
 				lastName: refererUser.lastName,
 			},
-			isActive: false,
+			isActive: true,
 			hasCompletedSignup: false,
 			created_at: moment(),
 		});
