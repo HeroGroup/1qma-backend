@@ -14,14 +14,14 @@ const userSchema = new Schema({
 	hasCompletedSignup: Boolean,
 	created_at: Date,
 	referCode: String,
-	referer: mongoose.ObjectId,
+	referer: Object,
 	inWaitList: Boolean,
 	gender: String,
 	education: String,
 	country: String,
 	city: String,
 	preferedCategories: Array,
-	accountType: String,
+	accountType: Object,
 	preferedLanguage: String,
 });
 
