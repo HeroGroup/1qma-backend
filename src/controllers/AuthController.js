@@ -195,8 +195,6 @@ exports.updateProfile = async (params) => {
 			return fail("Please consider setting a last name!", params);
 		}
 
-		params.password = createHashedPasswordFromPlainText(params.password);
-
 		// check email is valid and unique
 		if (!validateEmail(params.email)) {
 			return fail("invalid email address!", params);
@@ -229,8 +227,15 @@ exports.updateProfile = async (params) => {
 
 		let user = await User.findById(params.id);
 
-		if (!user.password && !params.password) {
-			return fail("Please consider setting a password!", params);
+		if (!params.password) {
+			if (user.password) {
+				// dont update password
+				delete params["password"];
+			} else {
+				return fail("Please consider setting a password!", params);
+			}
+		} else {
+			params.password = createHashedPasswordFromPlainText(params.password);
 		}
 
 		const update = {};
@@ -244,11 +249,6 @@ exports.updateProfile = async (params) => {
 			update["mobileVerified"] = false;
 		}
 
-		if (user.password && !params.password) {
-			// dont update password
-			delete params["password"];
-		}
-
 		user = await User.findOneAndUpdate(
 			{ _id: params.id },
 			{
@@ -258,7 +258,7 @@ exports.updateProfile = async (params) => {
 			{ new: true }
 		);
 
-		// delete user["password"];
+		delete user["password"];
 
 		return success(
 			"Thank you for updating your profile information. Verification messages has been sent to you.",
@@ -303,25 +303,16 @@ exports.chooseAccountType = async (params) => {
 		return fail("No account type was selected!");
 	}
 
-	const accountTypes = await AccountType.find();
+	const accountType = await AccountType.findById(accountTypeParam);
 
-	const result = [];
-	// for (let i = 0; i < accountTypes.length; i++) {
-	// 	result.push(accountTypes[i]._id.toString());
-	// }
-
-	accountTypes.forEach((accountType) => {
-		result.push(accountType._id.toString());
-	});
-
-	if (!result.includes(accountTypeParam)) {
+	if (!accountType) {
 		return fail("Invalid account type was selected!");
 	}
 
 	const user = await User.findOneAndUpdate(
 		{ _id: idParam },
 		{
-			accountType: accountTypeParam,
+			accountType: { _id: accountType._id, name: accountType.name },
 			hasCompletedSignup: true,
 		},
 		{ new: true }

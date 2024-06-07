@@ -1,7 +1,11 @@
 const express = require("express");
 const router = express.Router();
 
-const { getUsers, toggleActive } = require("../controllers/UserController");
+const {
+	getUsers,
+	toggleActive,
+	deleteUser,
+} = require("../controllers/UserController");
 
 /**
  * @openapi
@@ -41,6 +45,30 @@ router.get("/", async (req, res) => {
  */
 router.post("/toggleActive", async (req, res) => {
 	res.json(await toggleActive(req.body));
+});
+
+/**
+ * @openapi
+ * '/admin/users/delete':
+ *  post:
+ *     tags:
+ *     - Admin
+ *     summary: delete user
+ *     requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *           schema:
+ *            type: object
+ *            required:
+ *              - id
+ *            properties:
+ *              id:
+ *                type: string
+ *                default: 6644e9072019def5602933cb
+ */
+router.post("/delete", async (req, res) => {
+	res.json(await deleteUser(req.body));
 });
 
 module.exports = router;

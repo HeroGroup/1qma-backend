@@ -26,3 +26,17 @@ exports.toggleActive = async (params) => {
 		return handleException(e);
 	}
 };
+
+exports.deleteUser = async (params) => {
+	try {
+		if (!params.id) {
+			return fail("invalid user id");
+		}
+
+		await User.deleteOne({ _id: params.id, userType: { $ne: "admin" } });
+
+		return success("user= removed successfully!");
+	} catch (e) {
+		return handleException(e);
+	}
+};
