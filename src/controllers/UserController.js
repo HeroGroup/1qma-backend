@@ -33,9 +33,12 @@ exports.deleteUser = async (params) => {
 			return fail("invalid user id");
 		}
 
-		await User.deleteOne({ _id: params.id, userType: { $ne: "admin" } });
+		const res = await User.deleteOne({
+			_id: params.id,
+			userType: { $ne: "admin" },
+		});
 
-		return success("user= removed successfully!");
+		return success("user removed successfully!", res);
 	} catch (e) {
 		return handleException(e);
 	}
