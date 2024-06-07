@@ -21,8 +21,8 @@ exports.createHashedPasswordFromPlainText = (input) => {
 };
 
 exports.createReferCode = () => {
-	return `${getRandomInt(999, 9999)}${getRandomInt(999, 9999)}${getRandomInt(
+	return `${this.getRandomInt(999, 9999)}${this.getRandomInt(
 		999,
 		9999
-	)}`;
+	)}${this.getRandomInt(999, 9999)}`;
 };
