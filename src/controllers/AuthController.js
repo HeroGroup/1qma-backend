@@ -314,6 +314,7 @@ exports.chooseAccountType = async (params) => {
 		{
 			accountType: { _id: accountType._id, name: accountType.name },
 			hasCompletedSignup: true,
+			isActive: true,
 		},
 		{ new: true }
 	);
