@@ -394,12 +394,15 @@ exports.verifyMobile = async (params) => {
 			return fail("The verification code you provided is incorrect!", params);
 		}
 
-		Verification.findOneAndUpdate(
+		await Verification.findOneAndUpdate(
 			{ _id: verifications[0]._id },
 			{ isVerified: true }
 		);
 
-		User.findOneAndUpdate({ mobile: params.mobile }, { mobilelVerified: true });
+		await User.findOneAndUpdate(
+			{ mobile: params.mobile },
+			{ mobilelVerified: true }
+		);
 
 		return success("Thank you!", params);
 	} catch (e) {
