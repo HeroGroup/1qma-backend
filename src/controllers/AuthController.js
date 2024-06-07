@@ -244,6 +244,11 @@ exports.updateProfile = async (params) => {
 			update["mobileVerified"] = false;
 		}
 
+		if (user.password && !params.password) {
+			// dont update password
+			delete params["password"];
+		}
+
 		user = await User.findOneAndUpdate(
 			{ _id: params.id },
 			{
@@ -317,6 +322,7 @@ exports.chooseAccountType = async (params) => {
 		{ _id: idParam },
 		{
 			accountType: accountTypeParam,
+			hasCompletedSignup: true,
 		},
 		{ new: true }
 	);
