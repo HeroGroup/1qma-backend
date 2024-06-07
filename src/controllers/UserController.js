@@ -38,7 +38,11 @@ exports.deleteUser = async (params) => {
 			userType: { $ne: "admin" },
 		});
 
-		return success("user removed successfully!", res);
+		if (res.deletedCount === 0) {
+			return fail("Invali user!");
+		}
+
+		return success("user removed successfully!");
 	} catch (e) {
 		return handleException(e);
 	}
