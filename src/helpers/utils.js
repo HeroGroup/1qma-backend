@@ -19,3 +19,10 @@ exports.createHashedPasswordFromPlainText = (input) => {
 	const salt = bcrypt.genSaltSync(SALT_ROUNDS);
 	return bcrypt.hashSync(input, salt);
 };
+
+exports.createReferCode = () => {
+	return `${getRandomInt(999, 9999)}${getRandomInt(999, 9999)}${getRandomInt(
+		999,
+		9999
+	)}`;
+};

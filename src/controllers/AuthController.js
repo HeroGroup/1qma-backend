@@ -4,6 +4,7 @@ const {
 	handleException,
 	getRandomInt,
 	createHashedPasswordFromPlainText,
+	createReferCode,
 } = require("../helpers/utils");
 const AccountType = require("../models/AccountType");
 const Category = require("../models/Category");
@@ -78,10 +79,7 @@ exports.joinToWaitList = async (params) => {
 	}
 
 	const newUser = new User({
-		referCode: `${getRandomInt(999, 9999)}${getRandomInt(
-			999,
-			9999
-		)}${getRandomInt(999, 9999)}`,
+		referCode: createReferCode(),
 		email: params.email,
 		emailVerified: false,
 		mobile: params.mobile,
@@ -112,11 +110,12 @@ exports.registerWithReferal = async (params) => {
 		// TODO: check number of people refered
 
 		const newUser = new User({
-			referCode: `${getRandomInt(999, 9999)}${getRandomInt(
-				999,
-				9999
-			)}${getRandomInt(999, 9999)}`,
-			referer: refererUser._id,
+			referCode: createReferCode(),
+			referer: {
+				_id: refererUser._id,
+				firstName: refererUser.firstName,
+				lastName: refererUser.lastName,
+			},
 			isActive: false,
 			hasCompletedSignup: false,
 			created_at: moment(),
@@ -399,7 +398,7 @@ exports.verifyMobile = async (params) => {
 
 		await User.findOneAndUpdate(
 			{ mobile: params.mobile },
-			{ mobilelVerified: true }
+			{ mobileVerified: true }
 		);
 
 		return success("Thank you!", params);
