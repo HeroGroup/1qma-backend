@@ -265,18 +265,21 @@ exports.updateProfile = async (params) => {
 };
 
 exports.chooseCategoryPreferences = async (params) => {
-	if (!params.id) {
+	const idParam = params.id;
+	const categoriesParam = params.categories;
+
+	if (!idParam) {
 		return fail("invalid user id", params);
 	}
 
-	if (!params.categories || params.categories.length === 0) {
+	if (!categoriesParam || categoriesParam.length === 0) {
 		return fail("No categories were selected!");
 	}
 
 	const user = await User.findOneAndUpdate(
-		{ _id: params.id },
+		{ _id: idParam },
 		{
-			preferedCategories: params.categories,
+			preferedCategories: categoriesParam,
 		},
 		{ new: true }
 	);
@@ -285,27 +288,40 @@ exports.chooseCategoryPreferences = async (params) => {
 };
 
 exports.chooseAccountType = async (params) => {
-	if (!params.id) {
+	const { id: idParam, accountType: accountTypeParam } = params;
+
+	if (!idParam) {
 		return fail("invalid user id", params);
 	}
 
-	if (!params.accountType) {
+	if (!accountTypeParam) {
 		return fail("No account type was selected!");
 	}
 
-	if (!["1", "2", "3"].includes(params.accountType)) {
+	const accountTypes = await AccountType.find();
+
+	const result = [];
+	// for (let i = 0; i < accountTypes.length; i++) {
+	// 	result.push(accountTypes[i]._id.toString());
+	// }
+
+	accountTypes.forEach((accountType) => {
+		result.push(accountType._id.toString());
+	});
+
+	if (!result.includes(accountTypeParam)) {
 		return fail("Invalid account type was selected!");
 	}
 
 	const user = await User.findOneAndUpdate(
-		{ _id: params.id },
+		{ _id: idParam },
 		{
-			accountType: params.accountType,
+			accountType: accountTypeParam,
 		},
 		{ new: true }
 	);
 
-	return success("Category preferences updated successfully!", user);
+	return success("Account type updated successfully!", user);
 };
 
 exports.verifyEmail = async (params) => {
