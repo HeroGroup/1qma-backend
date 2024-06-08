@@ -3,6 +3,7 @@ const {
 	login,
 	createAdminUser,
 	dashboard,
+	logout,
 } = require("../controllers/AdminController");
 const router = express.Router();
 
@@ -48,6 +49,30 @@ router.post("/login", async (req, res) => {
  */
 router.get("/dashboard", async (req, res) => {
 	res.json(await dashboard(req.body));
+});
+
+/**
+ * @openapi
+ * '/admin/logout':
+ *  post:
+ *     tags:
+ *     - Admin
+ *     summary: sign out user
+ *     requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *           schema:
+ *            type: object
+ *            required:
+ *              - id
+ *            properties:
+ *              id:
+ *                type: string
+ *                default: 6644e9072019def5602933cb
+ */
+router.post("/signout", (req, res) => {
+	res.json(logout(req.body));
 });
 
 module.exports = router;
