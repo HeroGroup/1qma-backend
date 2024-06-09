@@ -208,7 +208,8 @@ exports.registerWithReferal = async (params) => {
 		// check number of people refered
 		const referedUsersCount = await User.countDocuments({
 			"referer._id": refererUser._id,
-			hasCompletedSignup: true,
+			emailVerified: true,
+			mobileVerified: true,
 		});
 
 		const maxNumberOfAllowedRefers = await Setting.findOne({
