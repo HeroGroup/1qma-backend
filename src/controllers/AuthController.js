@@ -300,11 +300,13 @@ exports.setPassword = async (params) => {
 			return fail("Invalid user!");
 		}
 
-		const emailVerified = await this.verifyEmail({
-			id,
-			email,
-			verificationCode,
-		});
+		const emailVerified = await this.verifyEmail(
+			{
+				email,
+				verificationCode,
+			},
+			false
+		);
 		if (emailVerified.status === -1) {
 			return emailVerified;
 		}
@@ -336,14 +338,17 @@ exports.choosePreferedLanguage = async (params) => {
 		return fail("No language was selected!");
 	}
 
-	if (!["en"].includes(params.language)) {
+	const languages = [{ _id: 0, code: "en", title: "English" }];
+	const language = languages.find((element) => element._id == params.language);
+
+	if (!language) {
 		return fail("invalid language was selected!");
 	}
 
 	const user = await User.findOneAndUpdate(
 		{ _id: params.id },
 		{
-			preferedLanguage: params.language,
+			preferedLanguage: language,
 		},
 		{ new: true }
 	);
@@ -353,7 +358,8 @@ exports.choosePreferedLanguage = async (params) => {
 
 exports.updateProfile = async (params) => {
 	try {
-		if (!params.id) {
+		const { id } = params;
+		if (!id) {
 			return fail("invalid user id", params);
 		}
 
@@ -370,27 +376,17 @@ exports.updateProfile = async (params) => {
 			return fail("Enter a valid mobile phone!", params);
 		}
 
-		// check email is available
-		// const emailExists = await User.findOne({
-		// 	email: params.email,
-		// 	emailVerified: true,
-		// 	_id: { $ne: params.id },
-		// });
-		// if (emailExists) {
-		// 	return fail("This email address is already in use!", params);
-		// }
-
 		// check phone is available
 		const mobileExists = await User.findOne({
 			mobile: params.mobile,
 			mobileVerified: true,
-			_id: { $ne: params.id },
+			_id: { $ne: id },
 		});
 		if (mobileExists) {
 			return fail("This phone number is already in use!", params);
 		}
 
-		let user = await User.findById(params.id);
+		let user = await User.findById(id);
 
 		const update = {};
 		if (!user.mobileVerified || user.mobile !== params.mobile) {
@@ -399,7 +395,7 @@ exports.updateProfile = async (params) => {
 		}
 
 		user = await User.findOneAndUpdate(
-			{ _id: params.id },
+			{ _id: id },
 			{
 				...params,
 				...update,
