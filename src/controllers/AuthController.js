@@ -244,7 +244,7 @@ exports.registerWithReferal = async (params) => {
 
 exports.setEmail = async (params) => {
 	try {
-		const { email } = params;
+		const { id, email } = params;
 		if (!validateEmail(email)) {
 			return fail("invalid email address!");
 		}
@@ -259,6 +259,8 @@ exports.setEmail = async (params) => {
 		if (users > 0) {
 			return fail("This email address is already in use!");
 		}
+
+		await User.findOneAndUpdate({ _id: id }, { email, emailVerified: false });
 
 		createEmailVerification(email);
 
