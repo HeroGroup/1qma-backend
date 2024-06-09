@@ -71,7 +71,7 @@ router.get("/dashboard", async (req, res) => {
  *                type: string
  *                default: 6644e9072019def5602933cb
  */
-router.post("/signout", (req, res) => {
+router.post("/logout", (req, res) => {
 	res.json(logout(req.body));
 });
 

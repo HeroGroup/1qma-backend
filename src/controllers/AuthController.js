@@ -523,7 +523,6 @@ exports.verifyMobile = async (params) => {
 				{
 					mobile: params.mobile,
 					mobileVerified: false,
-					$or: [{ inWaitList: false }, { inWaitList: { $exists: false } }],
 				},
 				{ mobileVerified: true }
 			);
