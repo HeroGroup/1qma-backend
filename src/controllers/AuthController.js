@@ -260,11 +260,18 @@ exports.setEmail = async (params) => {
 			return fail("This email address is already in use!");
 		}
 
-		await User.findOneAndUpdate({ _id: id }, { email, emailVerified: false });
+		const user = await User.findOneAndUpdate(
+			{ _id: id },
+			{ email, emailVerified: false },
+			{ new: true }
+		);
 
 		createEmailVerification(email);
 
-		return success("Verification code was sent to your email!", params);
+		return success("Verification code was sent to your email!", {
+			params,
+			user,
+		});
 	} catch (e) {
 		handleException(e);
 	}
