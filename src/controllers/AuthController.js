@@ -16,41 +16,71 @@ exports.init = async () => {
 	const NEXT_VERIFICATION_MINUTES = await Setting.findOne({
 		key: "NEXT_VERIFICATION_MINUTES",
 	});
+	const languages = [{ _id: 0, code: "en", title: "English" }];
+	const genders = [
+		{ _id: 0, title: "Male" },
+		{ _id: 1, title: "Female" },
+		{ _id: 2, title: "prefer not to say" },
+	];
+	const educations = [
+		{
+			_id: 0,
+			title: "Uneducated",
+		},
+		{
+			_id: 1,
+			title: "Bachelor Degree",
+		},
+		{
+			_id: 2,
+			title: "Masters Degree",
+		},
+		{
+			_id: 3,
+			title: "Phd",
+		},
+	];
+	const furthurQuestions = [
+		{
+			question: "Tell us more about yourself",
+			type: "text",
+		},
+		{
+			question: "What do you usually do in your free time?",
+			type: "multiple_options",
+			options: {
+				1: "sport",
+				2: "leasure",
+				3: "reading",
+				4: "watching TV",
+				5: "outing",
+			},
+		},
+		{
+			question: "Maritial Status",
+			type: "single_option",
+			options: {
+				1: "single",
+				2: "married",
+				3: "separated",
+				4: "prefer not to say",
+			},
+		},
+	];
 	const accountTypes = await AccountType.find();
 	const categories = await Category.find();
+
 	return {
 		status: 1,
 		message: "initialize parametes",
 		data: {
-			languages: {
-				en: "English",
-			},
+			languages,
+			genders,
+			educations,
 			categories,
 			accountTypes,
 			nextVerificationMinutes: NEXT_VERIFICATION_MINUTES.value,
-			furthurQuestions: {
-				1: {
-					question: "What do you usually do in your free time?",
-					type: "multiple_options",
-					options: {
-						1: "sport",
-						2: "leasure",
-						3: "reading",
-						4: "watching TV",
-						5: "outing",
-					},
-				},
-				2: {
-					question: "Maritial Status",
-					type: "single_option",
-					options: {
-						1: "single",
-						2: "married",
-						3: "separated",
-						4: "prefer not to say",
-					},
-				},
-			},
+			furthurQuestions,
 		},
 	};
 };
@@ -338,14 +368,14 @@ exports.updateProfile = async (params) => {
 		}
 
 		// check email is available
-		const emailExists = await User.findOne({
-			email: params.email,
-			emailVerified: true,
-			_id: { $ne: params.id },
-		});
-		if (emailExists) {
-			return fail("This email address is already in use!", params);
-		}
+		// const emailExists = await User.findOne({
+		// 	email: params.email,
+		// 	emailVerified: true,
+		// 	_id: { $ne: params.id },
+		// });
+		// if (emailExists) {
+		// 	return fail("This email address is already in use!", params);
+		// }
 
 		// check phone is available
 		const mobileExists = await User.findOne({
@@ -440,8 +470,9 @@ exports.chooseAccountType = async (params) => {
 
 exports.verifyEmail = async (params, updateUser = true) => {
 	try {
+		const { email } = params;
 		// check email is valid
-		if (!validateEmail(params.email)) {
+		if (!validateEmail(email)) {
 			return fail("invalid email address!", params);
 		}
 
@@ -451,7 +482,7 @@ exports.verifyEmail = async (params, updateUser = true) => {
 
 		const verifications = await Verification.find({
 			type: "email",
-			target: params.email,
+			target: email,
 			verificationCode: params.verificationCode,
 			isVerified: false,
 		})
@@ -471,8 +502,12 @@ exports.verifyEmail = async (params, updateUser = true) => {
 		);
 
 		if (updateUser) {
+			const users = await User.find({ email })
+				.sort({ createdAt: -1 })
+				.allowDiskUse();
+
 			await User.findOneAndUpdate(
-				{ email: params.email, emailVerified: false },
+				{ _id: users[0]._id },
 				{ emailVerified: true }
 			);
 		}
@@ -485,8 +520,9 @@ exports.verifyEmail = async (params, updateUser = true) => {
 
 exports.verifyMobile = async (params, updateUser = true) => {
 	try {
-		// check email is valid
-		if (!validateMobile(params.mobile)) {
+		const { mobile } = params;
+		// check mobile is valid
+		if (!validateMobile(mobile)) {
 			return fail("invalid mobile number!", params);
 		}
 
@@ -496,7 +532,7 @@ exports.verifyMobile = async (params, updateUser = true) => {
 
 		const verifications = await Verification.find({
 			type: "mobile",
-			target: params.mobile,
+			target: mobile,
 			verificationCode: params.verificationCode,
 			isVerified: false,
 		})
@@ -516,11 +552,12 @@ exports.verifyMobile = async (params, updateUser = true) => {
 		);
 
 		if (updateUser) {
+			const users = await User.find({ mobile })
+				.sort({ createdAt: -1 })
+				.allowDiskUse();
+
 			await User.findOneAndUpdate(
-				{
-					mobile: params.mobile,
-					mobileVerified: false,
-				},
+				{ _id: users[0]._id },
 				{ mobileVerified: true }
 			);
 		}
