@@ -16,7 +16,7 @@ exports.init = async () => {
 	const NEXT_VERIFICATION_MINUTES = await Setting.findOne({
 		key: "NEXT_VERIFICATION_MINUTES",
 	});
-	const languages = [{ _id: 0, code: "en", title: "English" }];
+	const languages = [{ _id: "0", code: "en", title: "English" }];
 	const genders = [
 		{ _id: "0", title: "Male" },
 		{ _id: "1", title: "Female" },
@@ -394,18 +394,45 @@ exports.updateProfile = async (params) => {
 			update["mobileVerified"] = false;
 		}
 
-		const genders = [
-			{ _id: "0", title: "Male" },
-			{ _id: "1", title: "Female" },
-			{ _id: "2", title: "prefer not to say" },
-		];
-
 		if (params.gender) {
+			const genders = [
+				{ _id: "0", title: "Male" },
+				{ _id: "1", title: "Female" },
+				{ _id: "2", title: "prefer not to say" },
+			];
 			const gender = genders.find((element) => element._id === params.gender);
 			if (!gender) {
 				return fail("invalid gender was selected!", params);
 			}
 			params.gender = gender;
+		}
+
+		if (params.education) {
+			const educations = [
+				{
+					_id: "0",
+					title: "Uneducated",
+				},
+				{
+					_id: "1",
+					title: "Bachelor Degree",
+				},
+				{
+					_id: "2",
+					title: "Masters Degree",
+				},
+				{
+					_id: "3",
+					title: "Phd",
+				},
+			];
+			const education = educations.find(
+				(element) => element._id === params.education
+			);
+			if (!education) {
+				return fail("invalid education was selected", params);
+			}
+			params.education = education;
 		}
 
 		user = await User.findOneAndUpdate(
