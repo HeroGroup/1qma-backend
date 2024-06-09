@@ -12,34 +12,38 @@ const Setting = require("../models/Setting");
 const User = require("../models/User");
 const Verification = require("../models/Verification");
 
+const languages = [{ _id: "0", code: "en", title: "English" }];
+
+const genders = [
+	{ _id: "0", title: "Male" },
+	{ _id: "1", title: "Female" },
+	{ _id: "2", title: "prefer not to say" },
+];
+
+const educations = [
+	{
+		_id: "0",
+		title: "Uneducated",
+	},
+	{
+		_id: "1",
+		title: "Bachelor Degree",
+	},
+	{
+		_id: "2",
+		title: "Masters Degree",
+	},
+	{
+		_id: "3",
+		title: "Phd",
+	},
+];
+
 exports.init = async () => {
 	const NEXT_VERIFICATION_MINUTES = await Setting.findOne({
 		key: "NEXT_VERIFICATION_MINUTES",
 	});
-	const languages = [{ _id: "0", code: "en", title: "English" }];
-	const genders = [
-		{ _id: "0", title: "Male" },
-		{ _id: "1", title: "Female" },
-		{ _id: "2", title: "prefer not to say" },
-	];
-	const educations = [
-		{
-			_id: "0",
-			title: "Uneducated",
-		},
-		{
-			_id: "1",
-			title: "Bachelor Degree",
-		},
-		{
-			_id: "2",
-			title: "Masters Degree",
-		},
-		{
-			_id: "3",
-			title: "Phd",
-		},
-	];
+
 	const furthurQuestions = [
 		{
 			question: "Tell us more about yourself",
@@ -345,7 +349,6 @@ exports.choosePreferedLanguage = async (params) => {
 		return fail("No language was selected!");
 	}
 
-	const languages = [{ _id: "0", code: "en", title: "English" }];
 	const language = languages.find((element) => element._id === params.language);
 
 	if (!language) {
@@ -401,11 +404,6 @@ exports.updateProfile = async (params) => {
 		}
 
 		if (params.gender) {
-			const genders = [
-				{ _id: "0", title: "Male" },
-				{ _id: "1", title: "Female" },
-				{ _id: "2", title: "prefer not to say" },
-			];
 			const gender = genders.find((element) => element._id === params.gender);
 			if (!gender) {
 				return fail("invalid gender was selected!", params);
@@ -414,24 +412,6 @@ exports.updateProfile = async (params) => {
 		}
 
 		if (params.education) {
-			const educations = [
-				{
-					_id: "0",
-					title: "Uneducated",
-				},
-				{
-					_id: "1",
-					title: "Bachelor Degree",
-				},
-				{
-					_id: "2",
-					title: "Masters Degree",
-				},
-				{
-					_id: "3",
-					title: "Phd",
-				},
-			];
 			const education = educations.find(
 				(element) => element._id === params.education
 			);
