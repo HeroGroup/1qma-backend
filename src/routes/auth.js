@@ -167,7 +167,7 @@ router.post("/registerWithReferal", async (req, res) => {
  *      - in: path
  */
 router.post("/setEmail", async (req, res) => {
-	res.json(await setEmail(params));
+	res.json(await setEmail(req.body));
 });
 
 /**
@@ -203,7 +203,7 @@ router.post("/setEmail", async (req, res) => {
  *      - in: path
  */
 router.post("/setPassword", async (req, res) => {
-	res.json(await setPassword(params));
+	res.json(await setPassword(req.body));
 });
 
 /**
