@@ -1,23 +1,26 @@
 const express = require("express");
 const router = express.Router();
 const {
-	joinToWaitList,
+	init,
+	loginWithEmail,
+	joinToWaitListWithEmailAndMobile,
+	joinToWaitListWithMobile,
 	registerWithReferal,
-	updateProfile,
+	setEmail,
 	verifyEmail,
+	setPassword,
+	choosePreferedLanguage,
+	updateProfile,
 	verifyMobile,
+	chooseCategoryPreferences,
+	chooseAccountType,
 	resendEmail,
 	resendMobile,
-	loginWithEmail,
 	updatePasswordThroughEmail,
 	updatePasswordThroughMobile,
-	init,
 	forgotPasswordViaEmail,
 	forgotPasswordViaMobile,
 	signout,
-	chooseCategoryPreferences,
-	chooseAccountType,
-	choosePreferedLanguage,
 } = require("../controllers/AuthController");
 
 /**
@@ -30,58 +33,6 @@ const {
  */
 router.get("/register/init", async (req, res) => {
 	res.json(await init());
-});
-
-/**
- * @openapi
- * '/auth/joinToWaitList':
- *  post:
- *     tags:
- *     - Authentication
- *     summary: User requests to join to waiting list
- *     requestBody:
- *      required: true
- *      content:
- *        application/json:
- *           schema:
- *            type: object
- *            required:
- *              - email
- *              - mobile
- *            properties:
- *              email:
- *                type: string
- *                default: navid@gmail.com
- *              mobile:
- *                type: string
- *                default: +989177048781
- */
-router.post("/joinToWaitList", async (req, res) => {
-	res.json(await joinToWaitList(req.body));
-});
-
-/**
- * @openapi
- * '/auth/registerWithReferal':
- *  post:
- *     tags:
- *     - Authentication
- *     summary: register user with refer code
- *     requestBody:
- *      required: true
- *      content:
- *        application/json:
- *           schema:
- *            type: object
- *            required:
- *              - referer
- *            properties:
- *              referer:
- *                type: string
- *                default: 731086912583
- */
-router.post("/registerWithReferal", async (req, res) => {
-	res.json(await registerWithReferal(req.body));
 });
 
 /**
@@ -110,6 +61,149 @@ router.post("/registerWithReferal", async (req, res) => {
  */
 router.post("/loginWithEmail", async (req, res) => {
 	res.json(await loginWithEmail(req.body));
+});
+
+/**
+ * @openapi
+ * '/auth/joinToWaitListWithEmailAndMobile':
+ *  post:
+ *     tags:
+ *     - Authentication
+ *     summary: User requests to join to waiting list
+ *     requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *           schema:
+ *            type: object
+ *            required:
+ *              - email
+ *              - mobile
+ *            properties:
+ *              email:
+ *                type: string
+ *                default: navid@gmail.com
+ *              mobile:
+ *                type: string
+ *                default: +989177048781
+ */
+router.post("/joinToWaitListWithEmailAndMobile", async (req, res) => {
+	res.json(await joinToWaitListWithEmailAndMobile(req.body));
+});
+
+/**
+ * @openapi
+ * '/auth/joinToWaitListWithMobile':
+ *  post:
+ *     tags:
+ *     - Authentication
+ *     summary: User requests to join to waiting list
+ *     requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *           schema:
+ *            type: object
+ *            required:
+ *              - id
+ *              - mobile
+ *            properties:
+ *              id:
+ *                type: string
+ *                default: 6743850756473839
+ *              mobile:
+ *                type: string
+ *                default: +989177048781
+ */
+router.post("/joinToWaitListWithMobile", async (req, res) => {
+	res.json(await joinToWaitListWithMobile(req.body));
+});
+
+/**
+ * @openapi
+ * '/auth/registerWithReferal':
+ *  post:
+ *     tags:
+ *     - Authentication
+ *     summary: register user with refer code
+ *     requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *           schema:
+ *            type: object
+ *            required:
+ *              - referer
+ *            properties:
+ *              referer:
+ *                type: string
+ *                default: 731086912583
+ */
+router.post("/registerWithReferal", async (req, res) => {
+	res.json(await registerWithReferal(req.body));
+});
+
+/**
+ * @openapi
+ * '/auth/setEmail':
+ *  post:
+ *     tags:
+ *     - Authentication
+ *     summary: set password
+ *     requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *           schema:
+ *            type: object
+ *            properties:
+ *              id:
+ *                type: string
+ *                default: 65784920294752128349
+ *              email:
+ *                type: string
+ *                default: navid@gmail.com
+ *     parameters:
+ *      - in: path
+ */
+router.post("/setEmail", async (req, res) => {
+	res.send(await setEmail(params));
+});
+
+/**
+ * @openapi
+ * '/auth/setPassword':
+ *  post:
+ *     tags:
+ *     - Authentication
+ *     summary: set password
+ *     requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *           schema:
+ *            type: object
+ *            properties:
+ *              id:
+ *                type: string
+ *                default: 65784920294752128349
+ *              email:
+ *                type: string
+ *                default: navid@gmail.com
+ *              verificationCode:
+ *                type: string
+ *                default: 1111
+ *              password:
+ *                type: string
+ *                default: somepassword
+ *              passwordConfirmation:
+ *                type: string
+ *                default: somepassword
+ *     parameters:
+ *      - in: path
+ */
+router.post("/setPassword", async (req, res) => {
+	res.send(await setPassword(params));
 });
 
 /**

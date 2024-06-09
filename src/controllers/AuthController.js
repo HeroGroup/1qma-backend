@@ -55,7 +55,38 @@ exports.init = async () => {
 	};
 };
 
-exports.joinToWaitList = async (params) => {
+exports.loginWithEmail = async (params) => {
+	try {
+		// check email is valid
+		if (!validateEmail(params.email)) {
+			return fail("invalid email address!", params);
+		}
+
+		if (!params.password) {
+			return fail("Enter password!", params);
+		}
+
+		const user = await User.findOne({
+			email: params.email,
+			emailVerified: true,
+			isActive: true,
+		});
+		if (!user || !bcrypt.compareSync(params.password, user.password)) {
+			return fail("Invalid email and password combination!", params);
+		}
+
+		delete user["password"];
+		// delete user["__v"];
+
+		// TODO: send some bearer token as well
+
+		return success("successfull login!", user);
+	} catch (e) {
+		return handleException(e);
+	}
+};
+
+exports.joinToWaitListWithEmailAndMobile = async (params) => {
 	// check email is valid
 	if (!validateEmail(params.email)) {
 		return fail("invalid email address!", params);
@@ -67,14 +98,20 @@ exports.joinToWaitList = async (params) => {
 	}
 
 	// check email is available
-	const emailExists = await User.findOne({ email: params.email });
-	if (emailExists) {
+	const emailExists = await User.countDocuments({
+		email: params.email,
+		emailVerified: true,
+	});
+	if (emailExists > 0) {
 		return fail("This email address is already in use!", params);
 	}
 
 	// check phone is available
-	const mobileExists = await User.findOne({ mobile: params.mobile });
-	if (mobileExists) {
+	const mobileExists = await User.countDocuments({
+		mobile: params.mobile,
+		mobileVerified: true,
+	});
+	if (mobileExists > 0) {
 		return fail("This phone number is already in use!", params);
 	}
 
@@ -99,6 +136,37 @@ exports.joinToWaitList = async (params) => {
 	return success("Verification code was sent to you!", params);
 };
 
+exports.joinToWaitListWithMobile = async (params) => {
+	// check email is valid
+	if (!params.id) {
+		return fail("invalid user id!", params);
+	}
+
+	// check mobile is present and valid
+	if (!validateMobile(params.mobile)) {
+		return fail("Enter a valid mobile phone!", params);
+	}
+
+	// check phone is available
+	const mobileExists = await User.countDocuments({
+		mobile: params.mobile,
+		mobileVerified: true,
+	});
+	if (mobileExists > 0) {
+		return fail("This phone number is already in use!", params);
+	}
+
+	await User.findOneAndUpdate(
+		{ _id: id },
+		{ mobile: params.mobile, mobileVerified: false }
+	);
+
+	// send verification code to mobile
+	createMobileVerification(params.mobile);
+
+	return success("Verification code was sent to your phone!", params);
+};
+
 exports.registerWithReferal = async (params) => {
 	try {
 		const refererUser = await User.findOne({ referCode: params.referer });
@@ -107,7 +175,21 @@ exports.registerWithReferal = async (params) => {
 			return fail("unknown referer!", params);
 		}
 
-		// TODO: check number of people refered
+		// check number of people refered
+		const referedUsersCount = await User.countDocuments({
+			"referer._id": refererUser._id,
+			hasCompletedSignup: true,
+		});
+
+		const maxNumberOfAllowedRefers = await Setting.findOne({
+			key: "MAX_NUMBER_OF_ALLOWED_REFERS",
+		});
+
+		if (referedUsersCount >= maxNumberOfAllowedRefers.value) {
+			return fail(
+				"Unfortunately your referer has reached their maximum allowed invites!"
+			);
+		}
 
 		const newUser = new User({
 			referCode: createReferCode(),
@@ -129,28 +211,83 @@ exports.registerWithReferal = async (params) => {
 	}
 };
 
-exports.loginWithEmail = async (params) => {
+exports.setEmail = async (params) => {
 	try {
-		// check email is valid
-		if (!validateEmail(params.email)) {
-			return fail("invalid email address!", params);
+		const { email } = params;
+		if (!validateEmail(email)) {
+			return fail("invalid email address!");
 		}
 
-		if (!params.password) {
-			return fail("Enter password!", params);
+		// check if email exists
+		const users = await User.countDocuments({
+			email,
+			emailVerified: true,
+			$or: [{ inWaitList: false }, { inWaitList: { $exists: false } }],
+		});
+
+		if (users > 0) {
+			return fail("This email address is already in use!");
 		}
 
-		const user = await User.findOne({ email: params.email, isActive: true });
-		if (!user || !bcrypt.compareSync(params.password, user.password)) {
-			return fail("Invalid email and password combination!", params);
+		createEmailVerification(email);
+		return success("Verification code was sent to your email!", params);
+	} catch (e) {
+		handleException(e);
+	}
+};
+
+exports.setPassword = async (params) => {
+	try {
+		const { id, email, verificationCode, password, passwordConfirmation } =
+			params;
+
+		if (!id) {
+			return fail("invalid user id!");
 		}
 
-		delete user["password"];
-		// delete user["__v"];
+		if (!validateEmail(email)) {
+			return fail("invalid email address!");
+		}
 
-		// TODO: send some bearer token as well
+		if (!password) {
+			return fail("please enter a new password!");
+		}
 
-		return success("successfull login!", user);
+		if (!passwordConfirmation) {
+			return fail("please enter password confirmation!");
+		}
+
+		if (password !== passwordConfirmation) {
+			return fail("password and password confirmation does not match!");
+		}
+
+		let user = await User.findOne({ _id: id });
+		if (!user) {
+			return fail("Invalid user!");
+		}
+
+		const emailVerified = await this.verifyEmail({
+			id,
+			email,
+			verificationCode,
+		});
+		if (emailVerified.status === -1) {
+			return emailVerified;
+		}
+
+		// verification ok
+		// if they were in wait list, delete them from wait list
+		await User.deleteMany({ email, inWaitList: true });
+
+		// update password
+		const newPassword = createHashedPasswordFromPlainText(password);
+		user = await User.findOneAndUpdate(
+			{ _id: id },
+			{ password: newPassword, emailVerified: true },
+			{ new: true }
+		);
+
+		return success("Password was set successfully.", user);
 	} catch (e) {
 		return handleException(e);
 	}
@@ -194,11 +331,6 @@ exports.updateProfile = async (params) => {
 			return fail("Please consider setting a last name!", params);
 		}
 
-		// check email is valid and unique
-		if (!validateEmail(params.email)) {
-			return fail("invalid email address!", params);
-		}
-
 		// check mobile is and valid and unique
 		if (!validateMobile(params.mobile)) {
 			return fail("Enter a valid mobile phone!", params);
@@ -226,23 +358,7 @@ exports.updateProfile = async (params) => {
 
 		let user = await User.findById(params.id);
 
-		if (!params.password) {
-			if (user.password) {
-				// dont update password
-				delete params["password"];
-			} else {
-				return fail("Please consider setting a password!", params);
-			}
-		} else {
-			params.password = createHashedPasswordFromPlainText(params.password);
-		}
-
 		const update = {};
-		// send verification codes
-		if (!user.emailVerified || user.email !== params.email) {
-			createEmailVerification(params.email);
-			update["emailVerified"] = false;
-		}
 		if (!user.mobileVerified || user.mobile !== params.mobile) {
 			createMobileVerification(params.mobile);
 			update["mobileVerified"] = false;
@@ -260,7 +376,7 @@ exports.updateProfile = async (params) => {
 		delete user["password"];
 
 		return success(
-			"Thank you for updating your profile information. Verification messages has been sent to you.",
+			"Thank you for updating your profile information. Verification message has been sent to your phone.",
 			user
 		);
 	} catch (e) {
@@ -353,10 +469,14 @@ exports.verifyEmail = async (params) => {
 			{ isVerified: true }
 		);
 
-		await User.findOneAndUpdate(
-			{ email: params.email },
-			{ emailVerified: true }
-		);
+		if (params.id) {
+			await User.findOneAndUpdate({ _id: params.id }, { emailVerified: true });
+		} else {
+			await User.findOneAndUpdate(
+				{ email: params.email },
+				{ emailVerified: true }
+			);
+		}
 
 		return success("Thank you!", params);
 	} catch (e) {
@@ -396,10 +516,18 @@ exports.verifyMobile = async (params) => {
 			{ isVerified: true }
 		);
 
-		await User.findOneAndUpdate(
-			{ mobile: params.mobile },
-			{ mobileVerified: true }
-		);
+		if (params.id) {
+			await User.findOneAndUpdate({ _id: params.id }, { mobileVerified: true });
+		} else {
+			await User.findOneAndUpdate(
+				{
+					mobile: params.mobile,
+					mobileVerified: false,
+					$or: [{ inWaitList: false }, { inWaitList: { $exists: false } }],
+				},
+				{ mobileVerified: true }
+			);
+		}
 
 		return success("Thank you!", params);
 	} catch (e) {
@@ -474,7 +602,7 @@ exports.updatePasswordThroughEmail = async (params) => {
 	}
 
 	// check if this email has a valid user
-	const user = await User.findOne({ email });
+	const user = await User.findOne({ email, emailVerified: true });
 	if (!user) {
 		return fail("This email address does not exist in our database!");
 	}
@@ -487,7 +615,10 @@ exports.updatePasswordThroughEmail = async (params) => {
 	// verification ok
 	// update password
 	const newPassword = createHashedPasswordFromPlainText(password);
-	await User.findOneAndUpdate({ email }, { password: newPassword });
+	await User.findOneAndUpdate(
+		{ email, $or: [{ inWaitList: { $exists: false } }, { inWaitList: false }] },
+		{ password: newPassword }
+	);
 
 	return success("Password was updated successfully. Please login now!");
 };
@@ -507,7 +638,7 @@ exports.updatePasswordThroughMobile = async (params) => {
 	}
 
 	// check if this mobile has a valid user
-	const user = await User.findOne({ mobile });
+	const user = await User.findOne({ mobile, mobileVerified: true });
 	if (!user) {
 		return fail("This mobile address does not exist in our database!");
 	}
@@ -520,7 +651,13 @@ exports.updatePasswordThroughMobile = async (params) => {
 	// verification ok
 	// update password
 	const newPassword = createHashedPasswordFromPlainText(password);
-	await User.findOneAndUpdate({ mobile }, { password: newPassword });
+	await User.findOneAndUpdate(
+		{
+			mobile,
+			$or: [{ inWaitList: { $exists: false } }, { inWaitList: false }],
+		},
+		{ password: newPassword }
+	);
 
 	return success("Password was updated successfully. Please login now!");
 };
