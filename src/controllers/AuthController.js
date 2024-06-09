@@ -293,7 +293,7 @@ exports.setPassword = async (params) => {
 			return fail("password and password confirmation does not match!");
 		}
 
-		let user = await User.findOne({ _id: id });
+		let user = await User.findById({ id });
 		if (!user) {
 			return fail("Invalid user!");
 		}
