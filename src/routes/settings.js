@@ -5,6 +5,7 @@ const {
 	getSettings,
 	addSetting,
 	updateSetting,
+	deleteSetting,
 } = require("../controllers/SettingController");
 
 /**
@@ -77,6 +78,10 @@ router.post("/add", async (req, res) => {
  */
 router.post("/update", async (req, res) => {
 	res.json(await updateSetting(req.body));
+});
+
+router.post("/delete", async (req, res) => {
+	res.json(await deleteSetting(req.body));
 });
 
 module.exports = router;

@@ -50,3 +50,17 @@ exports.updateSetting = async (params) => {
 		return handleException(e);
 	}
 };
+
+exports.deleteSetting = async (params) => {
+	try {
+		if (!params.id) {
+			return fail("invalid setting id!");
+		}
+
+		await Setting.findOneAndDelete({ _id: params.id });
+
+		return success("Deleted successfully!");
+	} catch (e) {
+		return handleException(e);
+	}
+};
