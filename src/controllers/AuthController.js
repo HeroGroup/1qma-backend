@@ -18,25 +18,25 @@ exports.init = async () => {
 	});
 	const languages = [{ _id: 0, code: "en", title: "English" }];
 	const genders = [
-		{ _id: 0, title: "Male" },
-		{ _id: 1, title: "Female" },
-		{ _id: 2, title: "prefer not to say" },
+		{ _id: "0", title: "Male" },
+		{ _id: "1", title: "Female" },
+		{ _id: "2", title: "prefer not to say" },
 	];
 	const educations = [
 		{
-			_id: 0,
+			_id: "0",
 			title: "Uneducated",
 		},
 		{
-			_id: 1,
+			_id: "1",
 			title: "Bachelor Degree",
 		},
 		{
-			_id: 2,
+			_id: "2",
 			title: "Masters Degree",
 		},
 		{
-			_id: 3,
+			_id: "3",
 			title: "Phd",
 		},
 	];
@@ -338,8 +338,8 @@ exports.choosePreferedLanguage = async (params) => {
 		return fail("No language was selected!");
 	}
 
-	const languages = [{ _id: 0, code: "en", title: "English" }];
-	const language = languages.find((element) => element._id == params.language);
+	const languages = [{ _id: "0", code: "en", title: "English" }];
+	const language = languages.find((element) => element._id === params.language);
 
 	if (!language) {
 		return fail("invalid language was selected!");
@@ -392,6 +392,20 @@ exports.updateProfile = async (params) => {
 		if (!user.mobileVerified || user.mobile !== params.mobile) {
 			createMobileVerification(params.mobile);
 			update["mobileVerified"] = false;
+		}
+
+		const genders = [
+			{ _id: "0", title: "Male" },
+			{ _id: "1", title: "Female" },
+			{ _id: "2", title: "prefer not to say" },
+		];
+
+		if (params.gender) {
+			const gender = genders.find((element) => element._id === params.gender);
+			if (!gender) {
+				return fail("invalid gender was selected!", params);
+			}
+			params.gender = gender;
 		}
 
 		user = await User.findOneAndUpdate(
