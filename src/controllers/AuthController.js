@@ -388,10 +388,9 @@ exports.updateProfile = async (params) => {
 
 		let user = await User.findById(id);
 
-		const update = {};
 		if (!user.mobileVerified || user.mobile !== params.mobile) {
 			createMobileVerification(params.mobile);
-			update["mobileVerified"] = false;
+			params["mobileVerified"] = false;
 		}
 
 		if (params.gender) {
@@ -439,7 +438,6 @@ exports.updateProfile = async (params) => {
 			{ _id: id },
 			{
 				...params,
-				...update,
 			},
 			{ new: true }
 		);
