@@ -230,6 +230,7 @@ exports.setEmail = async (params) => {
 		}
 
 		createEmailVerification(email);
+
 		return success("Verification code was sent to your email!", params);
 	} catch (e) {
 		handleException(e);
@@ -437,7 +438,7 @@ exports.chooseAccountType = async (params) => {
 	return success("Account type updated successfully!", user);
 };
 
-exports.verifyEmail = async (params) => {
+exports.verifyEmail = async (params, updateUser = true) => {
 	try {
 		// check email is valid
 		if (!validateEmail(params.email)) {
@@ -469,11 +470,9 @@ exports.verifyEmail = async (params) => {
 			{ isVerified: true }
 		);
 
-		if (params.id) {
-			await User.findOneAndUpdate({ _id: params.id }, { emailVerified: true });
-		} else {
+		if (updateUser) {
 			await User.findOneAndUpdate(
-				{ email: params.email },
+				{ email: params.email, emailVerified: false },
 				{ emailVerified: true }
 			);
 		}
@@ -484,7 +483,7 @@ exports.verifyEmail = async (params) => {
 	}
 };
 
-exports.verifyMobile = async (params) => {
+exports.verifyMobile = async (params, updateUser = true) => {
 	try {
 		// check email is valid
 		if (!validateMobile(params.mobile)) {
@@ -516,9 +515,7 @@ exports.verifyMobile = async (params) => {
 			{ isVerified: true }
 		);
 
-		if (params.id) {
-			await User.findOneAndUpdate({ _id: params.id }, { mobileVerified: true });
-		} else {
+		if (updateUser) {
 			await User.findOneAndUpdate(
 				{
 					mobile: params.mobile,
