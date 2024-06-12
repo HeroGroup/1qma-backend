@@ -6,6 +6,8 @@ const {
 const User = require("../../models/User");
 const AccountType = require("../../models/AccountType");
 
+const languages = [{ _id: "0", code: "en", title: "English" }];
+
 const genders = [
 	{ _id: "0", title: "Male" },
 	{ _id: "1", title: "Female" },
@@ -31,14 +33,27 @@ const educations = [
 	},
 ];
 
+const homePages = [
+	{
+		id: "/dashboard",
+		name: "Dashboard",
+	},
+	{
+		id: "/games",
+		name: "Games",
+	},
+];
+
 exports.init = async () => {
 	try {
 		const accountTypes = await AccountType.find();
 
 		return success("initialize parameters", {
+			languages,
 			genders,
 			educations,
 			accountTypes,
+			homePages,
 		});
 	} catch (e) {
 		return handleException(e);
@@ -88,6 +103,29 @@ exports.updateProfile = async (params) => {
 		);
 
 		return success("User profile was updated successfully!", user);
+	} catch (e) {
+		return handleException(e);
+	}
+};
+
+exports.updateUserSettings = async (params) => {
+	try {
+		const { id } = params;
+		if (!id) {
+			return fail("invalid user id!");
+		}
+		const user = User.findOneAndUpdate(
+			{ _id: id },
+			{
+				preferedLanguage: params.language,
+				defaultHomePage: params.defaultHomePage,
+			},
+			{
+				new: true,
+			}
+		);
+
+		return success("User settings was updated successfully!", user);
 	} catch (e) {
 		return handleException(e);
 	}

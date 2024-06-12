@@ -23,6 +23,7 @@ const userSchema = new Schema({
 	preferedCategories: Array,
 	accountType: Object,
 	preferedLanguage: String,
+	defaultHomePage: String,
 });
 
 module.exports = mongoose.model("User", userSchema);

@@ -2,7 +2,8 @@ const express = require("express");
 const {
 	init,
 	updateProfile,
-} = require("../controllers/Client/ProfileController");
+	updateUserSettings,
+} = require("../../controllers/Client/ProfileController");
 const router = express.Router();
 
 /**
@@ -19,7 +20,7 @@ router.get("/init", async (req, res) => {
 
 /**
  * @openapi
- * '/client/updateProfile':
+ * '/client/profile/update':
  *  post:
  *     tags:
  *     - Client
@@ -67,8 +68,40 @@ router.get("/init", async (req, res) => {
  *                type: string
  *                default: newpass
  */
-router.post("/updateProfile", async (req, res) => {
+router.post("/profile/update", async (req, res) => {
 	res.json(await updateProfile(req.body));
+});
+
+/**
+ * @openapi
+ * '/client/profile/update':
+ *  post:
+ *     tags:
+ *     - Client
+ *     summary: updates user profile
+ *     requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *           schema:
+ *            type: object
+ *            required:
+ *              - id
+ *              - language
+ *              - defaultHomePage
+ *            properties:
+ *              id:
+ *                type: string
+ *                default: 63738495886737657388948
+ *              language:
+ *                type: string
+ *                default: 0
+ *              defaultHomePage:
+ *                type: string
+ *                default: /dashboard
+ */
+router.post("/settings/update", async (req, res) => {
+	res.json(await updateUserSettings(req.body));
 });
 
 module.exports = router;

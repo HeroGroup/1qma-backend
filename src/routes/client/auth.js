@@ -21,7 +21,7 @@ const {
 	forgotPasswordViaEmail,
 	forgotPasswordViaMobile,
 	signout,
-} = require("../controllers/Client/AuthController");
+} = require("../../controllers/Client/AuthController");
 
 /**
  * @openapi
