@@ -1,5 +1,5 @@
-const AccountType = require("../models/AccountType");
-const { handleException } = require("../helpers/utils");
+const AccountType = require("../../models/AccountType");
+const { handleException } = require("../../helpers/utils");
 
 exports.getAccountTypes = async () => {
 	try {

@@ -15,6 +15,7 @@ const categoriesRoutes = require("./src/routes/categories");
 const indexRoutes = require("./src/routes/index");
 const settingsRoutes = require("./src/routes/settings");
 const usersRoutes = require("./src/routes/users");
+const clientGeneralRoutes = require("./src/routes/general");
 const {
 	sanitizeRequestInputs,
 } = require("./src/middlewares/sanitizeRequestInputs.js");
@@ -49,6 +50,7 @@ app.use("/admin/accountTypes", accountTypesRoutes);
 app.use("/admin/categories", categoriesRoutes);
 app.use("/admin/users", usersRoutes);
 app.use("/admin/settings", settingsRoutes);
+app.use("/client", clientGeneralRoutes);
 app.use("/", indexRoutes);
 
 app.use(

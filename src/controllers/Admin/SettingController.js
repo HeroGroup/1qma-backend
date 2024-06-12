@@ -1,5 +1,5 @@
-const Setting = require("../models/Setting");
-const { handleException } = require("../helpers/utils");
+const Setting = require("../../models/Setting");
+const { handleException } = require("../../helpers/utils");
 
 exports.getSettings = async () => {
 	try {

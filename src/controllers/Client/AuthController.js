@@ -1,16 +1,16 @@
 const bcrypt = require("bcrypt");
-const { validateEmail, validateMobile } = require("../helpers/validator");
+const { validateEmail, validateMobile } = require("../../helpers/validator");
 const {
 	handleException,
 	getRandomInt,
 	createHashedPasswordFromPlainText,
 	createReferCode,
-} = require("../helpers/utils");
-const AccountType = require("../models/AccountType");
-const Category = require("../models/Category");
-const Setting = require("../models/Setting");
-const User = require("../models/User");
-const Verification = require("../models/Verification");
+} = require("../../helpers/utils");
+const AccountType = require("../../models/AccountType");
+const Category = require("../../models/Category");
+const Setting = require("../../models/Setting");
+const User = require("../../models/User");
+const Verification = require("../../models/Verification");
 
 const languages = [{ _id: "0", code: "en", title: "English" }];
 
@@ -74,19 +74,15 @@ exports.init = async () => {
 	const accountTypes = await AccountType.find();
 	const categories = await Category.find();
 
-	return {
-		status: 1,
-		message: "initialize parametes",
-		data: {
-			languages,
-			genders,
-			educations,
-			categories,
-			accountTypes,
-			nextVerificationMinutes: NEXT_VERIFICATION_MINUTES.value,
-			furthurQuestions,
-		},
-	};
+	return success("initialize parametes", {
+		languages,
+		genders,
+		educations,
+		categories,
+		accountTypes,
+		nextVerificationMinutes: NEXT_VERIFICATION_MINUTES.value,
+		furthurQuestions,
+	});
 };
 
 exports.loginWithEmail = async (params) => {

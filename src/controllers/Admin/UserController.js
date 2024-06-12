@@ -1,5 +1,5 @@
-const User = require("../models/User");
-const { handleException } = require("../helpers/utils");
+const User = require("../../models/User");
+const { handleException } = require("../../helpers/utils");
 
 exports.getUsers = async () => {
 	try {

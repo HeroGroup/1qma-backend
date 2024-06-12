@@ -1,5 +1,5 @@
-const Category = require("../models/Category");
-const { handleException } = require("../helpers/utils");
+const Category = require("../../models/Category");
+const { handleException } = require("../../helpers/utils");
 
 exports.getCategories = async () => {
 	try {

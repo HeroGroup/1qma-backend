@@ -1,11 +1,11 @@
 const bcrypt = require("bcrypt");
-const User = require("../models/User");
-const { validateEmail } = require("../helpers/validator");
+const User = require("../../models/User");
+const { validateEmail } = require("../../helpers/validator");
 const {
 	handleException,
 	getRandomInt,
 	createHashedPasswordFromPlainText,
-} = require("../helpers/utils");
+} = require("../../helpers/utils");
 
 exports.login = async (params) => {
 	try {
