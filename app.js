@@ -8,14 +8,14 @@ const { swaggerSpec } = require("./src/services/swagger.js");
 const app = express();
 globalThis.env = require("./env.js");
 
-const authRoutes = require("./src/routes/clinet/auth");
+const authRoutes = require("./src/routes/client/auth");
 const adminRoutes = require("./src/routes/admin/_admin");
 const accountTypesRoutes = require("./src/routes/admin/accountTypes");
 const categoriesRoutes = require("./src/routes/admin/categories");
 const indexRoutes = require("./src/routes/index");
 const settingsRoutes = require("./src/routes/admin/settings");
 const usersRoutes = require("./src/routes/admin/users");
-const clientGeneralRoutes = require("./src/routes/clinet/general");
+const clientGeneralRoutes = require("./src/routes/client/general");
 const {
 	sanitizeRequestInputs,
 } = require("./src/middlewares/sanitizeRequestInputs.js");
