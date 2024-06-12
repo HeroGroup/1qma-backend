@@ -4,6 +4,7 @@ const {
 	createAdminUser,
 	dashboard,
 	logout,
+	updatePassword,
 } = require("../controllers/AdminController");
 const router = express.Router();
 
@@ -49,6 +50,42 @@ router.post("/login", async (req, res) => {
  */
 router.get("/dashboard", async (req, res) => {
 	res.json(await dashboard(req.body));
+});
+
+/**
+ * @openapi
+ * '/admin/updatePassword':
+ *  post:
+ *     tags:
+ *     - Admin
+ *     summary: updates admin password
+ *     requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *           schema:
+ *            type: object
+ *            required:
+ *              - id
+ *              - oldPassword
+ *              - password
+ *              - passwordConfirmation
+ *            properties:
+ *              id:
+ *                type: string
+ *                default: 63738495886737657388948
+ *              oldPassword:
+ *                type: string
+ *                default: admin
+ *              password:
+ *                type: string
+ *                default: newpass
+ *              passwordConfirmation:
+ *                type: string
+ *                default: newpass
+ */
+router.post("/updatePassword", async (req, res) => {
+	res.json(await updatePassword(req.body));
 });
 
 /**

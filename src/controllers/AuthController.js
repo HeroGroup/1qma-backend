@@ -1,5 +1,5 @@
 const bcrypt = require("bcrypt");
-const { validateEmail, validateMobile } = require("../validator");
+const { validateEmail, validateMobile } = require("../helpers/validator");
 const {
 	handleException,
 	getRandomInt,

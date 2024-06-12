@@ -1,4 +1,4 @@
-const { sanitize } = require("../validator");
+const { sanitize } = require("../helpers/validator");
 
 exports.sanitizeRequestInputs = (req, res, next) => {
 	// sanitize inputs

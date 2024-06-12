@@ -1,6 +1,6 @@
 const bcrypt = require("bcrypt");
 const User = require("../models/User");
-const { validateEmail } = require("../validator");
+const { validateEmail } = require("../helpers/validator");
 const {
 	handleException,
 	getRandomInt,
@@ -68,6 +68,44 @@ exports.dashboard = async (params) => {
 		const gamesCount = 0;
 
 		return success("", { usersCount, gamesCount });
+	} catch (e) {
+		return handleException(e);
+	}
+};
+
+exports.updatePassword = async (params) => {
+	try {
+		const { id } = params;
+		if (!params.id) {
+			return fail("invalid user id!");
+		}
+		if (!params.oldPassword) {
+			return fail("Old password is not provided!");
+		}
+		if (!params.password) {
+			return fail("New password is not provided!");
+		}
+		if (!params.passwordConfirmation) {
+			return fail("Password confirmation is not provided!");
+		}
+		if (params.password !== params.passwordConfirmation) {
+			return fail("New password and confirmation are not match!");
+		}
+
+		const user = await User.findById(id);
+		if (!user) {
+			return fail("invalid user!");
+		}
+
+		if (!bcrypt.compareSync(params.oldPassword, user.password)) {
+			return fail("Old password is incorrect!");
+		}
+
+		// update password
+		const newPassword = createHashedPasswordFromPlainText(password);
+		await User.findOneAndUpdate({ _id: id }, { password: newPassword });
+
+		return success("Password was updated successfully! Please login now.");
 	} catch (e) {
 		return handleException(e);
 	}
