@@ -4,7 +4,7 @@ const {
 	addAccountType,
 	updateAccountType,
 	deleteAccountType,
-} = require("../controllers/AccountTypeController");
+} = require("../controllers/Admin/AccountTypeController");
 const router = express.Router();
 
 /**

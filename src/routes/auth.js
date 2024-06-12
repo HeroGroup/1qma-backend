@@ -21,7 +21,7 @@ const {
 	forgotPasswordViaEmail,
 	forgotPasswordViaMobile,
 	signout,
-} = require("../controllers/AuthController");
+} = require("../controllers/Client/AuthController");
 
 /**
  * @openapi
@@ -149,7 +149,7 @@ router.post("/registerWithReferal", async (req, res) => {
  *  post:
  *     tags:
  *     - Authentication
- *     summary: set password
+ *     summary: set email
  *     requestBody:
  *      required: true
  *      content:

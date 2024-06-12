@@ -5,7 +5,7 @@ const {
 	addCategory,
 	updateCategory,
 	deleteCategory,
-} = require("../controllers/CategoryController");
+} = require("../controllers/Admin/CategoryController");
 
 /**
  * @openapi

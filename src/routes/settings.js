@@ -6,7 +6,7 @@ const {
 	addSetting,
 	updateSetting,
 	deleteSetting,
-} = require("../controllers/SettingController");
+} = require("../controllers/Admin/SettingController");
 
 /**
  * @openapi

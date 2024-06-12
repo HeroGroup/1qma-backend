@@ -5,7 +5,7 @@ const {
 	dashboard,
 	logout,
 	updatePassword,
-} = require("../controllers/AdminController");
+} = require("../controllers/Admin/AdminController");
 const router = express.Router();
 
 /**
