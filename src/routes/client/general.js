@@ -74,7 +74,7 @@ router.post("/profile/update", async (req, res) => {
 
 /**
  * @openapi
- * '/client/profile/update':
+ * '/client/settings/update':
  *  post:
  *     tags:
  *     - Client
