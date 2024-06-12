@@ -1,31 +1,31 @@
 const express = require("express");
-const router = express.Router();
 const {
-	getCategories,
-	addCategory,
-	updateCategory,
-	deleteCategory,
-} = require("../controllers/Admin/CategoryController");
+	getAccountTypes,
+	addAccountType,
+	updateAccountType,
+	deleteAccountType,
+} = require("../../controllers/Admin/AccountTypeController");
+const router = express.Router();
 
 /**
  * @openapi
- * '/admin/categories':
+ * '/admin/accountTypes':
  *  get:
  *     tags:
  *     - Admin
- *     summary: get all settings
+ *     summary: get all account types
  */
 router.get("/", async (req, res) => {
-	res.json(await getCategories());
+	res.json(await getAccountTypes());
 });
 
 /**
  * @openapi
- * '/admin/categories/add':
+ * '/admin/accountTypes/add':
  *  post:
  *     tags:
  *     - Admin
- *     summary: add category
+ *     summary: add account type
  *     requestBody:
  *      required: true
  *      content:
@@ -37,21 +37,21 @@ router.get("/", async (req, res) => {
  *            properties:
  *              name:
  *                type: string
- *                default: History
+ *                default: Basic
  *              icon:
  *                type: file
  */
 router.post("/add", async (req, res) => {
-	res.json(await addCategory(req.body));
+	res.json(await addAccountType(req.body));
 });
 
 /**
  * @openapi
- * '/admin/categories/update':
+ * '/admin/accountTypes/update':
  *  post:
  *     tags:
  *     - Admin
- *     summary: update category
+ *     summary: update account type
  *     requestBody:
  *      required: true
  *      content:
@@ -68,21 +68,21 @@ router.post("/add", async (req, res) => {
  *                default: 664ef9c67e591d53fdf65f0b
  *              name:
  *                type: string
- *                default: Free Discussion
+ *                default: Bussiness
  *              icon:
  *                type: file
  */
 router.post("/update", async (req, res) => {
-	res.json(await updateCategory(req.body));
+	res.json(await updateAccountType(req.body));
 });
 
 /**
  * @openapi
- * '/admin/categories/delete':
+ * '/admin/accountTypes/delete':
  *  post:
  *     tags:
  *     - Admin
- *     summary: delete category
+ *     summary: delete account type
  *     requestBody:
  *      required: true
  *      content:
@@ -97,7 +97,7 @@ router.post("/update", async (req, res) => {
  *                default: 664ef9c67e591d53fdf65f0b
  */
 router.post("/delete", async (req, res) => {
-	res.json(await deleteCategory(req.body));
+	res.json(await deleteAccountType(req.body));
 });
 
 module.exports = router;

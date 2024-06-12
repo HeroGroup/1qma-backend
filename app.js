@@ -9,12 +9,12 @@ const app = express();
 globalThis.env = require("./env.js");
 
 const authRoutes = require("./src/routes/auth");
-const adminRoutes = require("./src/routes/_admin");
-const accountTypesRoutes = require("./src/routes/accountTypes");
-const categoriesRoutes = require("./src/routes/categories");
+const adminRoutes = require("./src/routes/admin/_admin");
+const accountTypesRoutes = require("./src/routes/admin/accountTypes");
+const categoriesRoutes = require("./src/routes/admin/categories");
 const indexRoutes = require("./src/routes/index");
-const settingsRoutes = require("./src/routes/settings");
-const usersRoutes = require("./src/routes/users");
+const settingsRoutes = require("./src/routes/admin/settings");
+const usersRoutes = require("./src/routes/admin/users");
 const clientGeneralRoutes = require("./src/routes/general");
 const {
 	sanitizeRequestInputs,
