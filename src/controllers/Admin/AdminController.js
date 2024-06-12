@@ -75,7 +75,7 @@ exports.dashboard = async (params) => {
 
 exports.updatePassword = async (params) => {
 	try {
-		const { id, oldPassword, password, passwordConfirmation } = params;
+		const { id, currentPassword, password, passwordConfirmation } = params;
 		if (!id) {
 			return fail("invalid user id!");
 		}
@@ -85,11 +85,11 @@ exports.updatePassword = async (params) => {
 			return fail("invalid user!");
 		}
 
-		if (!oldPassword) {
+		if (!currentPassword) {
 			return fail("Old password is not provided!");
 		}
 
-		if (!bcrypt.compareSync(oldPassword, user.password)) {
+		if (!bcrypt.compareSync(currentPassword, user.password)) {
 			return fail("Old password is incorrect!");
 		}
 

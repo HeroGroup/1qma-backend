@@ -5,7 +5,7 @@ const {
 	getUsers,
 	toggleActive,
 	deleteUser,
-} = require("../controllers/UserController");
+} = require("../controllers/Admin/UserController");
 
 /**
  * @openapi

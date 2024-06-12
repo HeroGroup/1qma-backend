@@ -57,7 +57,7 @@ router.get("/init", async (req, res) => {
  *              city:
  *                type: string
  *                default: Shiraz
- *              oldPassword:
+ *              currentPassword:
  *                type: string
  *                default: admin
  *              password:

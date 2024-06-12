@@ -67,14 +67,14 @@ router.get("/dashboard", async (req, res) => {
  *            type: object
  *            required:
  *              - id
- *              - oldPassword
+ *              - currentPassword
  *              - password
  *              - passwordConfirmation
  *            properties:
  *              id:
  *                type: string
  *                default: 63738495886737657388948
- *              oldPassword:
+ *              currentPassword:
  *                type: string
  *                default: admin
  *              password:

@@ -47,7 +47,7 @@ exports.init = async () => {
 
 exports.updateProfile = async (params) => {
 	try {
-		const { id, oldPassword, password, passwordConfirmation } = params;
+		const { id, currentPassword, password, passwordConfirmation } = params;
 		if (!id) {
 			return fail("invalid user id!");
 		}
@@ -67,8 +67,8 @@ exports.updateProfile = async (params) => {
 			accountType: params.accountType,
 		};
 
-		if (oldPassword && password && passwordConfirmation) {
-			if (!bcrypt.compareSync(oldPassword, user.password)) {
+		if (currentPassword && password && passwordConfirmation) {
+			if (!bcrypt.compareSync(currentPassword, user.password)) {
 				return fail("current password is incorrect!");
 			}
 

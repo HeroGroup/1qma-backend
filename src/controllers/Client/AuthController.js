@@ -74,7 +74,7 @@ exports.init = async () => {
 	const accountTypes = await AccountType.find();
 	const categories = await Category.find();
 
-	return success("initialize parametes", {
+	return success("initialize parameters", {
 		languages,
 		genders,
 		educations,
