@@ -3,7 +3,14 @@ const {
 	init,
 	updateProfile,
 	updateUserSettings,
-} = require("../../controllers/Client/ProfileController");
+} = require("../../controllers/Client/ClientController");
+const {
+	updateProfilePicture,
+} = require("../../controllers/Client/ClientController");
+const {
+	removeProfilePicture,
+} = require("../../controllers/Client/ClientController");
+const { dashboard } = require("../../controllers/Client/ClientController");
 const router = express.Router();
 
 /**
@@ -67,6 +74,9 @@ router.get("/init", async (req, res) => {
  *              passwordConfirmation:
  *                type: string
  *                default: newpass
+ *              accountType:
+ *                type: string
+ *                default: 6758323993485732626
  */
 router.post("/profile/update", async (req, res) => {
 	res.json(await updateProfile(req.body));
@@ -102,6 +112,18 @@ router.post("/profile/update", async (req, res) => {
  */
 router.post("/settings/update", async (req, res) => {
 	res.json(await updateUserSettings(req.body));
+});
+
+router.post("/profilePicture/update", async (req, res) => {
+	res.json(updateProfilePicture(req.body));
+});
+
+router.post("/profilePicture/remove", async (req, res) => {
+	res.json(removeProfilePicture(req.body));
+});
+
+router.get("/dashboard", async (req, res) => {
+	res.json(dashboard(req.body));
 });
 
 module.exports = router;

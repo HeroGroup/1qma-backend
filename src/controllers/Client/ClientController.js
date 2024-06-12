@@ -130,3 +130,9 @@ exports.updateUserSettings = async (params) => {
 		return handleException(e);
 	}
 };
+
+exports.updateProfilePicture = async (params) => {};
+
+exports.removeProfilePicture = async (params) => {};
+
+exports.dashboard = async (params) => {};
