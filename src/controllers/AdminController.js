@@ -75,21 +75,9 @@ exports.dashboard = async (params) => {
 
 exports.updatePassword = async (params) => {
 	try {
-		const { id } = params;
-		if (!params.id) {
+		const { id, oldPassword, password, passwordConfirmation } = params;
+		if (!id) {
 			return fail("invalid user id!");
-		}
-		if (!params.oldPassword) {
-			return fail("Old password is not provided!");
-		}
-		if (!params.password) {
-			return fail("New password is not provided!");
-		}
-		if (!params.passwordConfirmation) {
-			return fail("Password confirmation is not provided!");
-		}
-		if (params.password !== params.passwordConfirmation) {
-			return fail("New password and confirmation are not match!");
 		}
 
 		const user = await User.findById(id);
@@ -97,8 +85,22 @@ exports.updatePassword = async (params) => {
 			return fail("invalid user!");
 		}
 
-		if (!bcrypt.compareSync(params.oldPassword, user.password)) {
+		if (!oldPassword) {
+			return fail("Old password is not provided!");
+		}
+
+		if (!bcrypt.compareSync(oldPassword, user.password)) {
 			return fail("Old password is incorrect!");
+		}
+
+		if (!password) {
+			return fail("New password is not provided!");
+		}
+		if (!passwordConfirmation) {
+			return fail("Password confirmation is not provided!");
+		}
+		if (password !== passwordConfirmation) {
+			return fail("New password and confirmation are not match!");
 		}
 
 		// update password
