@@ -480,15 +480,19 @@ exports.chooseAccountType = async (params) => {
 		key: "MAX_NUMBER_OF_ALLOWED_REFERS",
 	});
 
+	const defaultNumberOfBronzeCoins = await Setting.findOne({
+		key: "DEFAULT_NUMBER_OF_BRONZE_COINS",
+	});
+
 	const user = await User.findOneAndUpdate(
 		{ _id: idParam },
 		{
 			accountType: { _id: accountType._id, name: accountType.name },
 			hasCompletedSignup: true,
-			invitesLeft: initialMaxNumberOfAllowedRefers.value,
+			invitesLeft: initialMaxNumberOfAllowedRefers?.value || 0,
 			assets: {
 				coins: {
-					bronze: 5,
+					bronze: defaultNumberOfBronzeCoins?.value || 0,
 					silver: 0,
 					gold: 0,
 				},

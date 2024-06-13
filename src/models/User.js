@@ -24,6 +24,10 @@ const userSchema = new Schema({
 	accountType: Object,
 	preferedLanguage: String,
 	defaultHomePage: String,
+	profilePicture: String,
+	assets: Array,
+	invitations: Array,
+	invitesLeft: String,
 });
 
 module.exports = mongoose.model("User", userSchema);
