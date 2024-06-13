@@ -27,8 +27,8 @@ exports.login = async (params) => {
 			return fail("Invalid email and password combination!", params);
 		}
 
-		delete user["password"];
-		// delete user["__v"];
+		delete user.password;
+		delete user.__v;
 
 		// TODO: send some bearer token as well
 

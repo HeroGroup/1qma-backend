@@ -105,8 +105,8 @@ exports.loginWithEmail = async (params) => {
 			return fail("Invalid email and password combination!", params);
 		}
 
-		delete user["password"];
-		// delete user["__v"];
+		delete user.password;
+		delete user.__v;
 
 		// TODO: send some bearer token as well
 
@@ -425,7 +425,7 @@ exports.updateProfile = async (params) => {
 			{ new: true }
 		);
 
-		delete user["password"];
+		delete user.password;
 
 		return success(
 			"Thank you for updating your profile information. Verification message has been sent to your phone.",
@@ -476,11 +476,23 @@ exports.chooseAccountType = async (params) => {
 		return fail("Invalid account type was selected!");
 	}
 
+	const initialMaxNumberOfAllowedRefers = await Setting.findOne({
+		key: "MAX_NUMBER_OF_ALLOWED_REFERS",
+	});
+
 	const user = await User.findOneAndUpdate(
 		{ _id: idParam },
 		{
 			accountType: { _id: accountType._id, name: accountType.name },
 			hasCompletedSignup: true,
+			invitesLeft: initialMaxNumberOfAllowedRefers.value,
+			assets: {
+				coins: {
+					bronze: 5,
+					silver: 0,
+					gold: 0,
+				},
+			},
 			isActive: true,
 		},
 		{ new: true }
