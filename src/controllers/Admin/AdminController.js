@@ -23,9 +23,17 @@ exports.login = async (params) => {
 			userType: "admin",
 			isActive: true,
 		});
-		if (!user || !bcrypt.compareSync(params.password, user.password)) {
+		if (!user) {
 			return fail("Invalid email and password combination!", params);
 		}
+		bcrypt.compare(params.password, user.password, (err, same) => {
+			if (err) {
+				return fail(err.message);
+			}
+			if (!same) {
+				return fail("Invalid email and password combination!", params);
+			}
+		});
 
 		delete user.password;
 		delete user.__v;
@@ -89,9 +97,14 @@ exports.updatePassword = async (params) => {
 			return fail("Old password is not provided!");
 		}
 
-		if (!bcrypt.compareSync(currentPassword, user.password)) {
-			return fail("Old password is incorrect!");
-		}
+		bcrypt.compare(currentPassword, user.password, (err, same) => {
+			if (err) {
+				return fail(err.message);
+			}
+			if (!same) {
+				return fail("Old password is incorrect!");
+			}
+		});
 
 		if (!password) {
 			return fail("New password is not provided!");

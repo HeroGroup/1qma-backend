@@ -101,9 +101,18 @@ exports.loginWithEmail = async (params) => {
 			emailVerified: true,
 			isActive: true,
 		});
-		if (!user || !bcrypt.compareSync(params.password, user.password)) {
+		if (!user) {
 			return fail("Invalid email and password combination!", params);
 		}
+
+		bcrypt.compare(params.password, user.password, (err, same) => {
+			if (err) {
+				return fail(err.message);
+			}
+			if (!same) {
+				return fail("Invalid email and password combination!", params);
+			}
+		});
 
 		delete user.password;
 		delete user.__v;
