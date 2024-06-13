@@ -3,14 +3,10 @@ const {
 	init,
 	updateProfile,
 	updateUserSettings,
-} = require("../../controllers/Client/ClientController");
-const {
 	updateProfilePicture,
-} = require("../../controllers/Client/ClientController");
-const {
 	removeProfilePicture,
+	dashboard,
 } = require("../../controllers/Client/ClientController");
-const { dashboard } = require("../../controllers/Client/ClientController");
 const router = express.Router();
 
 /**
