@@ -82,7 +82,7 @@ exports.updateProfile = async (params) => {
 			accountType: params.accountType,
 		};
 
-		if (currentPassword && password && passwordConfirmation) {
+		if (currentPassword && password && passwordConfirmation && user.password) {
 			if (!bcrypt.compareSync(currentPassword, user.password)) {
 				return fail("current password is incorrect!");
 			}
