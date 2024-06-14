@@ -4,6 +4,7 @@ const { Schema } = mongoose;
 const userSchema = new Schema({
 	firstName: String,
 	lastName: String,
+	anonymousName: String,
 	email: String,
 	mobile: String,
 	emailVerified: Boolean,
@@ -26,8 +27,8 @@ const userSchema = new Schema({
 	defaultHomePage: String,
 	profilePicture: String,
 	assets: Array,
+	maxInvites: String,
 	invitations: Array,
-	invitesLeft: String,
 });
 
 module.exports = mongoose.model("User", userSchema);

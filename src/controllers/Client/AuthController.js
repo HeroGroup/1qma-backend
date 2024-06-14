@@ -1,10 +1,10 @@
-const bcrypt = require("bcrypt");
 const { validateEmail, validateMobile } = require("../../helpers/validator");
 const {
 	handleException,
 	getRandomInt,
 	createHashedPasswordFromPlainText,
 	createReferCode,
+	checkSame,
 } = require("../../helpers/utils");
 const AccountType = require("../../models/AccountType");
 const Category = require("../../models/Category");
@@ -101,21 +101,29 @@ exports.loginWithEmail = async (params) => {
 			emailVerified: true,
 			isActive: true,
 		});
-		if (!user) {
+		if (!user || !checkSame(params.password, user.password)) {
 			return fail("Invalid email and password combination!", params);
 		}
 
-		bcrypt.compare(params.password, user.password, (err, same) => {
-			if (err) {
-				return fail(err.message);
-			}
-			if (!same) {
-				return fail("Invalid email and password combination!", params);
-			}
-		});
-
 		delete user.password;
 		delete user.__v;
+
+		// add some additional data to user
+		const statistics = {
+			level: 32,
+			xpNeededForNextLevel: 300,
+			totalXP: 1640,
+			totalScore: 2480,
+		};
+		const games = {
+			played: 325,
+			created: 184,
+			won: 325,
+			highScore: 310,
+		};
+
+		user.statistics = statistics;
+		user.gamaes = games;
 
 		// TODO: send some bearer token as well
 
@@ -214,25 +222,19 @@ exports.registerWithReferal = async (params) => {
 			return fail("unknown referer!", params);
 		}
 
-		// check number of people refered
-		const referedUsersCount = await User.countDocuments({
-			"referer._id": refererUser._id,
-			emailVerified: true,
-			mobileVerified: true,
-		});
-
-		const maxNumberOfAllowedRefers = await Setting.findOne({
-			key: "MAX_NUMBER_OF_ALLOWED_REFERS",
-		});
-
-		if (referedUsersCount >= maxNumberOfAllowedRefers.value) {
+		const maxInvites = refererUser.maxInvites || 0;
+		const invites = refererUser.invitations?.length || 0;
+		const invitesLeft = maxInvites - invites;
+		if (!(invitesLeft > 0)) {
 			return fail(
 				"Unfortunately your referer has reached their maximum allowed invites!"
 			);
 		}
 
+		const referCode = createReferCode();
 		const newUser = new User({
-			referCode: createReferCode(),
+			anonymousName: `user_${referCode}`,
+			referCode,
 			referer: {
 				_id: refererUser._id,
 				firstName: refererUser.firstName,
@@ -496,9 +498,15 @@ exports.chooseAccountType = async (params) => {
 	const user = await User.findOneAndUpdate(
 		{ _id: idParam },
 		{
-			accountType: { _id: accountType._id, name: accountType.name },
+			accountType: {
+				_id: accountType._id,
+				name: accountType.name,
+				icon: accountType.icon,
+				startDate: moment(),
+				expireDays: 30,
+			},
 			hasCompletedSignup: true,
-			invitesLeft: initialMaxNumberOfAllowedRefers?.value || 0,
+			maxInvites: initialMaxNumberOfAllowedRefers?.value || 0,
 			assets: {
 				coins: {
 					bronze: defaultNumberOfBronzeCoins?.value || 0,
@@ -777,7 +785,7 @@ const createEmailVerification = async (email) => {
 
 	verification.save();
 
-	// send email
+	// TODO: send email
 
 	return success("Verification code was sent to you!");
 };
@@ -818,7 +826,7 @@ const createMobileVerification = async (mobile) => {
 
 	verification.save();
 
-	// send sms
+	// TODO: send sms
 
 	return success("Verification code was sent to you!");
 };

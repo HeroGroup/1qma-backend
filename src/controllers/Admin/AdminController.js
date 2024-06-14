@@ -1,10 +1,10 @@
-const bcrypt = require("bcrypt");
 const User = require("../../models/User");
 const { validateEmail } = require("../../helpers/validator");
 const {
 	handleException,
 	getRandomInt,
 	createHashedPasswordFromPlainText,
+	checkSame,
 } = require("../../helpers/utils");
 
 exports.login = async (params) => {
@@ -23,17 +23,10 @@ exports.login = async (params) => {
 			userType: "admin",
 			isActive: true,
 		});
-		if (!user) {
+
+		if (!user || !checkSame(params.password, user.password)) {
 			return fail("Invalid email and password combination!", params);
 		}
-		bcrypt.compare(params.password, user.password, (err, same) => {
-			if (err) {
-				return fail(err.message);
-			}
-			if (!same) {
-				return fail("Invalid email and password combination!", params);
-			}
-		});
 
 		delete user.password;
 		delete user.__v;
@@ -93,18 +86,17 @@ exports.updatePassword = async (params) => {
 			return fail("invalid user!");
 		}
 
+		if (!user.password) {
+			return fail("You havae not set password yet!");
+		}
+
 		if (!currentPassword) {
 			return fail("Old password is not provided!");
 		}
 
-		bcrypt.compare(currentPassword, user.password, (err, same) => {
-			if (err) {
-				return fail(err.message);
-			}
-			if (!same) {
-				return fail("Old password is incorrect!");
-			}
-		});
+		if (!checkSame(currentPassword, user.password)) {
+			return fail("Old password is incorrect!");
+		}
 
 		if (!password) {
 			return fail("New password is not provided!");

@@ -26,3 +26,13 @@ exports.createReferCode = () => {
 		9999
 	)}${this.getRandomInt(999, 9999)}`;
 };
+
+exports.checkSame = (text, password) => {
+	if (!text || !password) {
+		return false;
+	}
+
+	bcrypt.compare(text, password, (err, result) => {
+		return result;
+	});
+};

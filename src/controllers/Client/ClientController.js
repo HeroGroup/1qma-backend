@@ -1,7 +1,7 @@
-const bcrypt = require("bcrypt");
 const {
 	handleException,
 	createHashedPasswordFromPlainText,
+	checkSame,
 } = require("../../helpers/utils");
 const User = require("../../models/User");
 const AccountType = require("../../models/AccountType");
@@ -83,14 +83,9 @@ exports.updateProfile = async (params) => {
 		};
 
 		if (currentPassword && password && passwordConfirmation && user.password) {
-			bcrypt.compare(currentPassword, user.password, (err, same) => {
-				if (err) {
-					return fail(err.message);
-				}
-				if (!same) {
-					return fail("current password is incorrect!");
-				}
-			});
+			if (!checkSame(currentPassword, user.password)) {
+				return fail("current password is incorrect!");
+			}
 
 			if (password !== passwordConfirmation) {
 				return fail("password and password confirmation does not match!");
@@ -139,5 +134,3 @@ exports.updateUserSettings = async (params) => {
 exports.updateProfilePicture = async (params) => {};
 
 exports.removeProfilePicture = async (params) => {};
-
-exports.dashboard = async (params) => {};

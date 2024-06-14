@@ -5,7 +5,6 @@ const {
 	updateUserSettings,
 	updateProfilePicture,
 	removeProfilePicture,
-	dashboard,
 } = require("../../controllers/Client/ClientController");
 const router = express.Router();
 
@@ -116,10 +115,6 @@ router.post("/profilePicture/update", async (req, res) => {
 
 router.post("/profilePicture/remove", async (req, res) => {
 	res.json(removeProfilePicture(req.body));
-});
-
-router.get("/dashboard", async (req, res) => {
-	res.json(dashboard(req.body));
 });
 
 module.exports = router;
