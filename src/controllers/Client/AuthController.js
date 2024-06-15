@@ -249,7 +249,7 @@ exports.registerWithReferal = async (params) => {
 
 		await User.findOneAndUpdate(
 			{ _id: refererUser._id },
-			{ $push: { invitations: newUser._id } }
+			{ $push: { invitations: { _id: newUser._id } } }
 		);
 
 		return success("New User was created successfully!", newUser);
