@@ -32,7 +32,5 @@ exports.checkSame = (text, password) => {
 		return false;
 	}
 
-	bcrypt.compare(text, password, (err, result) => {
-		return result;
-	});
+	return bcrypt.compareSync(text, password);
 };
