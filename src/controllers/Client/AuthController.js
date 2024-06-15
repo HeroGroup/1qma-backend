@@ -222,7 +222,7 @@ exports.registerWithReferal = async (params) => {
 			return fail("unknown referer!", params);
 		}
 
-		const maxInvites = refererUser.maxInvites || 0;
+		const maxInvites = refererUser.maxInvites || 5;
 		const invites = refererUser.invitations?.length || 0;
 		const invitesLeft = maxInvites - invites;
 		if (!(invitesLeft > 0)) {
@@ -246,6 +246,11 @@ exports.registerWithReferal = async (params) => {
 		});
 
 		await newUser.save();
+
+		await User.findOneAndUpdate(
+			{ _id: refererUser._id },
+			{ $push: { invitations: newUser._id } }
+		);
 
 		return success("New User was created successfully!", newUser);
 	} catch (e) {
