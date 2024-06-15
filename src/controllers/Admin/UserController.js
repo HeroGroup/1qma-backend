@@ -29,6 +29,14 @@ exports.toggleActive = async (params) => {
 
 exports.deleteUser = async (params) => {
 	try {
+		if (params.which && params.which == "all") {
+			const res = await User.deleteMany({
+				userType: { $ne: "admin" },
+			});
+
+			return success(`${res.deletedCount} users were removed successfully!`);
+		}
+
 		if (!params.id) {
 			return fail("invalid user id");
 		}
