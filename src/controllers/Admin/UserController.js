@@ -1,4 +1,5 @@
 const User = require("../../models/User");
+const Verification = require("../../models/Verification");
 const { handleException } = require("../../helpers/utils");
 
 exports.getUsers = async () => {
@@ -34,7 +35,11 @@ exports.deleteUser = async (params) => {
 				userType: { $ne: "admin" },
 			});
 
-			return success(`${res.deletedCount} users were removed successfully!`);
+			const res2 = await Verification.deleteMany();
+
+			return success(
+				`${res.deletedCount} users and ${res2.deletedCount} verifications were removed successfully!`
+			);
 		}
 
 		if (!params.id) {
