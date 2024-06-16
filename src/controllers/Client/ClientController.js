@@ -116,7 +116,7 @@ exports.updateUserSettings = async (params) => {
 		if (!id) {
 			return fail("invalid user id!");
 		}
-		const user = User.findOneAndUpdate(
+		const user = await User.findOneAndUpdate(
 			{ _id: id },
 			{
 				preferedLanguage: params.language,
