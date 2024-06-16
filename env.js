@@ -1,7 +1,7 @@
 module.exports = {
 	environment: process.env.ENVIRONMENT || "staging",
 	appName: process.env.APP_NAME || "1QMA Games",
-	apprl: process.env.APP_URL || "http://localhost:3000",
+	appUrl: process.env.APP_URL || "http://localhost:3000",
 	port: process.env.PORT || 3000,
 	dbHost: process.env.DB_HOST || "127.0.0.1",
 	dbName: process.env.DB_NAME || "1qma",

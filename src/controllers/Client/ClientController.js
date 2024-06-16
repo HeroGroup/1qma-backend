@@ -1,3 +1,5 @@
+const { unlink } = require("node:fs");
+
 const {
 	handleException,
 	createHashedPasswordFromPlainText,
@@ -131,6 +133,62 @@ exports.updateUserSettings = async (params) => {
 	}
 };
 
-exports.updateProfilePicture = async (params) => {};
+exports.updateProfilePicture = async (params, avatar) => {
+	try {
+		const { id } = params;
+		if (!id) {
+			return fail("invalid user id!");
+		}
+		if (!avatar) {
+			return fail("invalid avatar!");
+		}
 
-exports.removeProfilePicture = async (params) => {};
+		let user = User.findById(id);
+		if (!user) {
+			return fail("invalid user!");
+		}
+
+		avatar.path = avatar.path.replace("public/", "");
+
+		user = await User.findOneAndUpdate(
+			{ _id: id },
+			{ profilePicture: avatar.path },
+			{ new: true }
+		);
+		return success("profile picture updated successfully!", user);
+	} catch (e) {
+		return handleException(e);
+	}
+};
+
+exports.removeProfilePicture = async (params) => {
+	try {
+		const { id } = params;
+		if (!id) {
+			return fail("invalid user id!");
+		}
+
+		let user = await User.findById(id);
+		if (!user) {
+			return fail("invalid user!");
+		}
+
+		if (user.profilePicture) {
+			const fileToUnlink = `${__basedir}/public/${user.profilePicture}`;
+			unlink(fileToUnlink, function (err) {
+				if (err) throw err;
+				console.log(`${fileToUnlink} removed successfully!`);
+			});
+		}
+
+		user = await User.findOneAndUpdate(
+			{ _id: id },
+			{ profilePicture: "" },
+			{ new: true }
+		);
+
+		return success("profile picture removed successfully!", user);
+	} catch (e) {
+		return handleException(e);
+	}
+};

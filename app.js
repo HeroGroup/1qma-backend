@@ -20,6 +20,7 @@ const {
 	sanitizeRequestInputs,
 } = require("./src/middlewares/sanitizeRequestInputs.js");
 
+globalThis.__basedir = __dirname;
 globalThis.moment = require("moment");
 globalThis.success = (message, data) => {
 	return {
@@ -52,6 +53,7 @@ app.use("/admin/users", usersRoutes);
 app.use("/admin/settings", settingsRoutes);
 app.use("/client", clientGeneralRoutes);
 app.use("/", indexRoutes);
+app.use(express.static("public"));
 
 app.use(
 	"/api-docs",

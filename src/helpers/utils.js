@@ -34,3 +34,8 @@ exports.checkSame = (text, password) => {
 
 	return bcrypt.compareSync(text, password);
 };
+
+exports.validateImageFileType = (extension) => {
+	const filetypes = /jpeg|jpg|png|gif/;
+	return filetypes.test(extension.toLowerCase());
+};

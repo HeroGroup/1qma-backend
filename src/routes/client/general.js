@@ -1,6 +1,9 @@
 const express = require("express");
+const imageUpload = require("../../services/imageUpload");
+
 const {
 	init,
+	getClientProfilePicture,
 	updateProfile,
 	updateUserSettings,
 	updateProfilePicture,
@@ -109,12 +112,60 @@ router.post("/settings/update", async (req, res) => {
 	res.json(await updateUserSettings(req.body));
 });
 
-router.post("/profilePicture/update", async (req, res) => {
-	res.json(updateProfilePicture(req.body));
-});
+/**
+ * @openapi
+ * '/client/profilePicture/update':
+ *  post:
+ *     tags:
+ *     - Client
+ *     summary: updates user profile picture
+ *     requestBody:
+ *      required: true
+ *      content:
+ *        multipart/form-data:
+ *           schema:
+ *            type: object
+ *            required:
+ *              - id
+ *              - avatar
+ *            properties:
+ *              id:
+ *                type: string
+ *                default: 63738495886737657388948
+ *              avatar:
+ *                type: string
+ *                format: binary
+ */
+router.post(
+	"/profilePicture/update",
+	imageUpload.single("avatar"),
+	async (req, res) => {
+		res.json(await updateProfilePicture(req.body, req.file));
+	}
+);
 
+/**
+ * @openapi
+ * '/client/profilePicture/remove':
+ *  post:
+ *     tags:
+ *     - Client
+ *     summary: removes user profile picture
+ *     requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *           schema:
+ *            type: object
+ *            required:
+ *              - id
+ *            properties:
+ *              id:
+ *                type: string
+ *                default: 63738495886737657388948
+ */
 router.post("/profilePicture/remove", async (req, res) => {
-	res.json(removeProfilePicture(req.body));
+	res.json(await removeProfilePicture(req.body));
 });
 
 module.exports = router;

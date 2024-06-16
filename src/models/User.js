@@ -26,7 +26,7 @@ const userSchema = new Schema({
 	preferedLanguage: String,
 	defaultHomePage: String,
 	profilePicture: String,
-	assets: Array,
+	assets: Object,
 	maxInvites: String,
 	invitations: Array,
 });
