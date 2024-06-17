@@ -1,5 +1,5 @@
 const AccountType = require("../../models/AccountType");
-const { handleException } = require("../../helpers/utils");
+const { handleException, removeFile } = require("../../helpers/utils");
 
 exports.getAccountTypes = async () => {
 	try {
@@ -14,14 +14,20 @@ exports.getAccountTypes = async () => {
 	}
 };
 
-exports.addAccountType = async (params) => {
+exports.addAccountType = async (params, icon) => {
 	try {
-		if (!params.name) {
+		const { name } = params;
+		if (!name) {
 			return fail("Invalid account type name!");
 		}
 
+		if (icon) {
+			icon.path = icon.path.replace("public/", "");
+		}
+
 		const accountType = new AccountType({
-			name: params.name,
+			name,
+			icon: icon?.path || "",
 		});
 		await accountType.save();
 
@@ -31,15 +37,25 @@ exports.addAccountType = async (params) => {
 	}
 };
 
-exports.updateAccountType = async (params) => {
+exports.updateAccountType = async (params, icon) => {
 	try {
-		if (!params.id || !params.name) {
+		const { id, name } = params;
+		if (!id || !name) {
 			return fail("invalid account type id or name!");
 		}
 
-		const accountType = await AccountType.findOneAndUpdate(
-			{ _id: params.id },
-			{ name: params.name },
+		let accountType = await AccountType.findById(id);
+
+		if (icon && accountType.icon) {
+			// new icon available, remove and unlink current icon
+			removeFile(`${__basedir}/public/${accountType.icon}`);
+		}
+
+		icon.path = icon ? icon.path.replace("public/", "") : accountType?.icon;
+
+		accountType = await AccountType.findOneAndUpdate(
+			{ _id: id },
+			{ name: name, icon: icon.path },
 			{ new: true }
 		);
 
@@ -51,11 +67,18 @@ exports.updateAccountType = async (params) => {
 
 exports.deleteAccountType = async (params) => {
 	try {
-		if (!params.id) {
+		const { id } = params;
+		if (!id) {
 			return fail("invalid account type id!");
 		}
 
-		await AccountType.deleteOne({ _id: params.id });
+		const accountType = await AccountType.findById(id);
+
+		if (accountType?.icon) {
+			removeFile(`${__basedir}/public/${accountType.icon}`);
+		}
+
+		await AccountType.deleteOne({ _id: id });
 
 		return success("Deleted successfully!");
 	} catch (e) {

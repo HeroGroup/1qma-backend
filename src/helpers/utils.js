@@ -39,3 +39,10 @@ exports.validateImageFileType = (extension) => {
 	const filetypes = /jpeg|jpg|png|gif/;
 	return filetypes.test(extension.toLowerCase());
 };
+
+exports.removeFile = (fileToUnlink) => {
+	unlink(fileToUnlink, function (err) {
+		if (err) throw err;
+		console.log(`${fileToUnlink} removed successfully!`);
+	});
+};

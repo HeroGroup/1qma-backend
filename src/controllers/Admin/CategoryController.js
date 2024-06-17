@@ -14,14 +14,20 @@ exports.getCategories = async () => {
 	}
 };
 
-exports.addCategory = async (params) => {
+exports.addCategory = async (params, icon) => {
 	try {
-		if (!params.name) {
+		const { name } = params;
+		if (!name) {
 			return fail("invalid category name!");
 		}
 
+		if (icon) {
+			icon.path = icon.path.replace("public/", "");
+		}
+
 		const category = new Category({
-			name: params.name,
+			name,
+			icon: icon.path || "",
 		});
 		await category.save();
 
@@ -33,13 +39,23 @@ exports.addCategory = async (params) => {
 
 exports.updateCategory = async (params) => {
 	try {
-		if (!params.id || !params.name) {
+		const { id, name } = params;
+		if (!id || !name) {
 			return fail("invalid category id or name!");
 		}
 
-		const category = await Category.findOneAndUpdate(
-			{ _id: params.id },
-			{ name: params.name },
+		let category = await Category.findById(id);
+
+		if (icon && category.icon) {
+			// new icon available, remove and unlink current icon
+			removeFile(`${__basedir}/public/${category.icon}`);
+		}
+
+		icon.path = icon ? icon.path.replace("public/", "") : category?.icon;
+
+		category = await Category.findOneAndUpdate(
+			{ _id: id },
+			{ name, icon: icon.path },
 			{ new: true }
 		);
 
@@ -51,11 +67,18 @@ exports.updateCategory = async (params) => {
 
 exports.deleteCategory = async (params) => {
 	try {
-		if (!params.id) {
+		const { id } = params;
+		if (!id) {
 			return fail("invalid category id!");
 		}
 
-		await Category.deleteOne({ _id: params.id });
+		let category = await Category.findById(id);
+
+		if (category?.icon) {
+			removeFile(`${__basedir}/public/${category.icon}`);
+		}
+
+		await Category.deleteOne({ _id: id });
 
 		return success("Deleted successfully!");
 	} catch (e) {

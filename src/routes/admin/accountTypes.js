@@ -1,11 +1,12 @@
 const express = require("express");
+const router = express.Router();
 const {
 	getAccountTypes,
 	addAccountType,
 	updateAccountType,
 	deleteAccountType,
 } = require("../../controllers/Admin/AccountTypeController");
-const router = express.Router();
+const imageUpload = require("../../services/imageUpload");
 
 /**
  * @openapi
@@ -41,8 +42,8 @@ router.get("/", async (req, res) => {
  *              icon:
  *                type: file
  */
-router.post("/add", async (req, res) => {
-	res.json(await addAccountType(req.body));
+router.post("/add", imageUpload.single("icon"), async (req, res) => {
+	res.json(await addAccountType(req.body, req.file));
 });
 
 /**
@@ -72,8 +73,8 @@ router.post("/add", async (req, res) => {
  *              icon:
  *                type: file
  */
-router.post("/update", async (req, res) => {
-	res.json(await updateAccountType(req.body));
+router.post("/update", imageUpload.single("icon"), async (req, res) => {
+	res.json(await updateAccountType(req.body, req.file));
 });
 
 /**

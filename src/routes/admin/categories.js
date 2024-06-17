@@ -6,6 +6,7 @@ const {
 	updateCategory,
 	deleteCategory,
 } = require("../../controllers/Admin/CategoryController");
+const imageUpload = require("../../services/imageUpload");
 
 /**
  * @openapi
@@ -41,8 +42,8 @@ router.get("/", async (req, res) => {
  *              icon:
  *                type: file
  */
-router.post("/add", async (req, res) => {
-	res.json(await addCategory(req.body));
+router.post("/add", imageUpload.single("icon"), async (req, res) => {
+	res.json(await addCategory(req.body, req.file));
 });
 
 /**
@@ -72,8 +73,8 @@ router.post("/add", async (req, res) => {
  *              icon:
  *                type: file
  */
-router.post("/update", async (req, res) => {
-	res.json(await updateCategory(req.body));
+router.post("/update", imageUpload.single("icon"), async (req, res) => {
+	res.json(await updateCategory(req.body, req.file));
 });
 
 /**
