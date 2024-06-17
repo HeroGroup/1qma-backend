@@ -1,5 +1,3 @@
-const { unlink } = require("node:fs");
-
 const {
 	handleException,
 	createHashedPasswordFromPlainText,

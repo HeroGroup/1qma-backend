@@ -1,5 +1,5 @@
 const Category = require("../../models/Category");
-const { handleException } = require("../../helpers/utils");
+const { handleException, removeFile } = require("../../helpers/utils");
 
 exports.getCategories = async () => {
 	try {
@@ -37,7 +37,7 @@ exports.addCategory = async (params, icon) => {
 	}
 };
 
-exports.updateCategory = async (params) => {
+exports.updateCategory = async (params, icon) => {
 	try {
 		const { id, name } = params;
 		if (!id || !name) {

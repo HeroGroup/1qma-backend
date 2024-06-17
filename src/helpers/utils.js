@@ -1,4 +1,5 @@
 const bcrypt = require("bcrypt");
+const { unlink } = require("node:fs");
 const SALT_ROUNDS = parseInt(env.saltRounds);
 
 exports.handleException = (e) => {
