@@ -1,15 +1,14 @@
 const express = require("express");
+const router = express.Router();
 const imageUpload = require("../../services/imageUpload");
 
 const {
 	init,
-	getClientProfilePicture,
 	updateProfile,
 	updateUserSettings,
 	updateProfilePicture,
 	removeProfilePicture,
 } = require("../../controllers/Client/ClientController");
-const router = express.Router();
 
 /**
  * @openapi

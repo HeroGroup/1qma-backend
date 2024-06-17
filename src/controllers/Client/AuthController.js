@@ -839,3 +839,5 @@ const createMobileVerification = async (mobile) => {
 exports.signout = (params) => {
 	return success("user signed out successfully!");
 };
+
+exports.registerWithInvitationLink = async (params) => {};

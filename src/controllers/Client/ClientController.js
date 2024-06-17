@@ -4,6 +4,7 @@ const {
 	handleException,
 	createHashedPasswordFromPlainText,
 	checkSame,
+	removeFile,
 } = require("../../helpers/utils");
 const User = require("../../models/User");
 const AccountType = require("../../models/AccountType");
@@ -174,11 +175,7 @@ exports.removeProfilePicture = async (params) => {
 		}
 
 		if (user.profilePicture) {
-			const fileToUnlink = `${__basedir}/public/${user.profilePicture}`;
-			unlink(fileToUnlink, function (err) {
-				if (err) throw err;
-				console.log(`${fileToUnlink} removed successfully!`);
-			});
+			removeFile(`${__basedir}/public/${user.profilePicture}`);
 		}
 
 		user = await User.findOneAndUpdate(
@@ -191,4 +188,8 @@ exports.removeProfilePicture = async (params) => {
 	} catch (e) {
 		return handleException(e);
 	}
+};
+
+exports.invite = async (params) => {
+	// create invite link
 };

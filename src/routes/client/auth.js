@@ -21,6 +21,7 @@ const {
 	forgotPasswordViaEmail,
 	forgotPasswordViaMobile,
 	signout,
+	registerWithInvitationLink,
 } = require("../../controllers/Client/AuthController");
 
 /**
@@ -141,6 +142,10 @@ router.post("/joinToWaitListWithMobile", async (req, res) => {
  */
 router.post("/registerWithReferal", async (req, res) => {
 	res.json(await registerWithReferal(req.body));
+});
+
+router.get("/registerWithInvitationLink", async (req, res) => {
+	res.json(await registerWithInvitationLink(req.body));
 });
 
 /**
