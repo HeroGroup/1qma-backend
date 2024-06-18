@@ -568,24 +568,24 @@ router.post("/signout", (req, res) => {
 	res.json(signout(req.body));
 });
 
-router.get("/auth/google", passport.authenticate("google"));
+router.get("/google", passport.authenticate("google"));
 
 router.get(
-	"/auth/google/callback",
+	"/google/callback",
 	passport.authenticate("google", {
-		successRedirect: "/auth/google/success",
-		failureRedirect: "/auth/google/failure",
+		successRedirect: "/google/success",
+		failureRedirect: "/google/failure",
 	}),
 	(req, res) => {
 		console.log("callback", req.body, req.params);
 	}
 );
 
-router.get("/auth/google/success", (req, res) => {
+router.get("/google/success", (req, res) => {
 	console.log("success", req.body, req.params);
 });
 
-router.get("/auth/google/failure", (req, res) => {
+router.get("/google/failure", (req, res) => {
 	console.log("failure", req.body, req.params);
 });
 
