@@ -96,17 +96,17 @@ exports.loginWithEmail = async (params) => {
 			return fail("Enter password!", params);
 		}
 
-		const user = await User.findOne({
-			email: params.email,
-			emailVerified: true,
-			isActive: true,
-		});
+		const user = await User.findOne(
+			{
+				email: params.email,
+				emailVerified: true,
+				isActive: true,
+			},
+			{ _id: 1, __v: 0 }
+		);
 		if (!user || !checkSame(params.password, user.password)) {
 			return fail("Invalid email and password combination!", params);
 		}
-
-		delete user.password;
-		delete user.__v;
 
 		// add some additional data to user
 		const statistics = {
@@ -122,12 +122,9 @@ exports.loginWithEmail = async (params) => {
 			highScore: 310,
 		};
 
-		user.statistics = statistics;
-		user.gamaes = games;
-
 		// TODO: send some bearer token as well
 
-		return success("successfull login!", user);
+		return success("successfull login!", { ...user._doc, statistics, games });
 	} catch (e) {
 		return handleException(e);
 	}
