@@ -568,7 +568,10 @@ router.post("/signout", (req, res) => {
 	res.json(signout(req.body));
 });
 
-router.get("/google", passport.authenticate("google"));
+router.get(
+	"/google",
+	passport.authenticate("google", { scope: ["email", "profile"] })
+);
 
 router.get(
 	"/google/callback",
