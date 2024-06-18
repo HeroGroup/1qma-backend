@@ -1,5 +1,7 @@
 const express = require("express");
 const router = express.Router();
+const passport = require("passport");
+const GoogleStrategy = require("passport-google-oauth2").Strategy;
 const {
 	init,
 	loginWithEmail,
@@ -23,6 +25,27 @@ const {
 	signout,
 	registerWithInvitationLink,
 } = require("../../controllers/Client/AuthController");
+
+passport.use(
+	new GoogleStrategy(
+		{
+			clientID: env.authServiceProviders.google.clientId,
+			clientSecret: env.authServiceProviders.google.clientSecret,
+			callbackURL: env.authServiceProviders.google.callbackUrl,
+			passReqToCallback: true,
+		},
+		function (request, accessToken, refreshToken, profile, done) {
+			console.log(
+				"strategy",
+				request,
+				accessToken,
+				refreshToken,
+				profile,
+				done
+			);
+		}
+	)
+);
 
 /**
  * @openapi
@@ -543,6 +566,27 @@ router.post("/updatePassword/:media", async (req, res) => {
  */
 router.post("/signout", (req, res) => {
 	res.json(signout(req.body));
+});
+
+router.get("/auth/google", passport.authenticate("google"));
+
+router.get(
+	"/auth/google/callback",
+	passport.authenticate("google", {
+		successRedirect: "/auth/google/success",
+		failureRedirect: "/auth/google/failure",
+	}),
+	(req, res) => {
+		console.log("callback", req.body, req.params);
+	}
+);
+
+router.get("/auth/google/success", (req, res) => {
+	console.log("success", req.body, req.params);
+});
+
+router.get("/auth/google/failure", (req, res) => {
+	console.log("failure", req.body, req.params);
 });
 
 module.exports = router;
