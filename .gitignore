@@ -2,3 +2,4 @@ node_modules
 **/.DS_STORE
 .env.js
 public/uploads
+google_OAuth.json

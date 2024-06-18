@@ -111,7 +111,7 @@ exports.loginWithEmail = async (params) => {
 		// add some additional data to user
 		const statistics = {
 			level: 32,
-			xpNeededForNextLevel: 300,
+			xpNeededForNextLevel: 2000,
 			totalXP: 1640,
 			totalScore: 2480,
 		};
