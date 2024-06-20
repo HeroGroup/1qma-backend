@@ -8,6 +8,7 @@ const {
 	updateUserSettings,
 	updateProfilePicture,
 	removeProfilePicture,
+	userDetails,
 } = require("../../controllers/Client/ClientController");
 
 /**
@@ -165,6 +166,18 @@ router.post(
  */
 router.post("/profilePicture/remove", async (req, res) => {
 	res.json(await removeProfilePicture(req.body));
+});
+
+/**
+ * @openapi
+ * '/client/:id/details':
+ *  get:
+ *     tags:
+ *     - Client
+ *     summary: Get user details
+ */
+router.get("/:id/details", async (req, res) => {
+	res.json(await userDetails(req.params.id));
 });
 
 module.exports = router;

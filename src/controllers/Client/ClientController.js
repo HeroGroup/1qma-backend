@@ -191,3 +191,24 @@ exports.removeProfilePicture = async (params) => {
 exports.invite = async (params) => {
 	// create invite link
 };
+
+exports.userDetails = async (id) => {
+	try {
+		if (!id) {
+			return fail("invalid id!");
+		}
+
+		const user = await User.findById(id, {
+			_id: 0,
+			firstName: 1,
+			lastName: 1,
+			profilePicture: 1,
+			statistics: 1,
+			games: 1,
+		});
+
+		return success("User retrieved successfully!", user);
+	} catch (e) {
+		return handleException(e);
+	}
+};

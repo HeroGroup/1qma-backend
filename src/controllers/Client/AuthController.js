@@ -108,20 +108,6 @@ exports.loginWithEmail = async (params) => {
 			return fail("Invalid email and password combination!", params);
 		}
 
-		// add some additional data to user
-		const statistics = {
-			level: 32,
-			xpNeededForNextLevel: 2000,
-			totalXP: 1640,
-			totalScore: 2480,
-		};
-		const games = {
-			played: 325,
-			created: 184,
-			won: 325,
-			highScore: 310,
-		};
-
 		// TODO: send some bearer token as well
 
 		return success("successfull login!", { ...user._doc, statistics, games });
@@ -236,6 +222,7 @@ exports.registerWithReferal = async (params) => {
 				_id: refererUser._id,
 				firstName: refererUser.firstName,
 				lastName: refererUser.lastName,
+				profilePicture: refererUser.profilePicture,
 			},
 			isActive: true,
 			hasCompletedSignup: false,
@@ -516,6 +503,13 @@ exports.chooseAccountType = async (params) => {
 					gold: 0,
 				},
 			},
+			statistics: {
+				level: 1,
+				xpNeededForNextLevel: 2000,
+				totalXP: 0,
+				totalScore: 0,
+			},
+			games: { played: 0, created: 0, won: 0, highScore: 0 },
 			isActive: true,
 		},
 		{ new: true }
@@ -835,6 +829,30 @@ const createMobileVerification = async (mobile) => {
 
 exports.signout = (params) => {
 	return success("user signed out successfully!");
+};
+
+exports.googleOAuth = async (profile) => {
+	/* {
+				sub: '102828012203028760969', // google_id
+				name: 'Navid Hero',
+				given_name: 'Navid',
+				family_name: 'Hero',
+				picture: 'https://lh3.googleusercontent.com/a/ACg8ocJyYiqPqUz_1aeR-Ie7MMpMAcfhWwrd0Ub0gRzd4sWnD2rd6TqM=s96-c',
+				email: 'navid.hero.1@gmail.com',
+				email_verified: true
+			} */
+	try {
+		const user = await User.findOne({
+			email: profile.email,
+			emailVerified: true,
+		});
+
+		if (!user) {
+			//
+		}
+	} catch (e) {
+		handleException(e);
+	}
 };
 
 exports.registerWithInvitationLink = async (params) => {};

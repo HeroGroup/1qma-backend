@@ -29,6 +29,9 @@ const userSchema = new Schema({
 	assets: Object,
 	maxInvites: String,
 	invitations: Array,
+	accessTokens: Array,
+	statistics: Object,
+	games: Object,
 });
 
 module.exports = mongoose.model("User", userSchema);

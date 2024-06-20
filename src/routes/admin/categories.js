@@ -30,7 +30,7 @@ router.get("/", async (req, res) => {
  *     requestBody:
  *      required: true
  *      content:
- *        application/json:
+ *        multipart/form-data:
  *           schema:
  *            type: object
  *            required:
@@ -40,7 +40,8 @@ router.get("/", async (req, res) => {
  *                type: string
  *                default: History
  *              icon:
- *                type: file
+ *                type: string
+ *                format: binary
  */
 router.post("/add", imageUpload.single("icon"), async (req, res) => {
 	res.json(await addCategory(req.body, req.file));
@@ -56,7 +57,7 @@ router.post("/add", imageUpload.single("icon"), async (req, res) => {
  *     requestBody:
  *      required: true
  *      content:
- *        application/json:
+ *        multipart/form-data:
  *           schema:
  *            type: object
  *            required:
@@ -71,7 +72,8 @@ router.post("/add", imageUpload.single("icon"), async (req, res) => {
  *                type: string
  *                default: Free Discussion
  *              icon:
- *                type: file
+ *                type: string
+ *                format: binary
  */
 router.post("/update", imageUpload.single("icon"), async (req, res) => {
 	res.json(await updateCategory(req.body, req.file));

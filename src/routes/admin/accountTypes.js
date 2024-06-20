@@ -30,17 +30,19 @@ router.get("/", async (req, res) => {
  *     requestBody:
  *      required: true
  *      content:
- *        application/json:
+ *        multipart/form-data:
  *           schema:
  *            type: object
  *            required:
  *              - name
+ *              - icon
  *            properties:
  *              name:
  *                type: string
  *                default: Basic
  *              icon:
- *                type: file
+ *                type: string
+ *                format: binary
  */
 router.post("/add", imageUpload.single("icon"), async (req, res) => {
 	res.json(await addAccountType(req.body, req.file));
@@ -56,7 +58,7 @@ router.post("/add", imageUpload.single("icon"), async (req, res) => {
  *     requestBody:
  *      required: true
  *      content:
- *        application/json:
+ *        multipart/form-data:
  *           schema:
  *            type: object
  *            required:
@@ -71,7 +73,8 @@ router.post("/add", imageUpload.single("icon"), async (req, res) => {
  *                type: string
  *                default: Bussiness
  *              icon:
- *                type: file
+ *                type: string
+ *                format: binary
  */
 router.post("/update", imageUpload.single("icon"), async (req, res) => {
 	res.json(await updateAccountType(req.body, req.file));
