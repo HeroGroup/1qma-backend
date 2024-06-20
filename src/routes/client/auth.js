@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const passport = require("passport");
-const GoogleStrategy = require("passport-google-oauth2").Strategy;
+
 const {
 	init,
 	loginWithEmail,
@@ -25,27 +25,6 @@ const {
 	signout,
 	registerWithInvitationLink,
 } = require("../../controllers/Client/AuthController");
-
-passport.use(
-	new GoogleStrategy(
-		{
-			clientID: env.authServiceProviders.google.clientId,
-			clientSecret: env.authServiceProviders.google.clientSecret,
-			callbackURL: env.authServiceProviders.google.callbackUrl,
-			passReqToCallback: true,
-		},
-		function (request, accessToken, refreshToken, profile, done) {
-			console.log(
-				"strategy",
-				request,
-				accessToken,
-				refreshToken,
-				profile,
-				done
-			);
-		}
-	)
-);
 
 /**
  * @openapi
@@ -568,6 +547,14 @@ router.post("/signout", (req, res) => {
 	res.json(signout(req.body));
 });
 
+/**
+ * @openapi
+ * '/auth/google':
+ *  get:
+ *     tags:
+ *     - Authentication
+ *     summary: Authenticate with google
+ */
 router.get(
 	"/google",
 	passport.authenticate("google", { scope: ["email", "profile"] })
@@ -576,20 +563,15 @@ router.get(
 router.get(
 	"/google/callback",
 	passport.authenticate("google", {
-		successRedirect: "/google/success",
-		failureRedirect: "/google/failure",
+		failureRedirect: "http://staging.1qma.games/#/login",
+		failWithError: true,
 	}),
 	(req, res) => {
-		console.log("callback", req.body, req.params);
+		const { providerId, email, emailVerified } = req.user;
+		const redirect = `http://staging.1qma.games/#/social/callback?provider_id=${providerId}&email=${email}&email_verified=${emailVerified}`;
+
+		res.redirect(redirect);
 	}
 );
-
-router.get("/google/success", (req, res) => {
-	console.log("success", req.body, req.params);
-});
-
-router.get("/google/failure", (req, res) => {
-	console.log("failure", req.body, req.params);
-});
 
 module.exports = router;

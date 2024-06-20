@@ -1,8 +1,14 @@
 const express = require("express");
+var qs = require("qs");
 const morgan = require("morgan");
 const cors = require("cors");
 const mongoose = require("mongoose");
 const swaggerUI = require("swagger-ui-express");
+const session = require("express-session");
+const RedisStore = require("connect-redis").default;
+const { createClient } = require("redis");
+const passport = require("passport");
+
 const { swaggerSpec } = require("./src/services/swagger.js");
 
 const app = express();
@@ -19,6 +25,7 @@ const clientGeneralRoutes = require("./src/routes/client/general");
 const {
 	sanitizeRequestInputs,
 } = require("./src/middlewares/sanitizeRequestInputs.js");
+const { passportInit } = require("./src/services/auth/passport.js");
 
 globalThis.__basedir = __dirname;
 globalThis.moment = require("moment");
@@ -41,9 +48,40 @@ mongoose
 	.connect(`mongodb://${env.dbHost}:${env.dbPort}/${env.dbName}`)
 	.catch((err) => console.log(err));
 
+let redisClient = createClient();
+redisClient.connect().catch(console.error);
+let redisStore = new RedisStore({
+	client: redisClient,
+	prefix: `${env.dbName}:`,
+});
+
 app.use(cors());
 app.use(express.json());
 app.use(morgan("dev"));
+
+app.set("query parser", function (str) {
+	return qs.parse(str);
+});
+
+const sess = {
+	store: redisStore,
+	resave: false,
+	saveUninitialized: false,
+	secret: "whatissecret",
+	cookie: {},
+};
+
+if (app.get("env") === "production") {
+	app.set("trust proxy", 1);
+	sess.cookie.secure = true;
+}
+
+app.use(session(sess));
+
+passportInit();
+
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.use("/auth", authRoutes);
 app.use("/admin", adminRoutes);
@@ -65,5 +103,7 @@ app.use(sanitizeRequestInputs);
 
 const port = env.port;
 app.listen(port, () => {
-	console.log(`${env.appName} app is listening on port ${port}`);
+	console.log(
+		`${env.appName} app is listening on port ${port} in ${app.get("env")}`
+	);
 });

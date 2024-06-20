@@ -10,6 +10,8 @@ const userSchema = new Schema({
 	emailVerified: Boolean,
 	mobileVerified: Boolean,
 	password: String,
+	loginProvider: String,
+	providerId: String,
 	isActive: Boolean,
 	userType: String,
 	hasCompletedSignup: Boolean,

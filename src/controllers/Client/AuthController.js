@@ -341,6 +341,10 @@ exports.choosePreferedLanguage = async (params) => {
 		return fail("invalid user id", params);
 	}
 
+	if (params.providerId && req.user.providerId !== params.providerId) {
+		return fail("invalid provider id!");
+	}
+
 	if (!params.language) {
 		return fail("No language was selected!");
 	}
@@ -351,13 +355,15 @@ exports.choosePreferedLanguage = async (params) => {
 		return fail("invalid language was selected!");
 	}
 
-	const user = await User.findOneAndUpdate(
-		{ _id: params.id },
-		{
-			preferedLanguage: language,
-		},
-		{ new: true }
-	);
+	let update = { preferedLanguage: language };
+
+	if (params.providerId && req.user.providerId === params.providerId) {
+		update = { ...update, ...req.user };
+	}
+
+	const user = await User.findOneAndUpdate({ _id: params.id }, update, {
+		new: true,
+	});
 
 	return success("Category preferences updated successfully!", user);
 };
@@ -832,24 +838,24 @@ exports.signout = (params) => {
 };
 
 exports.googleOAuth = async (profile) => {
-	/* {
-				sub: '102828012203028760969', // google_id
-				name: 'Navid Hero',
-				given_name: 'Navid',
-				family_name: 'Hero',
-				picture: 'https://lh3.googleusercontent.com/a/ACg8ocJyYiqPqUz_1aeR-Ie7MMpMAcfhWwrd0Ub0gRzd4sWnD2rd6TqM=s96-c',
-				email: 'navid.hero.1@gmail.com',
-				email_verified: true
-			} */
 	try {
 		const user = await User.findOne({
+			googleId: profile.id,
 			email: profile.email,
 			emailVerified: true,
 		});
 
-		if (!user) {
-			//
-		}
+		return (
+			user || {
+				loginProvider: "google",
+				providerId: profile.sub,
+				firstName: profile.given_name,
+				lastName: profile.family_name,
+				email: profile.email,
+				emailVerified: profile.email_verified,
+				profilePicture: profile.picture,
+			}
+		);
 	} catch (e) {
 		handleException(e);
 	}

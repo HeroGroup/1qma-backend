@@ -9,9 +9,15 @@ module.exports = {
 	saltRounds: process.env.SALT_ROUNDS || 10,
 	authServiceProviders: {
 		google: {
-			clientId: process.env.GOOGLE_CLIENT_ID,
-			clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-			callbackUrl: process.env.GOOGLE_CALLBACK_URL,
+			clientId:
+				process.env.GOOGLE_CLIENT_ID ||
+				"1064499296285-idd99p6nn0ocs9ddi74jtpohdrrj9v6r.apps.googleusercontent.com",
+			clientSecret:
+				process.env.GOOGLE_CLIENT_SECRET ||
+				"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",
+			callbackUrl:
+				process.env.GOOGLE_CALLBACK_URL ||
+				"http://localhost:3000/auth/google/callback",
 		},
 		twitter: {
 			consumerKey: process.env.TWITTER_CONSUMER_KEY,
