@@ -64,7 +64,7 @@ exports.init = async () => {
 exports.updateProfile = async (params) => {
 	try {
 		const { id, currentPassword, password, passwordConfirmation } = params;
-		let { updatedGender, updatedEducation } = params;
+		let { gender, education } = params;
 
 		if (!id) {
 			return fail("invalid user id!");
@@ -75,29 +75,29 @@ exports.updateProfile = async (params) => {
 			return fail("invalid user!");
 		}
 
-		if (updatedGender) {
-			const gender = genders.find((element) => element._id === updatedGender);
-			if (!gender) {
+		if (gender) {
+			const updatedGender = genders.find((element) => element._id === gender);
+			if (!updatedGender) {
 				return fail("invalid gender was selected!", params);
 			}
-			updatedGender = gender;
+			gender = updatedGender;
 		}
 
-		if (updatedEducation) {
-			const education = educations.find(
-				(element) => element._id === updatedEducation
+		if (education) {
+			const updatedEducation = educations.find(
+				(element) => element._id === education
 			);
-			if (!education) {
+			if (!updatedEducation) {
 				return fail("invalid education was selected", params);
 			}
-			updatedEducation = education;
+			education = updatedEducation;
 		}
 
 		const update = {
 			firstName: params.firstName,
 			lastName: params.lastName,
-			gender: updatedGender,
-			education: updatedEducation,
+			gender,
+			education,
 			country: params.country,
 			city: params.city,
 			accountType: params.accountType,
