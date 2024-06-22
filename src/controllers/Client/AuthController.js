@@ -110,7 +110,7 @@ exports.loginWithEmail = async (params) => {
 
 		// TODO: send some bearer token as well
 
-		return success("successfull login!", { ...user._doc, statistics, games });
+		return success("successfull login!", user);
 	} catch (e) {
 		return handleException(e);
 	}
