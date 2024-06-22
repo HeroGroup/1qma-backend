@@ -16,7 +16,7 @@ exports.getAccountTypes = async () => {
 
 exports.addAccountType = async (params, icon) => {
 	try {
-		const { name } = params;
+		const { name, order } = params;
 		if (!name) {
 			return fail("Invalid account type name!");
 		}
@@ -28,6 +28,8 @@ exports.addAccountType = async (params, icon) => {
 		const accountType = new AccountType({
 			name,
 			icon: icon?.path || "",
+			order: order || "",
+			isActive: true,
 		});
 		await accountType.save();
 
@@ -39,7 +41,7 @@ exports.addAccountType = async (params, icon) => {
 
 exports.updateAccountType = async (params, icon) => {
 	try {
-		const { id, name } = params;
+		const { id, name, order, isActive } = params;
 		if (!id || !name) {
 			return fail("invalid account type id or name!");
 		}
@@ -57,7 +59,7 @@ exports.updateAccountType = async (params, icon) => {
 
 		accountType = await AccountType.findOneAndUpdate(
 			{ _id: id },
-			{ name: name, icon: iconPath },
+			{ name, icon: iconPath, order, isActive },
 			{ new: true }
 		);
 

@@ -16,7 +16,7 @@ exports.getCategories = async () => {
 
 exports.addCategory = async (params, icon) => {
 	try {
-		const { name } = params;
+		const { name, order } = params;
 		if (!name) {
 			return fail("invalid category name!");
 		}
@@ -28,6 +28,8 @@ exports.addCategory = async (params, icon) => {
 		const category = new Category({
 			name,
 			icon: icon.path || "",
+			order: order || "0",
+			isActive: true,
 		});
 		await category.save();
 
@@ -39,7 +41,7 @@ exports.addCategory = async (params, icon) => {
 
 exports.updateCategory = async (params, icon) => {
 	try {
-		const { id, name } = params;
+		const { id, name, order, isActive } = params;
 		if (!id || !name) {
 			return fail("invalid category id or name!");
 		}
@@ -55,7 +57,7 @@ exports.updateCategory = async (params, icon) => {
 
 		category = await Category.findOneAndUpdate(
 			{ _id: id },
-			{ name, icon: iconPath },
+			{ name, icon: iconPath, order, isActive },
 			{ new: true }
 		);
 

@@ -71,8 +71,8 @@ exports.init = async () => {
 			},
 		},
 	];
-	const accountTypes = await AccountType.find();
-	const categories = await Category.find();
+	const accountTypes = await AccountType.find().sort({ order: 1 });
+	const categories = await Category.find().sort({ order: 1 });
 
 	return success("initialize parameters", {
 		languages,
