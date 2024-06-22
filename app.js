@@ -22,6 +22,7 @@ const indexRoutes = require("./src/routes/index");
 const settingsRoutes = require("./src/routes/admin/settings");
 const usersRoutes = require("./src/routes/admin/users");
 const clientGeneralRoutes = require("./src/routes/client/general");
+const gameRoutes = require("./src/routes/client/game");
 const {
 	sanitizeRequestInputs,
 } = require("./src/middlewares/sanitizeRequestInputs.js");
@@ -104,6 +105,7 @@ app.use("/admin/categories", categoriesRoutes);
 app.use("/admin/users", usersRoutes);
 app.use("/admin/settings", settingsRoutes);
 app.use("/client", clientGeneralRoutes);
+app.use("/game", gameRoutes);
 app.use("/", indexRoutes);
 app.use(express.static("public"));
 

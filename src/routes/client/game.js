@@ -13,3 +13,5 @@ const { init } = require("../../controllers/Client/GameController");
 router.get("/init", async (req, res) => {
 	res.json(await init());
 });
+
+module.exports = router;
