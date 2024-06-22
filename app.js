@@ -1,5 +1,5 @@
 const express = require("express");
-var qs = require("qs");
+const qs = require("qs");
 const morgan = require("morgan");
 const cors = require("cors");
 const mongoose = require("mongoose");
@@ -55,7 +55,21 @@ let redisStore = new RedisStore({
 	prefix: `${env.dbName}:`,
 });
 
-app.use(cors());
+const whitelist = [
+	"http://staging.1qma.games",
+	"http://staging.admin.1qma.games",
+];
+const corsOptions = {
+	origin: function (origin, callback) {
+		if (whitelist.indexOf(origin) !== -1) {
+			callback(null, true);
+		} else {
+			callback(new Error("Not allowed by CORS"));
+		}
+	},
+};
+
+app.use(cors(/*corsOptions*/));
 app.use(express.json());
 app.use(morgan("dev"));
 
