@@ -235,7 +235,7 @@ router.post("/setPassword", async (req, res) => {
  *                default: 6644e9072019def5602933cb
  *              provider:
  *                type: string
- *                default: 324367826478236489246893
+ *                default: google
  *              providerId:
  *                type: string
  *                default: 224637568734659835943594
