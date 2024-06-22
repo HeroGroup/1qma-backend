@@ -233,6 +233,12 @@ router.post("/setPassword", async (req, res) => {
  *              id:
  *                type: string
  *                default: 6644e9072019def5602933cb
+ *              provider:
+ *                type: string
+ *                default: google
+ *              providerId:
+ *                type: string
+ *                default: 224637568734659835943594
  *              language:
  *                type: string
  *                default: en
@@ -563,12 +569,12 @@ router.get(
 router.get(
 	"/google/callback",
 	passport.authenticate("google", {
-		failureRedirect: "http://staging.1qma.games/#/login",
+		failureRedirect: `http://staging.1qma.games/#/social/callback?provider_id=&error_message=`,
 		failWithError: true,
 	}),
 	(req, res) => {
-		const { providerId, email, emailVerified } = req.user;
-		const redirect = `http://staging.1qma.games/#/social/callback?provider_id=${providerId}&email=${email}&email_verified=${emailVerified}`;
+		const { _id, providerId, email, emailVerified } = req.user;
+		const redirect = `http://staging.1qma.games/#/social/callback?user_id=${_id}&provider=google&provider_id=${providerId}&email=${email}&email_verified=${emailVerified}`;
 
 		res.redirect(redirect);
 	}
