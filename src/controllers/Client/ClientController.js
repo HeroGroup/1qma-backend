@@ -73,6 +73,24 @@ exports.updateProfile = async (params) => {
 			return fail("invalid user!");
 		}
 
+		if (params.gender) {
+			const gender = genders.find((element) => element._id === params.gender);
+			if (!gender) {
+				return fail("invalid gender was selected!", params);
+			}
+			params.gender = gender;
+		}
+
+		if (params.education) {
+			const education = educations.find(
+				(element) => element._id === params.education
+			);
+			if (!education) {
+				return fail("invalid education was selected", params);
+			}
+			params.education = education;
+		}
+
 		const update = {
 			firstName: params.firstName,
 			lastName: params.lastName,
