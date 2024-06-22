@@ -51,11 +51,13 @@ exports.updateAccountType = async (params, icon) => {
 			removeFile(`${__basedir}/public/${accountType.icon}`);
 		}
 
-		icon.path = icon ? icon.path.replace("public/", "") : accountType?.icon;
+		const iconPath = icon
+			? icon.path.replace("public/", "")
+			: accountType?.icon;
 
 		accountType = await AccountType.findOneAndUpdate(
 			{ _id: id },
-			{ name: name, icon: icon.path },
+			{ name: name, icon: iconPath },
 			{ new: true }
 		);
 

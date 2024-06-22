@@ -51,11 +51,11 @@ exports.updateCategory = async (params, icon) => {
 			removeFile(`${__basedir}/public/${category.icon}`);
 		}
 
-		icon.path = icon ? icon.path.replace("public/", "") : category?.icon;
+		const iconPath = icon ? icon.path.replace("public/", "") : category?.icon;
 
 		category = await Category.findOneAndUpdate(
 			{ _id: id },
-			{ name, icon: icon.path },
+			{ name, icon: iconPath },
 			{ new: true }
 		);
 
