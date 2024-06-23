@@ -64,11 +64,11 @@ const whitelist = [
 	"http://staging.admin.1qma.games",
 ];
 const corsOptions = {
-	// credentials: true,
-	// origin: whitelist,
+	credentials: true,
+	origin: "*",
 };
 
-app.use(cors({ credentials: true }));
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(morgan("dev"));
 
@@ -81,7 +81,10 @@ const sess = {
 	resave: false,
 	saveUninitialized: false,
 	secret: "whatissecret",
-	cookie: {},
+	cookie: {
+		httpOnly: true,
+		sameSite: "none",
+	},
 };
 
 if (app.get("env") === "production") {
