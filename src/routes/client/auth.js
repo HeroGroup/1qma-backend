@@ -576,12 +576,12 @@ router.get(
 router.get(
 	"/google/callback",
 	passport.authenticate("google", {
-		failureRedirect: `http://staging.1qma.games/#/social/callback?provider_id=&error_message=`,
+		failureRedirect: `http://localhost:4200/#/social/callback?provider_id=&error_message=failed_to_login_via_google`,
 		failWithError: true,
 	}),
 	(req, res) => {
 		const { _id, providerId, email, emailVerified } = req.user;
-		const redirect = `http://staging.1qma.games/#/social/callback?user_id=${_id}&provider=google&provider_id=${providerId}&email=${email}&email_verified=${emailVerified}`;
+		const redirect = `http://localhost:4200/#/social/callback?user_id=${_id}&provider=google&provider_id=${providerId}&email=${email}&email_verified=${emailVerified}`;
 
 		res.redirect(redirect);
 	}

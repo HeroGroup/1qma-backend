@@ -48,6 +48,7 @@ const homePages = [
 exports.init = async () => {
 	try {
 		const accountTypes = await AccountType.find();
+		const user = req.user;
 
 		return success("initialize parameters", {
 			languages,
@@ -55,6 +56,7 @@ exports.init = async () => {
 			educations,
 			accountTypes,
 			homePages,
+			user,
 		});
 	} catch (e) {
 		return handleException(e);
