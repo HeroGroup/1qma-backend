@@ -64,17 +64,11 @@ const whitelist = [
 	"http://staging.admin.1qma.games",
 ];
 const corsOptions = {
-	credentials: true,
-	// origin: function (origin, callback) {
-	// 	if (whitelist.indexOf(origin) !== -1) {
-	// 		callback(null, true);
-	// 	} else {
-	// 		callback(new Error("Not allowed by CORS"));
-	// 	}
-	// },
+	// credentials: true,
+	// origin: whitelist,
 };
 
-app.use(cors(corsOptions));
+app.use(cors({ credentials: true }));
 app.use(express.json());
 app.use(morgan("dev"));
 
@@ -91,7 +85,7 @@ const sess = {
 };
 
 if (app.get("env") === "production") {
-	// app.set("trust proxy", 1);
+	app.set("trust proxy", 1);
 	// sess.cookie.secure = true;
 }
 
