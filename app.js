@@ -25,8 +25,11 @@ const clientGeneralRoutes = require("./src/routes/client/general");
 const gameRoutes = require("./src/routes/client/game");
 const {
 	sanitizeRequestInputs,
-} = require("./src/middlewares/sanitizeRequestInputs.js");
-const { passportInit } = require("./src/services/auth/passport.js");
+} = require("./src/middlewares/sanitizeRequestInputs");
+const { isAdmin } = require("./src/middlewares/isAdmin");
+const { hasCompletedSignup } = require("./src/middlewares/hasCompletedSignup");
+const { hasLoggedIn } = require("./src/middlewares/hasLoggedIn");
+const { passportInit } = require("./src/services/auth/passport");
 
 globalThis.__basedir = __dirname;
 globalThis.moment = require("moment");
@@ -100,12 +103,12 @@ app.use(passport.session());
 
 app.use("/auth", authRoutes);
 app.use("/admin", adminRoutes);
-app.use("/admin/accountTypes", accountTypesRoutes);
-app.use("/admin/categories", categoriesRoutes);
-app.use("/admin/users", usersRoutes);
-app.use("/admin/settings", settingsRoutes);
-app.use("/client", clientGeneralRoutes);
-app.use("/game", gameRoutes);
+app.use("/admin/accountTypes", isAdmin, accountTypesRoutes);
+app.use("/admin/categories", isAdmin, categoriesRoutes);
+app.use("/admin/users", isAdmin, usersRoutes);
+app.use("/admin/settings", isAdmin, settingsRoutes);
+app.use("/client", hasLoggedIn, clientGeneralRoutes);
+app.use("/game", hasCompletedSignup, gameRoutes);
 app.use("/", indexRoutes);
 app.use(express.static("public"));
 

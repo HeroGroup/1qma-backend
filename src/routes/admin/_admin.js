@@ -1,12 +1,15 @@
 const express = require("express");
+const passport = require("passport");
+const router = express.Router();
+
+const { isAdmin } = require("../../middlewares/isAdmin");
+
 const {
 	login,
 	createAdminUser,
 	dashboard,
-	logout,
 	updatePassword,
 } = require("../../controllers/Admin/AdminController");
-const router = express.Router();
 
 /**
  * @openapi
@@ -32,8 +35,17 @@ const router = express.Router();
  *                type: string
  *                default: admin
  */
-router.post("/login", async (req, res) => {
-	res.json(await login(req.body));
+router.post("/login", passport.authenticate("local"), async (req, res) => {
+	if (req.user && req.user.userType !== "admin") {
+		req.logout(function (err) {
+			if (err) {
+				res.json(fail(err));
+			}
+
+			res.json(fail("Invalid email and password combination!"));
+		});
+	}
+	res.json(success("successfull login!", req.user));
 });
 
 // router.get("/createAdminUser", async (req, res) => {
@@ -48,7 +60,7 @@ router.post("/login", async (req, res) => {
  *     - Admin
  *     summary: get dashboard parameters
  */
-router.get("/dashboard", async (req, res) => {
+router.get("/dashboard", isAdmin, async (req, res) => {
 	res.json(await dashboard(req.body));
 });
 
@@ -84,7 +96,7 @@ router.get("/dashboard", async (req, res) => {
  *                type: string
  *                default: newpass
  */
-router.post("/updatePassword", async (req, res) => {
+router.post("/updatePassword", isAdmin, async (req, res) => {
 	res.json(await updatePassword(req.body));
 });
 
@@ -108,8 +120,13 @@ router.post("/updatePassword", async (req, res) => {
  *                type: string
  *                default: 6644e9072019def5602933cb
  */
-router.post("/logout", (req, res) => {
-	res.json(logout(req.body));
+router.post("/logout", isAdmin, (req, res) => {
+	req.logout(function (err) {
+		if (err) {
+			res.json(fail(err));
+		}
+		res.json(success("user signed out successfully!"));
+	});
 });
 
 module.exports = router;

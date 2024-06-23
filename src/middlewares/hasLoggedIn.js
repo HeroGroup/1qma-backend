@@ -1,4 +1,7 @@
 exports.hasLoggedIn = (req, res, next) => {
-	//
-	next();
+	if (req.user) {
+		next();
+	} else {
+		res.sendStatus(401);
+	}
 };

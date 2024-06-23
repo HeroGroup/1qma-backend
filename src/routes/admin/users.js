@@ -16,7 +16,8 @@ const {
  *     summary: get all users
  */
 router.get("/", async (req, res) => {
-	res.json(await getUsers());
+	const users = await getUsers();
+	res.json({ users, admin: req.user });
 });
 
 /**

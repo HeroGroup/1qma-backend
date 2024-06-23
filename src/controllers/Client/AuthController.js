@@ -833,10 +833,6 @@ const createMobileVerification = async (mobile) => {
 	return success("Verification code was sent to you!");
 };
 
-exports.signout = (params) => {
-	return success("user signed out successfully!");
-};
-
 exports.googleOAuth = async (profile) => {
 	try {
 		const user = await User.findOne({

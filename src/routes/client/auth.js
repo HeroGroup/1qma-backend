@@ -4,7 +4,6 @@ const passport = require("passport");
 
 const {
 	init,
-	loginWithEmail,
 	joinToWaitListWithEmailAndMobile,
 	joinToWaitListWithMobile,
 	registerWithReferal,
@@ -22,7 +21,6 @@ const {
 	updatePasswordThroughMobile,
 	forgotPasswordViaEmail,
 	forgotPasswordViaMobile,
-	signout,
 	registerWithInvitationLink,
 } = require("../../controllers/Client/AuthController");
 
@@ -62,9 +60,13 @@ router.get("/register/init", async (req, res) => {
  *                type: string
  *                default: somepassword
  */
-router.post("/loginWithEmail", async (req, res) => {
-	res.json(await loginWithEmail(req.body));
-});
+router.post(
+	"/loginWithEmail",
+	passport.authenticate("local"),
+	async (req, res) => {
+		res.json(success("successfull login!", req.user));
+	}
+);
 
 /**
  * @openapi
@@ -550,7 +552,12 @@ router.post("/updatePassword/:media", async (req, res) => {
  *                default: 6644e9072019def5602933cb
  */
 router.post("/signout", (req, res) => {
-	res.json(signout(req.body));
+	req.logout(function (err) {
+		if (err) {
+			res.json(fail(err));
+		}
+		res.json(success("user signed out successfully!"));
+	});
 });
 
 /**

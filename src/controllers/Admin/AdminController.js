@@ -117,7 +117,3 @@ exports.updatePassword = async (params) => {
 		return handleException(e);
 	}
 };
-
-exports.logout = (params) => {
-	return success("user signed out successfully!");
-};
