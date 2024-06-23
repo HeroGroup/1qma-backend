@@ -65,7 +65,6 @@ const whitelist = [
 ];
 const corsOptions = {
 	credentials: true,
-	origin: "*",
 };
 
 app.use(cors(corsOptions));
