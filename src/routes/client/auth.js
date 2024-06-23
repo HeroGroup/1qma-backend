@@ -2,6 +2,8 @@ const express = require("express");
 const router = express.Router();
 const passport = require("passport");
 
+const { hasLoggedIn } = require("../../middlewares/hasLoggedIn");
+
 const {
 	init,
 	joinToWaitListWithEmailAndMobile,
@@ -144,8 +146,16 @@ router.post("/joinToWaitListWithMobile", async (req, res) => {
  *                type: string
  *                default: 731086912583
  */
-router.post("/registerWithReferal", async (req, res) => {
-	res.json(await registerWithReferal(req.body));
+router.post("/registerWithReferal", async (req, res, next) => {
+	const registerResult = await registerWithReferal(req.body);
+	if (registerResult.status === 1) {
+		req.login(registerResult.data, (err) => {
+			if (err) {
+				return next(err);
+			}
+		});
+	}
+	res.json(registerResult);
 });
 
 router.get("/registerWithInvitationLink", async (req, res) => {
@@ -175,8 +185,16 @@ router.get("/registerWithInvitationLink", async (req, res) => {
  *     parameters:
  *      - in: path
  */
-router.post("/setEmail", async (req, res) => {
-	res.json(await setEmail(req.body));
+router.post("/setEmail", hasLoggedIn, async (req, res) => {
+	const setEmailResult = await setEmail(req.body);
+	if (setEmailResult.status === 1) {
+		req.login(setEmailResult.data, (err) => {
+			if (err) {
+				return next(err);
+			}
+		});
+	}
+	res.json(setEmailResult);
 });
 
 /**
@@ -211,7 +229,7 @@ router.post("/setEmail", async (req, res) => {
  *     parameters:
  *      - in: path
  */
-router.post("/setPassword", async (req, res) => {
+router.post("/setPassword", hasLoggedIn, async (req, res) => {
 	res.json(await setPassword(req.body));
 });
 
@@ -245,8 +263,16 @@ router.post("/setPassword", async (req, res) => {
  *                type: string
  *                default: en
  */
-router.post("/updateLanguagePreference", async (req, res) => {
-	res.json(await choosePreferedLanguage(req.body));
+router.post("/updateLanguagePreference", hasLoggedIn, async (req, res) => {
+	const choosePreferedLanguageResult = await choosePreferedLanguage(req.body);
+	if (choosePreferedLanguageResult.status === 1) {
+		req.login(choosePreferedLanguageResult.data, (err) => {
+			if (err) {
+				return next(err);
+			}
+		});
+	}
+	res.json(choosePreferedLanguageResult);
 });
 
 /**
@@ -301,8 +327,16 @@ router.post("/updateLanguagePreference", async (req, res) => {
  *                city: string
  *                default: shiraz
  */
-router.post("/updateProfile", async (req, res) => {
-	res.json(await updateProfile(req.body));
+router.post("/updateProfile", hasLoggedIn, async (req, res) => {
+	const updateProfileResult = await updateProfile(req.body);
+	if (updateProfileResult.status === 1) {
+		req.login(updateProfileResult.data, (err) => {
+			if (err) {
+				return next(err);
+			}
+		});
+	}
+	res.json(updateProfileResult);
 });
 
 /**
@@ -329,8 +363,18 @@ router.post("/updateProfile", async (req, res) => {
  *                type: array
  *                default: [1, 3]
  */
-router.post("/updateCategoryPreferences", async (req, res) => {
-	res.json(await chooseCategoryPreferences(req.body));
+router.post("/updateCategoryPreferences", hasLoggedIn, async (req, res) => {
+	const chooseCategoryPreferencesResult = await chooseCategoryPreferences(
+		req.body
+	);
+	if (chooseCategoryPreferencesResult.status === 1) {
+		req.login(chooseCategoryPreferencesResult.data, (err) => {
+			if (err) {
+				return next(err);
+			}
+		});
+	}
+	res.json(chooseCategoryPreferencesResult);
 });
 
 /**
@@ -357,8 +401,16 @@ router.post("/updateCategoryPreferences", async (req, res) => {
  *                type: string
  *                default: 1
  */
-router.post("/updateAccountType", async (req, res) => {
-	res.json(await chooseAccountType(req.body));
+router.post("/updateAccountType", hasLoggedIn, async (req, res) => {
+	const chooseAccountTypeResult = await chooseAccountType(req.body);
+	if (chooseAccountTypeResult.status === 1) {
+		req.login(chooseAccountTypeResult.data, (err) => {
+			if (err) {
+				return next(err);
+			}
+		});
+	}
+	res.json(chooseAccountTypeResult);
 });
 
 /**
