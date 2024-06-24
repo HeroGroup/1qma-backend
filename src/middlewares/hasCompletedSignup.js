@@ -1,5 +1,5 @@
 exports.hasCompletedSignup = (req, res, next) => {
-	if (req.user && req.user.hasCompletedSignup) {
+	if (req.session.user && req.session.user.hasCompletedSignup) {
 		next();
 	} else {
 		res.sendStatus(401);

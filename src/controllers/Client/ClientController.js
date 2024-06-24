@@ -6,6 +6,7 @@ const {
 } = require("../../helpers/utils");
 const User = require("../../models/User");
 const AccountType = require("../../models/AccountType");
+const { validateEmail } = require("../../helpers/validator");
 
 const languages = [{ _id: "0", code: "en", title: "English" }];
 
@@ -48,7 +49,6 @@ const homePages = [
 exports.init = async () => {
 	try {
 		const accountTypes = await AccountType.find();
-		const user = req.user;
 
 		return success("initialize parameters", {
 			languages,
@@ -56,7 +56,6 @@ exports.init = async () => {
 			educations,
 			accountTypes,
 			homePages,
-			user,
 		});
 	} catch (e) {
 		return handleException(e);
@@ -212,7 +211,35 @@ exports.removeProfilePicture = async (params) => {
 };
 
 exports.invite = async (params) => {
-	// create invite link
+	try {
+		const { id, email } = params;
+		if (!id) {
+			return fail("invalid user id");
+		}
+		if (!validateEmail(email)) {
+			return fail("invalid email!");
+		}
+
+		// check if email is already exists
+		const existingEmail = await User.countDocuments({
+			email,
+			emailVerified: true,
+		});
+		if (existingEmail > 0) {
+			return fail("This email address is already in!");
+		}
+
+		// add it to user invitations
+		await User.findOneAndUpdate(
+			{ _id: id },
+			{ $push: { invitations: { email, status: "pending" } } }
+		);
+
+		// TODO: create and send invite link
+		return success(`Invitation Email was sent to ${email}`);
+	} catch (e) {
+		return handleException(e);
+	}
 };
 
 exports.userDetails = async (id) => {

@@ -1,5 +1,4 @@
 const express = require("express");
-const passport = require("passport");
 const router = express.Router();
 
 const { isAdmin } = require("../../middlewares/isAdmin");
@@ -10,6 +9,9 @@ const {
 	dashboard,
 	updatePassword,
 } = require("../../controllers/Admin/AdminController");
+const {
+	loginWithAuthToken,
+} = require("../../controllers/Client/AuthController");
 
 /**
  * @openapi
@@ -35,16 +37,13 @@ const {
  *                type: string
  *                default: admin
  */
-router.post("/login", passport.authenticate("local"), async (req, res) => {
-	if (req.user && req.user.userType !== "admin") {
-		req.logout(function (err) {
-			if (err) {
-				res.json(fail(err));
-			}
+router.post("/login", async (req, res) => {
+	const loginResult = login(req.body);
 
-			res.json(fail("Invalid email and password combination!"));
-		});
+	if (loginResult.status === 1) {
+		req.session.user = await loginWithAuthToken(loginResult.data);
 	}
+
 	res.json(success("successfull login!", req.user));
 });
 

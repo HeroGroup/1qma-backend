@@ -10,7 +10,7 @@ const {
 	updateProfilePicture,
 	removeProfilePicture,
 	userDetails,
-	invitedFriends,
+	invite,
 } = require("../../controllers/Client/ClientController");
 
 /**
@@ -22,7 +22,11 @@ const {
  *     summary: Parameters needed to be initialized
  */
 router.get("/init", async (req, res) => {
-	res.json(await init());
+	const initResult = await init();
+	if (initResult.status === 1) {
+		initResult.data.user = req.session.user;
+	}
+	res.json(initResult);
 });
 
 /**
@@ -181,6 +185,10 @@ router.post("/profilePicture/remove", sameUser, async (req, res) => {
  */
 router.get("/:id/details", async (req, res) => {
 	res.json(await userDetails(req.params.id));
+});
+
+router.post("/invite", async (req, res) => {
+	res.json(await invite(req.body));
 });
 
 module.exports = router;

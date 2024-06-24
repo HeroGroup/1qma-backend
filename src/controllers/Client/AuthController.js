@@ -96,23 +96,43 @@ exports.loginWithEmail = async (params) => {
 			return fail("Enter password!", params);
 		}
 
-		const user = await User.findOne(
-			{
-				email: params.email,
-				emailVerified: true,
-				isActive: true,
-			},
-			{ _id: 1, __v: 0 }
-		);
+		const user = await User.findOne({
+			email: params.email,
+			emailVerified: true,
+			isActive: true,
+		});
 		if (!user || !checkSame(params.password, user.password)) {
 			return fail("Invalid email and password combination!", params);
 		}
 
-		// TODO: send some bearer token as well
+		// create and send some token as well
+		const token = Math.round(Math.random() * 1e9) + "" + Date.now();
+		await User.findOneAndUpdate(
+			{ _id: user.id },
+			{ $push: { accessTokens: { token, expire: null } } },
+			{ new: true }
+		);
 
-		return success("successfull login!", user);
+		return success("successfull login!", token);
 	} catch (e) {
 		return handleException(e);
+	}
+};
+
+exports.loginWithAuthToken = async (token) => {
+	try {
+		if (!token) {
+			return {};
+		}
+
+		const user = await User.findOne(
+			{ "accessTokens.token": token },
+			{ _id: 1, __v: 0, password: 0, accessTokens: 0 }
+		);
+
+		return user || {};
+	} catch (e) {
+		throw e;
 	}
 };
 

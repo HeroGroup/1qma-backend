@@ -24,6 +24,8 @@ const {
 	forgotPasswordViaEmail,
 	forgotPasswordViaMobile,
 	registerWithInvitationLink,
+	loginWithEmail,
+	loginWithAuthToken,
 } = require("../../controllers/Client/AuthController");
 
 /**
@@ -35,6 +37,7 @@ const {
  *     summary: Parameters needed to be initialized
  */
 router.get("/register/init", async (req, res) => {
+	console.log(req.session);
 	res.json(await init());
 });
 
@@ -62,13 +65,14 @@ router.get("/register/init", async (req, res) => {
  *                type: string
  *                default: somepassword
  */
-router.post(
-	"/loginWithEmail",
-	passport.authenticate("local"),
-	async (req, res) => {
-		res.json(success("successfull login!", req.user));
+router.post("/loginWithEmail", async (req, res) => {
+	const loginWithEmailResult = await loginWithEmail(req.body);
+	if (loginWithEmailResult.status === 1) {
+		req.session.user = await loginWithAuthToken(loginWithEmailResult.data);
 	}
-);
+
+	res.json(loginWithEmailResult);
+});
 
 /**
  * @openapi

@@ -28,12 +28,15 @@ exports.login = async (params) => {
 			return fail("Invalid email and password combination!", params);
 		}
 
-		delete user.password;
-		delete user.__v;
+		// create and send some token as well
+		const token = Math.round(Math.random() * 1e9) + "" + Date.now();
+		await User.findOneAndUpdate(
+			{ _id: user.id },
+			{ $push: { accessTokens: { token, expire: null } } },
+			{ new: true }
+		);
 
-		// TODO: send some bearer token as well
-
-		return success("successfull login!", user);
+		return success("successfull login!", token);
 	} catch (e) {
 		return handleException(e);
 	}
