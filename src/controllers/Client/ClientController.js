@@ -230,6 +230,10 @@ exports.userDetails = async (id) => {
 			games: 1,
 		});
 
+		if (!user) {
+			return fail("invalid user!");
+		}
+
 		return success("User retrieved successfully!", user);
 	} catch (e) {
 		return handleException(e);

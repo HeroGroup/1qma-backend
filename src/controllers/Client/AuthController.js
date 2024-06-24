@@ -231,11 +231,6 @@ exports.registerWithReferal = async (params) => {
 
 		await newUser.save();
 
-		await User.findOneAndUpdate(
-			{ _id: refererUser._id },
-			{ $push: { invitations: { _id: newUser._id } } }
-		);
-
 		return success("New User was created successfully!", newUser);
 	} catch (e) {
 		return handleException(e);
@@ -365,7 +360,17 @@ exports.choosePreferedLanguage = async (params) => {
 		new: true,
 	});
 
-	return success("Category preferences updated successfully!", user);
+	// update referer user
+	await User.findOneAndUpdate(
+		{ _id: user.referer._id },
+		{
+			$push: {
+				invitations: { _id: user._id, email: user.email, createdAt: moment() },
+			},
+		}
+	);
+
+	return success("Language preferences updated successfully!", user);
 };
 
 exports.updateProfile = async (params) => {

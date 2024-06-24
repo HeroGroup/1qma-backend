@@ -81,8 +81,9 @@ const sess = {
 	saveUninitialized: false,
 	secret: "whatissecret",
 	cookie: {
-		httpOnly: true,
+		// httpOnly: true,
 		sameSite: "none",
+		origin: ["*", "localhost:4200"],
 	},
 };
 

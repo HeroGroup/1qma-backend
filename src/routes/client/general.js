@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const imageUpload = require("../../services/imageUpload");
+const { sameUser } = require("../../middlewares/sameUser");
 
 const {
 	init,
@@ -9,6 +10,7 @@ const {
 	updateProfilePicture,
 	removeProfilePicture,
 	userDetails,
+	invitedFriends,
 } = require("../../controllers/Client/ClientController");
 
 /**
@@ -76,7 +78,7 @@ router.get("/init", async (req, res) => {
  *                type: string
  *                default: 6758323993485732626
  */
-router.post("/profile/update", async (req, res) => {
+router.post("/profile/update", sameUser, async (req, res) => {
 	res.json(await updateProfile(req.body));
 });
 
@@ -108,7 +110,7 @@ router.post("/profile/update", async (req, res) => {
  *                type: string
  *                default: /dashboard
  */
-router.post("/settings/update", async (req, res) => {
+router.post("/settings/update", sameUser, async (req, res) => {
 	res.json(await updateUserSettings(req.body));
 });
 
@@ -139,6 +141,7 @@ router.post("/settings/update", async (req, res) => {
 router.post(
 	"/profilePicture/update",
 	imageUpload.single("avatar"),
+	sameUser,
 	async (req, res) => {
 		res.json(await updateProfilePicture(req.body, req.file));
 	}
@@ -164,7 +167,7 @@ router.post(
  *                type: string
  *                default: 63738495886737657388948
  */
-router.post("/profilePicture/remove", async (req, res) => {
+router.post("/profilePicture/remove", sameUser, async (req, res) => {
 	res.json(await removeProfilePicture(req.body));
 });
 
