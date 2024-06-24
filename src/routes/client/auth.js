@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const passport = require("passport");
 
-const { hasLoggedIn } = require("../../middlewares/hasLoggedIn");
+const { isLoggedIn } = require("../../middlewares/isLoggedIn");
 
 const {
 	init,
@@ -189,7 +189,7 @@ router.get("/registerWithInvitationLink", async (req, res) => {
  *     parameters:
  *      - in: path
  */
-router.post("/setEmail", hasLoggedIn, async (req, res) => {
+router.post("/setEmail", isLoggedIn, async (req, res) => {
 	const setEmailResult = await setEmail(req.body);
 	if (setEmailResult.status === 1) {
 		req.login(setEmailResult.data, (err) => {
@@ -233,7 +233,7 @@ router.post("/setEmail", hasLoggedIn, async (req, res) => {
  *     parameters:
  *      - in: path
  */
-router.post("/setPassword", hasLoggedIn, async (req, res) => {
+router.post("/setPassword", isLoggedIn, async (req, res) => {
 	res.json(await setPassword(req.body));
 });
 
@@ -267,7 +267,7 @@ router.post("/setPassword", hasLoggedIn, async (req, res) => {
  *                type: string
  *                default: en
  */
-router.post("/updateLanguagePreference", hasLoggedIn, async (req, res) => {
+router.post("/updateLanguagePreference", isLoggedIn, async (req, res) => {
 	const choosePreferedLanguageResult = await choosePreferedLanguage(req.body);
 	if (choosePreferedLanguageResult.status === 1) {
 		req.login(choosePreferedLanguageResult.data, (err) => {
@@ -331,7 +331,7 @@ router.post("/updateLanguagePreference", hasLoggedIn, async (req, res) => {
  *                city: string
  *                default: shiraz
  */
-router.post("/updateProfile", hasLoggedIn, async (req, res) => {
+router.post("/updateProfile", isLoggedIn, async (req, res) => {
 	const updateProfileResult = await updateProfile(req.body);
 	if (updateProfileResult.status === 1) {
 		req.login(updateProfileResult.data, (err) => {
@@ -367,7 +367,7 @@ router.post("/updateProfile", hasLoggedIn, async (req, res) => {
  *                type: array
  *                default: [1, 3]
  */
-router.post("/updateCategoryPreferences", hasLoggedIn, async (req, res) => {
+router.post("/updateCategoryPreferences", isLoggedIn, async (req, res) => {
 	const chooseCategoryPreferencesResult = await chooseCategoryPreferences(
 		req.body
 	);
@@ -405,7 +405,7 @@ router.post("/updateCategoryPreferences", hasLoggedIn, async (req, res) => {
  *                type: string
  *                default: 1
  */
-router.post("/updateAccountType", hasLoggedIn, async (req, res) => {
+router.post("/updateAccountType", isLoggedIn, async (req, res) => {
 	const chooseAccountTypeResult = await chooseAccountType(req.body);
 	if (chooseAccountTypeResult.status === 1) {
 		req.login(chooseAccountTypeResult.data, (err) => {

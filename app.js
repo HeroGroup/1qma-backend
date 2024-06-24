@@ -28,7 +28,7 @@ const {
 } = require("./src/middlewares/sanitizeRequestInputs");
 const { isAdmin } = require("./src/middlewares/isAdmin");
 const { hasCompletedSignup } = require("./src/middlewares/hasCompletedSignup");
-const { hasLoggedIn } = require("./src/middlewares/hasLoggedIn");
+const { isLoggedIn } = require("./src/middlewares/isLoggedIn");
 const { passportInit } = require("./src/services/auth/passport");
 
 globalThis.__basedir = __dirname;
@@ -101,7 +101,7 @@ app.use("/admin/accountTypes", isAdmin, accountTypesRoutes);
 app.use("/admin/categories", isAdmin, categoriesRoutes);
 app.use("/admin/users", isAdmin, usersRoutes);
 app.use("/admin/settings", isAdmin, settingsRoutes);
-app.use("/client", hasLoggedIn, clientGeneralRoutes);
+app.use("/client", isLoggedIn, clientGeneralRoutes);
 app.use("/game", hasCompletedSignup, gameRoutes);
 app.use("/", indexRoutes);
 app.use(express.static("public"));
