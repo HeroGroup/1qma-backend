@@ -65,7 +65,7 @@ const whitelist = [
 ];
 const corsOptions = {
 	credentials: true,
-	origin: ["*"],
+	origin: ["*", "localhost:4200"],
 };
 
 app.use(cors(corsOptions));
