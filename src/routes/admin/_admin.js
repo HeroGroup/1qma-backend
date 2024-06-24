@@ -39,12 +39,13 @@ const {
  */
 router.post("/login", async (req, res) => {
 	const loginResult = login(req.body);
-
 	if (loginResult.status === 1) {
-		req.session.user = await loginWithAuthToken(loginResult.data);
+		const user = await loginWithAuthToken(loginResult.data.token);
+		req.session.user = user;
+		loginResult.data.user = user;
 	}
 
-	res.json(success("successfull login!", req.user));
+	res.json(loginResult);
 });
 
 // router.get("/createAdminUser", async (req, res) => {
