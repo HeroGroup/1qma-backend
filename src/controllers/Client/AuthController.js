@@ -113,7 +113,7 @@ exports.loginWithEmail = async (params) => {
 			{ new: true }
 		);
 
-		return success("successfull login!", token);
+		return success("successfull login!", { token });
 	} catch (e) {
 		return handleException(e);
 	}
