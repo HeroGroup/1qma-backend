@@ -38,7 +38,7 @@ const {
  *                default: admin
  */
 router.post("/login", async (req, res) => {
-	const loginResult = login(req.body);
+	const loginResult = await login(req.body);
 	if (loginResult.status === 1) {
 		const user = await loginWithAuthToken(loginResult.data.token);
 		req.session.user = user;
