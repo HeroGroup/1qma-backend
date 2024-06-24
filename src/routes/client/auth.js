@@ -37,7 +37,6 @@ const {
  *     summary: Parameters needed to be initialized
  */
 router.get("/register/init", async (req, res) => {
-	console.log(req.session);
 	res.json(await init());
 });
 
@@ -68,7 +67,7 @@ router.get("/register/init", async (req, res) => {
 router.post("/loginWithEmail", async (req, res) => {
 	const loginWithEmailResult = await loginWithEmail(req.body);
 	if (loginWithEmailResult.status === 1) {
-		const user = await loginWithAuthToken(loginWithEmailResult.data);
+		const user = await loginWithAuthToken(loginWithEmailResult.data.token);
 		req.session.user = user;
 		loginWithEmailResult.data.user = user;
 	}
