@@ -65,6 +65,7 @@ const whitelist = [
 ];
 const corsOptions = {
 	credentials: true,
+	origin: ["*"],
 };
 
 app.use(cors(corsOptions));
@@ -83,7 +84,6 @@ const sess = {
 	cookie: {
 		httpOnly: false,
 		sameSite: "none",
-		origin: ["*", "localhost:4200"],
 	},
 };
 
