@@ -8,6 +8,7 @@ const {
 	createAdminUser,
 	dashboard,
 	updatePassword,
+	logout,
 } = require("../../controllers/Admin/AdminController");
 const {
 	loginWithAuthToken,
@@ -120,13 +121,13 @@ router.post("/updatePassword", isAdmin, async (req, res) => {
  *                type: string
  *                default: 6644e9072019def5602933cb
  */
-router.post("/logout", isAdmin, (req, res) => {
+router.post("/logout", isAdmin, async (req, res) => {
 	req.logout(function (err) {
 		if (err) {
 			res.json(fail(err));
 		}
-		res.json(success("user signed out successfully!"));
 	});
+	res.json(await logout(req.body.id, req.header("Access-Token")));
 });
 
 module.exports = router;

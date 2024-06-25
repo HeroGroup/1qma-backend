@@ -26,6 +26,7 @@ const {
 	registerWithInvitationLink,
 	loginWithEmail,
 	loginWithAuthToken,
+	logout,
 } = require("../../controllers/Client/AuthController");
 
 /**
@@ -590,11 +591,11 @@ router.post("/updatePassword/:media", async (req, res) => {
 
 /**
  * @openapi
- * '/auth/signout':
+ * '/auth/logout':
  *  post:
  *     tags:
  *     - Authentication
- *     summary: sign out user
+ *     summary: log out user
  *     requestBody:
  *      required: true
  *      content:
@@ -608,13 +609,13 @@ router.post("/updatePassword/:media", async (req, res) => {
  *                type: string
  *                default: 6644e9072019def5602933cb
  */
-router.post("/signout", (req, res) => {
+router.post("/logout", isLoggedIn, async (req, res) => {
 	req.logout(function (err) {
 		if (err) {
 			res.json(fail(err));
 		}
-		res.json(success("user signed out successfully!"));
 	});
+	res.json(await logout(req.body.id, req.header("Access-Token")));
 });
 
 /**

@@ -883,3 +883,23 @@ exports.googleOAuth = async (profile) => {
 };
 
 exports.registerWithInvitationLink = async (params) => {};
+
+exports.logout = async (id, authToken) => {
+	try {
+		if (!id) {
+			return fail("invalid id!");
+		}
+		if (!authToken) {
+			return fail("invalid token!");
+		}
+
+		await User.findOneAndUpdate(
+			{ _id: id },
+			{ $pull: { accessTokens: authToken } }
+		);
+
+		return success("user logged out successfully!");
+	} catch (e) {
+		return handleException(e);
+	}
+};
