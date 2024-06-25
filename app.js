@@ -85,6 +85,7 @@ const sess = {
 
 if (app.get("env") === "production") {
 	app.set("trust proxy", 1);
+	sess.cookie.domain = env.appDomain;
 	// sess.cookie.secure = true;
 }
 
