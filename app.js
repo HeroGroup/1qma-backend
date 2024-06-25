@@ -64,7 +64,7 @@ let redisStore = new RedisStore({
 // 	"http://staging.admin.1qma.games",
 // ];
 const corsOptions = {
-	// credentials: true,
+	credentials: true,
 };
 
 app.use(cors(corsOptions));
