@@ -28,6 +28,7 @@ const {
 	loginWithAuthToken,
 	logout,
 } = require("../../controllers/Client/AuthController");
+const { sameUser } = require("../../middlewares/sameUser");
 
 /**
  * @openapi
@@ -333,7 +334,7 @@ router.post("/updateLanguagePreference", isLoggedIn, async (req, res) => {
  *                city: string
  *                default: shiraz
  */
-router.post("/updateProfile", isLoggedIn, async (req, res) => {
+router.post("/updateProfile", sameUser, async (req, res) => {
 	const updateProfileResult = await updateProfile(req.body);
 	if (updateProfileResult.status === 1) {
 		req.login(updateProfileResult.data, (err) => {
@@ -369,19 +370,24 @@ router.post("/updateProfile", isLoggedIn, async (req, res) => {
  *                type: array
  *                default: [1, 3]
  */
-router.post("/updateCategoryPreferences", isLoggedIn, async (req, res) => {
-	const chooseCategoryPreferencesResult = await chooseCategoryPreferences(
-		req.body
-	);
-	if (chooseCategoryPreferencesResult.status === 1) {
-		req.login(chooseCategoryPreferencesResult.data, (err) => {
-			if (err) {
-				return next(err);
-			}
-		});
+router.post(
+	"/updateCategoryPreferences",
+	sameUser,
+	isLoggedIn,
+	async (req, res) => {
+		const chooseCategoryPreferencesResult = await chooseCategoryPreferences(
+			req.body
+		);
+		if (chooseCategoryPreferencesResult.status === 1) {
+			req.login(chooseCategoryPreferencesResult.data, (err) => {
+				if (err) {
+					return next(err);
+				}
+			});
+		}
+		res.json(chooseCategoryPreferencesResult);
 	}
-	res.json(chooseCategoryPreferencesResult);
-});
+);
 
 /**
  * @openapi
@@ -407,7 +413,7 @@ router.post("/updateCategoryPreferences", isLoggedIn, async (req, res) => {
  *                type: string
  *                default: 1
  */
-router.post("/updateAccountType", isLoggedIn, async (req, res) => {
+router.post("/updateAccountType", sameUser, async (req, res) => {
 	const chooseAccountTypeResult = await chooseAccountType(req.body);
 	if (chooseAccountTypeResult.status === 1) {
 		req.login(chooseAccountTypeResult.data, (err) => {
@@ -609,13 +615,17 @@ router.post("/updatePassword/:media", async (req, res) => {
  *                type: string
  *                default: 6644e9072019def5602933cb
  */
-router.post("/logout", isLoggedIn, async (req, res) => {
-	req.logout(function (err) {
-		if (err) {
-			res.json(fail(err));
-		}
-	});
-	res.json(await logout(req.body.id, req.header("Access-Token")));
+router.post("/logout", sameUser, async (req, res) => {
+	const logoutResponse = await logout(req.body, req.header("Access-Token"));
+	if (logoutResponse.status === 1) {
+		req.logout(function (err) {
+			if (err) {
+				res.json(fail(err));
+			}
+		});
+	}
+
+	res.json(logoutResponse);
 });
 
 /**
