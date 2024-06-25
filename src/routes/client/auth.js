@@ -625,9 +625,9 @@ router.post("/logout", sameUser, async (req, res) => {
 		});
 	}
 
-	res.json(logoutResponse);
+	req.session.user = {};
 
-	req.session.destroy();
+	res.json(logoutResponse);
 });
 
 /**
