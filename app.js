@@ -7,7 +7,7 @@ const swaggerUI = require("swagger-ui-express");
 const session = require("express-session");
 const RedisStore = require("connect-redis").default;
 const { createClient } = require("redis");
-const passport = require("passport");
+// const passport = require("passport");
 
 const { swaggerSpec } = require("./src/services/swagger.js");
 
@@ -29,7 +29,7 @@ const {
 const { isAdmin } = require("./src/middlewares/isAdmin");
 const { hasCompletedSignup } = require("./src/middlewares/hasCompletedSignup");
 const { isLoggedIn } = require("./src/middlewares/isLoggedIn");
-const { passportInit } = require("./src/services/auth/passport");
+// const { passportInit } = require("./src/services/auth/passport");
 
 globalThis.__basedir = __dirname;
 globalThis.moment = require("moment");
@@ -81,7 +81,6 @@ const sess = {
 	saveUninitialized: true,
 	secret: "whatissecret",
 	cookie: {},
-	user: {},
 };
 
 if (app.get("env") === "production") {
@@ -91,10 +90,10 @@ if (app.get("env") === "production") {
 
 app.use(session(sess));
 
-passportInit();
+// passportInit();
 
-app.use(passport.initialize());
-app.use(passport.session());
+// app.use(passport.initialize());
+// app.use(passport.session());
 
 app.use("/auth", authRoutes);
 app.use("/admin", adminRoutes);
