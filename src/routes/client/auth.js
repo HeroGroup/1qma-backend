@@ -623,6 +623,8 @@ router.post("/logout", sameUser, async (req, res) => {
 				res.json(fail(err));
 			}
 		});
+
+		req.session.destroy();
 	}
 
 	res.json(logoutResponse);
