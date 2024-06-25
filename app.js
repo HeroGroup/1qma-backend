@@ -80,14 +80,15 @@ const sess = {
 	resave: false,
 	saveUninitialized: true,
 	secret: "whatissecret",
-	httpOnly: false,
 	cookie: {},
 };
 
 if (app.get("env") === "production") {
 	app.set("trust proxy", 1);
 	sess.cookie.domain = env.appDomain;
-	// sess.cookie.secure = true;
+	// sess.cookie.httpOnly = false; // default is true
+	sess.cookie.sameSite = "none";
+	sess.cookie.secure = true;
 }
 
 app.use(session(sess));
