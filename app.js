@@ -78,9 +78,10 @@ app.set("query parser", function (str) {
 const sess = {
 	store: redisStore,
 	resave: false,
-	saveUninitialized: false,
+	saveUninitialized: true,
 	secret: "whatissecret",
 	cookie: {},
+	user: {},
 };
 
 if (app.get("env") === "production") {
