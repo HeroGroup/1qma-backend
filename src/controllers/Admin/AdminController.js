@@ -130,10 +130,9 @@ exports.logout = async (id, authToken) => {
 			return fail("invalid token!");
 		}
 
-		const removeTokenResult = await User.findOneAndUpdate(
+		await User.findOneAndUpdate(
 			{ _id: id },
-			{ $pull: { accessTokens: [authToken] } },
-			{ includeResultMetadata: true }
+			{ $pull: { accessTokens: { token: authToken } } }
 		);
 
 		return success("user logged out successfully!");
