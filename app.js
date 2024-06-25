@@ -80,6 +80,7 @@ const sess = {
 	resave: false,
 	saveUninitialized: true,
 	secret: "whatissecret",
+	httpOnly: false,
 	cookie: {},
 };
 
