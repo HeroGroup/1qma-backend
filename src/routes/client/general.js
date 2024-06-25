@@ -178,7 +178,7 @@ router.post("/profilePicture/remove", sameUser, async (req, res) => {
 
 /**
  * @openapi
- * '/client/:id/details':
+ * '/client/{id}/details':
  *  get:
  *     tags:
  *     - Client
@@ -188,7 +188,59 @@ router.get("/:id/details", async (req, res) => {
 	res.json(await userDetails(req.params.id));
 });
 
-router.post("/invite", async (req, res) => {
+/**
+ * @openapi
+ * '/client/invite':
+ *  post:
+ *     tags:
+ *     - Client
+ *     summary: invite via email
+ *     requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *           schema:
+ *            type: object
+ *            required:
+ *              - id
+ *              - email
+ *            properties:
+ *              id:
+ *                type: string
+ *                default: 63738495886737657388948
+ *              email:
+ *                type: string
+ *                format: navid@gmail.com
+ */
+router.post("/invite", sameUser, async (req, res) => {
+	res.json(await invite(req.body));
+});
+
+/**
+ * @openapi
+ * '/client/questions/add':
+ *  post:
+ *     tags:
+ *     - Client
+ *     summary: invite via email
+ *     requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *           schema:
+ *            type: object
+ *            required:
+ *              - id
+ *              - email
+ *            properties:
+ *              id:
+ *                type: string
+ *                default: 63738495886737657388948
+ *              email:
+ *                type: string
+ *                format: navid@gmail.com
+ */
+router.post("/invite", sameUser, async (req, res) => {
 	res.json(await invite(req.body));
 });
 

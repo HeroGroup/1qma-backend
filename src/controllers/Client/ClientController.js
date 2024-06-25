@@ -220,6 +220,8 @@ exports.invite = async (params) => {
 			return fail("invalid email!");
 		}
 
+		// TODO: check limit
+
 		// check if email is already exists
 		const existingEmail = await User.countDocuments({
 			email,
