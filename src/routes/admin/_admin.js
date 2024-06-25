@@ -129,9 +129,9 @@ router.post("/logout", isAdmin, async (req, res) => {
 				res.json(fail(err));
 			}
 		});
-
-		req.session.destroy();
 	}
+
+	req.session.user = {};
 
 	res.json(logoutResponse);
 });

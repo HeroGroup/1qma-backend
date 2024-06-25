@@ -5,7 +5,7 @@ exports.hasCompletedSignup = async (req, res, next) => {
 		req.session.user = await loginWithAuthToken(req.header("Access-Token"));
 	}
 
-	if (req.session.user && req.session.user.hasCompletedSignup) {
+	if (req.session.user?._id && req.session.user.hasCompletedSignup) {
 		next();
 	} else {
 		res.sendStatus(401);
