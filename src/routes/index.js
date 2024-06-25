@@ -2,7 +2,13 @@ const express = require("express");
 const router = express.Router();
 
 router.get("/", (req, res) => {
-	res.send("Hello From 1QMA DEV Team!");
+	res.json(req.session);
+});
+
+router.get("/session/set/:key/:value", (req, res) => {
+	const { key, value } = req.params;
+	req.session[key] = value;
+	res.send(`${key} set to ${value}`);
 });
 
 module.exports = router;
