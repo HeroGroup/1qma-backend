@@ -610,11 +610,11 @@ router.post("/updatePassword/:media", async (req, res) => {
  *                default: 6644e9072019def5602933cb
  */
 router.post("/logout", isLoggedIn, async (req, res) => {
-	req.logout(function (err) {
-		if (err) {
-			res.json(fail(err));
-		}
-	});
+	// req.logout(function (err) {
+	// 	if (err) {
+	// 		res.json(fail(err));
+	// 	}
+	// });
 	res.json(await logout(req.body.id, req.header("Access-Token")));
 });
 
