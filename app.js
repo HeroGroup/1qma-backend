@@ -12,7 +12,11 @@ const passport = require("passport");
 const { swaggerSpec } = require("./src/services/swagger.js");
 
 const app = express();
-globalThis.env = require("./env.js");
+if (app.get("env") === "production") {
+	globalThis.env = require("./env.js");
+} else {
+	globalThis.env = require("./env.development.js");
+}
 
 const authRoutes = require("./src/routes/client/auth");
 const adminRoutes = require("./src/routes/admin/_admin");
