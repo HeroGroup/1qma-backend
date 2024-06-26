@@ -620,7 +620,11 @@ router.post("/logout", sameUser, async (req, res) => {
  *     summary: Authenticate with google
  */
 router.get(
-	"/:reason/google",
+	"/google",
+	(req, res, next) => {
+		req.session.reason = "register";
+		next();
+	},
 	passport.authenticate("google", { scope: ["email", "profile"] })
 );
 
