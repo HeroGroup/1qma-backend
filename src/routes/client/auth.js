@@ -631,9 +631,10 @@ router.get(
 	}),
 	(req, res) => {
 		const { _id, providerId, email, emailVerified } = req.user;
-		if (req.session.user) {
-			Object.assign(req.session.user, req.user);
-		}
+		// if (req.session.user) {
+		// 	Object.assign(req.session.user, req.user);
+		// }
+		req.session.user = Object.assign(req.session.user || {}, req.user);
 		const redirect = `${env.authServiceProviders.google.redirectUrl}?user_id=${_id}&provider=google&provider_id=${providerId}&email=${email}&email_verified=${emailVerified}`;
 
 		res.redirect(redirect);

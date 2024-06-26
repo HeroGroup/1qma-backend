@@ -365,7 +365,11 @@ exports.choosePreferedLanguage = async (params, sessionUser) => {
 		return fail("invalid user id", params);
 	}
 
-	if (params.providerId && sessionUser?.providerId !== params.providerId) {
+	if (
+		params.providerId &&
+		sessionUser &&
+		sessionUser.providerId !== params.providerId
+	) {
 		return fail("invalid provider id!");
 	}
 
