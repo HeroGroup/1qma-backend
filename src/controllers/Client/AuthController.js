@@ -690,6 +690,12 @@ exports.forgotPasswordViaEmail = async (params) => {
 		return fail("This email address does not exist in our database!");
 	}
 
+	if (user.loginProvider && user.providerId) {
+		return fail(
+			`This email is associated with your ${user.loginProvider} account!`
+		);
+	}
+
 	// send verification code to email
 	return createEmailVerification(params.email);
 };
@@ -704,6 +710,12 @@ exports.forgotPasswordViaMobile = async (params) => {
 	const user = await User.findOne({ mobile: params.mobile });
 	if (!user) {
 		return fail("This mobile number does not exist in our database!");
+	}
+
+	if (user.loginProvider && user.providerId) {
+		return fail(
+			`This email is associated with your ${user.loginProvider} account!`
+		);
 	}
 
 	// send verification code to mobile
@@ -728,6 +740,12 @@ exports.updatePasswordThroughEmail = async (params) => {
 	const user = await User.findOne({ email, emailVerified: true });
 	if (!user) {
 		return fail("This email address does not exist in our database!");
+	}
+
+	if (user.loginProvider && user.providerId) {
+		return fail(
+			`This email is associated with your ${user.loginProvider} account!`
+		);
 	}
 
 	const emailVerified = await this.verifyEmail({ email, verificationCode });
@@ -764,6 +782,12 @@ exports.updatePasswordThroughMobile = async (params) => {
 	const user = await User.findOne({ mobile, mobileVerified: true });
 	if (!user) {
 		return fail("This mobile address does not exist in our database!");
+	}
+
+	if (user.loginProvider && user.providerId) {
+		return fail(
+			`This email is associated with your ${user.loginProvider} account!`
+		);
 	}
 
 	const mobileVerified = await this.verifyMobile({ mobile, verificationCode });
@@ -881,7 +905,6 @@ exports.googleOAuth = async (profile, userSession) => {
 
 		if (userSession?._id) {
 			if (!userSession.googleId) {
-				console.log("!userSession.googleId");
 				return await User.findOneAndUpdate(
 					{
 						_id: userSession._id,
@@ -892,12 +915,10 @@ exports.googleOAuth = async (profile, userSession) => {
 					{ new: true }
 				);
 			} else {
-				console.log("userSession");
 				return userSession;
 			}
 		}
 
-		console.log("user");
 		const user = await User.findOne({
 			googleId: profile.id,
 			email: profile.email,
