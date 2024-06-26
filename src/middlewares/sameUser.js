@@ -5,8 +5,6 @@ exports.sameUser = async (req, res, next) => {
 		req.session.user = await loginWithAuthToken(req.header("Access-Token"));
 	}
 
-	console.log("same user", req.session.user);
-
 	if (
 		req.session.user?._id &&
 		(req.session.user._id?.toString() === req.body.id ||

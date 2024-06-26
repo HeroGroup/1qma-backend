@@ -25,7 +25,7 @@ const userSchema = new Schema({
 	city: String,
 	preferedCategories: Array,
 	accountType: Object,
-	preferedLanguage: String,
+	preferedLanguage: Object,
 	defaultHomePage: String,
 	profilePicture: String,
 	assets: Object,
