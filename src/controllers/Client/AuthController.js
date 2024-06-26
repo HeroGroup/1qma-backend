@@ -360,12 +360,12 @@ exports.setPassword = async (params) => {
 	}
 };
 
-exports.choosePreferedLanguage = async (params) => {
+exports.choosePreferedLanguage = async (params, sessionUser) => {
 	if (!params.id) {
 		return fail("invalid user id", params);
 	}
 
-	if (params.providerId && req.user.providerId !== params.providerId) {
+	if (params.providerId && sessionUser?.providerId !== params.providerId) {
 		return fail("invalid provider id!");
 	}
 
@@ -381,8 +381,8 @@ exports.choosePreferedLanguage = async (params) => {
 
 	let update = { preferedLanguage: language };
 
-	if (params.providerId && req.user.providerId === params.providerId) {
-		update = { ...update, ...req.user };
+	if (params.providerId && sessionUser?.providerId === params.providerId) {
+		update = { ...update, ...sessionUser };
 	}
 
 	const user = await User.findOneAndUpdate({ _id: params.id }, update, {

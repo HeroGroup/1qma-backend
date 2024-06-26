@@ -156,11 +156,7 @@ router.post("/joinToWaitListWithMobile", async (req, res) => {
 router.post("/registerWithReferal", async (req, res, next) => {
 	const registerResult = await registerWithReferal(req.body);
 	if (registerResult.status === 1) {
-		req.login(registerResult.data, (err) => {
-			if (err) {
-				return next(err);
-			}
-		});
+		req.session.user = registerResult.data.user;
 	}
 	res.json(registerResult);
 });
@@ -195,11 +191,7 @@ router.get("/registerWithInvitationLink", async (req, res) => {
 router.post("/setEmail", isLoggedIn, async (req, res) => {
 	const setEmailResult = await setEmail(req.body);
 	if (setEmailResult.status === 1) {
-		req.login(setEmailResult.data, (err) => {
-			if (err) {
-				return next(err);
-			}
-		});
+		// login or updat email
 	}
 	res.json(setEmailResult);
 });
@@ -271,13 +263,13 @@ router.post("/setPassword", isLoggedIn, async (req, res) => {
  *                default: en
  */
 router.post("/updateLanguagePreference", isLoggedIn, async (req, res) => {
-	const choosePreferedLanguageResult = await choosePreferedLanguage(req.body);
+	const sessionUser = req.session.user;
+	const choosePreferedLanguageResult = await choosePreferedLanguage(
+		req.body,
+		sessionUser
+	);
 	if (choosePreferedLanguageResult.status === 1) {
-		req.login(choosePreferedLanguageResult.data, (err) => {
-			if (err) {
-				return next(err);
-			}
-		});
+		req.session.user = choosePreferedLanguageResult.data;
 	}
 	res.json(choosePreferedLanguageResult);
 });
@@ -337,11 +329,7 @@ router.post("/updateLanguagePreference", isLoggedIn, async (req, res) => {
 router.post("/updateProfile", sameUser, async (req, res) => {
 	const updateProfileResult = await updateProfile(req.body);
 	if (updateProfileResult.status === 1) {
-		req.login(updateProfileResult.data, (err) => {
-			if (err) {
-				return next(err);
-			}
-		});
+		req.session.user = updateProfileResult.data;
 	}
 	res.json(updateProfileResult);
 });
@@ -379,11 +367,7 @@ router.post(
 			req.body
 		);
 		if (chooseCategoryPreferencesResult.status === 1) {
-			req.login(chooseCategoryPreferencesResult.data, (err) => {
-				if (err) {
-					return next(err);
-				}
-			});
+			req.session.user = chooseCategoryPreferencesResult.data;
 		}
 		res.json(chooseCategoryPreferencesResult);
 	}
@@ -416,11 +400,7 @@ router.post(
 router.post("/updateAccountType", sameUser, async (req, res) => {
 	const chooseAccountTypeResult = await chooseAccountType(req.body);
 	if (chooseAccountTypeResult.status === 1) {
-		req.login(chooseAccountTypeResult.data, (err) => {
-			if (err) {
-				return next(err);
-			}
-		});
+		req.session.user = chooseAccountTypeResult.data;
 	}
 	res.json(chooseAccountTypeResult);
 });
@@ -651,6 +631,7 @@ router.get(
 	}),
 	(req, res) => {
 		const { _id, providerId, email, emailVerified } = req.user;
+		Object.assign(req.session.user, { providerId, email, emailVerified });
 		const redirect = `${env.authServiceProviders.google.redirectUrl}?user_id=${_id}&provider=google&provider_id=${providerId}&email=${email}&email_verified=${emailVerified}`;
 
 		res.redirect(redirect);
