@@ -158,7 +158,7 @@ router.post("/registerWithReferal", async (req, res) => {
 	if (registerResult.status === 1) {
 		req.session.user = registerResult.data.user;
 	}
-	console.log(req.session.user);
+
 	res.json(registerResult);
 });
 

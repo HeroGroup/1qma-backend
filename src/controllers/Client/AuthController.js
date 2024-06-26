@@ -867,24 +867,42 @@ const createMobileVerification = async (mobile) => {
 	return success("Verification code was sent to you!");
 };
 
-exports.googleOAuth = async (profile) => {
+exports.googleOAuth = async (profile, userSession) => {
 	try {
-		const user = await User.findOne({
-			googleId: profile.id,
+		const profile = {
+			loginProvider: "google",
+			providerId: profile.sub,
+			firstName: profile.given_name,
+			lastName: profile.family_name,
 			email: profile.email,
-			emailVerified: true,
-		});
+			emailVerified: profile.email_verified,
+			profilePicture: profile.picture,
+		};
 
-		return (
-			user || {
-				loginProvider: "google",
-				providerId: profile.sub,
-				firstName: profile.given_name,
-				lastName: profile.family_name,
-				email: profile.email,
-				emailVerified: profile.email_verified,
-				profilePicture: profile.picture,
+		if (userSession?._id) {
+			if (!userSession.googleId) {
+				console.log("!userSession.googleId");
+				return await User.findOneAndUpdate(
+					{
+						_id: userSession._id,
+					},
+					{
+						...profile,
+					}
+				);
+			} else {
+				console.log("userSession");
+				return userSession;
 			}
+		}
+
+		console.log("user");
+		return (
+			(await User.findOne({
+				googleId: profile.id,
+				email: profile.email,
+				emailVerified: true,
+			})) || profile
 		);
 	} catch (e) {
 		handleException(e);
