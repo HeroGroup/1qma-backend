@@ -43,9 +43,19 @@ exports.passportInit = () => {
 			},
 			async function (request, accessToken, refreshToken, profile, done) {
 				const reason = request.session.reason;
-				console.log(reason);
-				const user = await googleOAuth(profile, request.session.user, reason);
-				return done(null, user);
+				if (!reason) {
+					return done("No reason for google auth!", false);
+				}
+				const googleOAuthResult = await googleOAuth(
+					profile,
+					request.session.user,
+					reason
+				);
+				if (googleOAuthResult.status === -1) {
+					return done(googleOAuthResult.message, false);
+				}
+
+				return done(null, googleOAuthResult.data);
 			}
 		)
 	);

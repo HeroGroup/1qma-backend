@@ -891,7 +891,7 @@ const createMobileVerification = async (mobile) => {
 	return success("Verification code was sent to you!");
 };
 
-exports.googleOAuth = async (profile, userSession) => {
+exports.googleOAuth = async (profile, userSession, reason) => {
 	try {
 		const tempUser = {
 			loginProvider: "google",
@@ -903,28 +903,62 @@ exports.googleOAuth = async (profile, userSession) => {
 			profilePicture: profile.picture,
 		};
 
-		if (userSession?._id) {
-			if (!userSession.googleId) {
-				return await User.findOneAndUpdate(
-					{
-						_id: userSession._id,
-					},
-					{
-						...tempUser,
-					},
-					{ new: true }
-				);
-			} else {
-				return userSession;
-			}
-		}
-
 		const user = await User.findOne({
-			googleId: profile.id,
+			loginProvider: "google",
+			providerId: profile.sub,
 			email: profile.email,
-			emailVerified: true,
+			emailVerified: profile.email_verified,
 		});
-		return user || tempUser;
+
+		if (reason === "register") {
+			if (user) {
+				return fail("This email address is already a member!");
+			} else {
+				if (userSession?._id) {
+					if (!userSession.googleId) {
+						return success(
+							"ok",
+							await User.findOneAndUpdate(
+								{
+									_id: userSession._id,
+								},
+								{
+									...tempUser,
+								},
+								{ new: true }
+							)
+						);
+					} else {
+						return success("ok", userSession);
+					}
+				}
+
+				return success("ok", tempUser);
+			}
+		} else if (reason === "join_to_wait_list") {
+			if (user) {
+				return fail("This email address is already a member!");
+			} else {
+				const newUser = new User({
+					email: profile.email,
+					emailVerified: profile.email_verified,
+					inWaitList: true,
+					isActive: false,
+					hasCompletedSignup: false,
+					created_at: moment(),
+				});
+
+				newUser.save();
+
+				return success("ok", newUser);
+			}
+		} else if (reason === "login") {
+			if (user) {
+				return success("ok", user);
+			}
+
+			return fail("There is no registered user with this email address!");
+		}
 	} catch (e) {
 		handleException(e);
 	}
