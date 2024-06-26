@@ -255,7 +255,12 @@ exports.registerWithReferal = async (params) => {
 
 		await newUser.save();
 
-		return success("New User was created successfully!", newUser);
+		delete newUser.accessTokens;
+
+		return success("New User was created successfully!", {
+			token,
+			user: newUser,
+		});
 	} catch (e) {
 		return handleException(e);
 	}
