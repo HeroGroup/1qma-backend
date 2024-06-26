@@ -869,7 +869,7 @@ const createMobileVerification = async (mobile) => {
 
 exports.googleOAuth = async (profile, userSession) => {
 	try {
-		const profile = {
+		const tempUser = {
 			loginProvider: "google",
 			providerId: profile.sub,
 			firstName: profile.given_name,
@@ -887,8 +887,9 @@ exports.googleOAuth = async (profile, userSession) => {
 						_id: userSession._id,
 					},
 					{
-						...profile,
-					}
+						...tempUser,
+					},
+					{ new: true }
 				);
 			} else {
 				console.log("userSession");
@@ -897,13 +898,12 @@ exports.googleOAuth = async (profile, userSession) => {
 		}
 
 		console.log("user");
-		return (
-			(await User.findOne({
-				googleId: profile.id,
-				email: profile.email,
-				emailVerified: true,
-			})) || profile
-		);
+		const user = await User.findOne({
+			googleId: profile.id,
+			email: profile.email,
+			emailVerified: true,
+		});
+		return user || tempUser;
 	} catch (e) {
 		handleException(e);
 	}
