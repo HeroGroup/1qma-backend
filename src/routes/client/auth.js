@@ -153,11 +153,12 @@ router.post("/joinToWaitListWithMobile", async (req, res) => {
  *                type: string
  *                default: 731086912583
  */
-router.post("/registerWithReferal", async (req, res, next) => {
+router.post("/registerWithReferal", async (req, res) => {
 	const registerResult = await registerWithReferal(req.body);
 	if (registerResult.status === 1) {
 		req.session.user = registerResult.data.user;
 	}
+	console.log(req.session.user);
 	res.json(registerResult);
 });
 
