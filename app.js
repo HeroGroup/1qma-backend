@@ -59,12 +59,14 @@ let redisStore = new RedisStore({
 	prefix: `${env.dbName}:`,
 });
 
-// const whitelist = [
-// 	"http://staging.1qma.games",
-// 	"http://staging.admin.1qma.games",
-// ];
+const origin = [
+	"https://staging.1qma.games",
+	"https://admin.staging.1qma.games",
+	"http://localhost:4200",
+];
 const corsOptions = {
 	credentials: true,
+	origin,
 };
 
 app.use(cors(corsOptions));
