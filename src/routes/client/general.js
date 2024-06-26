@@ -84,7 +84,11 @@ router.get("/init", async (req, res) => {
  *                default: 6758323993485732626
  */
 router.post("/profile/update", sameUser, async (req, res) => {
-	res.json(await updateProfile(req.body));
+	const updateProfileResult = await updateProfile(req.body);
+	if (updateProfileResult.status === 1) {
+		req.session.user = updateProfileResult.data;
+	}
+	res.json(updateProfileResult);
 });
 
 /**
@@ -116,7 +120,11 @@ router.post("/profile/update", sameUser, async (req, res) => {
  *                default: /dashboard
  */
 router.post("/settings/update", sameUser, async (req, res) => {
-	res.json(await updateUserSettings(req.body));
+	const updateUserSettingsResult = await updateUserSettings(req.body);
+	if (updateUserSettingsResult.status === 1) {
+		req.session.user = updateUserSettingsResult.data;
+	}
+	res.json(updateUserSettingsResult);
 });
 
 /**
@@ -148,7 +156,14 @@ router.post(
 	imageUpload.single("avatar"),
 	sameUser,
 	async (req, res) => {
-		res.json(await updateProfilePicture(req.body, req.file));
+		const updateProfilePictureResult = await updateProfilePicture(
+			req.body,
+			req.file
+		);
+		if (updateProfilePictureResult.status === 1) {
+			req.session.user = updateProfilePictureResult.data;
+		}
+		res.json(updateProfilePictureResult);
 	}
 );
 
@@ -173,7 +188,11 @@ router.post(
  *                default: 63738495886737657388948
  */
 router.post("/profilePicture/remove", sameUser, async (req, res) => {
-	res.json(await removeProfilePicture(req.body));
+	const removeProfilePictureResult = await removeProfilePicture(req.body);
+	if (removeProfilePictureResult.status === 1) {
+		req.session.user = removeProfilePictureResult.data;
+	}
+	res.json(removeProfilePictureResult);
 });
 
 /**
