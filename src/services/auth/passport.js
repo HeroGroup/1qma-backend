@@ -42,7 +42,7 @@ exports.passportInit = () => {
 				passReqToCallback: true,
 			},
 			async function (request, accessToken, refreshToken, profile, done) {
-				const reason = req.session.reason;
+				const reason = request.session.reason;
 				console.log(reason);
 				const user = await googleOAuth(profile, request.session.user, reason);
 				return done(null, user);
