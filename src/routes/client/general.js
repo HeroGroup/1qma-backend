@@ -11,6 +11,7 @@ const {
 	removeProfilePicture,
 	userDetails,
 	invite,
+	addQuestion,
 } = require("../../controllers/Client/ClientController");
 
 /**
@@ -222,7 +223,7 @@ router.post("/invite", sameUser, async (req, res) => {
  *  post:
  *     tags:
  *     - Client
- *     summary: invite via email
+ *     summary: Add some question and answer to private library
  *     requestBody:
  *      required: true
  *      content:
@@ -231,17 +232,24 @@ router.post("/invite", sameUser, async (req, res) => {
  *            type: object
  *            required:
  *              - id
- *              - email
+ *              - category
+ *              - question
  *            properties:
  *              id:
  *                type: string
  *                default: 63738495886737657388948
- *              email:
+ *              category:
+ *                type: String
+ *                default: 6543234567890
+ *              question:
  *                type: string
- *                format: navid@gmail.com
+ *                format: Why apple stopped developing Apple Car?
+ *              answer:
+ *                type: string
+ *                format: I do not know
  */
-router.post("/invite", sameUser, async (req, res) => {
-	res.json(await invite(req.body));
+router.post("/questions/add", sameUser, async (req, res) => {
+	res.json(await addQuestion(req.body));
 });
 
 module.exports = router;

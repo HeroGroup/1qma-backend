@@ -7,6 +7,8 @@ const {
 const User = require("../../models/User");
 const AccountType = require("../../models/AccountType");
 const { validateEmail } = require("../../helpers/validator");
+const Category = require("../../models/Category");
+const Question = require("../../models/Question");
 
 const languages = [{ _id: "0", code: "en", title: "English" }];
 
@@ -49,12 +51,14 @@ const homePages = [
 exports.init = async () => {
 	try {
 		const accountTypes = await AccountType.find();
+		const categories = await Category.find();
 
 		return success("initialize parameters", {
 			languages,
 			genders,
 			educations,
 			accountTypes,
+			categories,
 			homePages,
 		});
 	} catch (e) {
@@ -264,6 +268,53 @@ exports.userDetails = async (id) => {
 		}
 
 		return success("User retrieved successfully!", user);
+	} catch (e) {
+		return handleException(e);
+	}
+};
+
+exports.addQuestion = async (params) => {
+	try {
+		const { id, category, question, answer } = params;
+		if (!id) {
+			return fail("invalid user id!");
+		}
+
+		if (!category) {
+			return fail("invalid category!");
+		}
+
+		if (!question) {
+			return fail("invalid question!");
+		}
+
+		const user = await User.findById(id, {
+			_id: 1,
+			firstName: 1,
+			lastName: 1,
+			email: 1,
+		});
+		if (!user) {
+			return fail("invalid user!");
+		}
+
+		const dbCategory = await Category.findById(category);
+		if (!dbCategory) {
+			return fail("invalid category!");
+		}
+
+		const newQuestion = new Question({
+			question,
+			answer,
+			category: dbCategory,
+			user,
+		});
+		await newQuestion.save();
+
+		return success(
+			"Question was successfully added to your library!",
+			newQuestion
+		);
 	} catch (e) {
 		return handleException(e);
 	}

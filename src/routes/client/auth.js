@@ -368,7 +368,7 @@ router.post("/updateProfile", sameUser, async (req, res) => {
  *                default: 6644e9072019def5602933cb
  *              categories:
  *                type: array
- *                default: [1, 3]
+ *                default: [{_id: "6543234567890", name: "history"}]
  */
 router.post(
 	"/updateCategoryPreferences",
@@ -410,8 +410,8 @@ router.post(
  *                type: string
  *                default: 6644e9072019def5602933cb
  *              accountType:
- *                type: string
- *                default: 1
+ *                type: object
+ *                default: {_id: "87654567898765", name: "Basic"}
  */
 router.post("/updateAccountType", sameUser, async (req, res) => {
 	const chooseAccountTypeResult = await chooseAccountType(req.body);
