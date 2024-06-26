@@ -921,6 +921,7 @@ exports.googleOAuth = async (profile, userSession, reason) => {
 							await User.findOneAndUpdate(
 								{
 									_id: userSession._id,
+									"referer._id": { $exists: true },
 								},
 								{
 									...tempUser,
@@ -959,6 +960,8 @@ exports.googleOAuth = async (profile, userSession, reason) => {
 
 			return fail("There is no registered user with this email address!");
 		}
+
+		return fail("No reason for google auth!");
 	} catch (e) {
 		handleException(e);
 	}
