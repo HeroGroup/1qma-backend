@@ -263,7 +263,7 @@ router.post("/setPassword", isLoggedIn, async (req, res) => {
  *                type: string
  *                default: en
  */
-router.post("/updateLanguagePreference", isLoggedIn, async (req, res) => {
+router.post("/updateLanguagePreference", sameUser, async (req, res) => {
 	const sessionUser = req.session.user;
 	const choosePreferedLanguageResult = await choosePreferedLanguage(
 		req.body,
