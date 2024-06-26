@@ -62,7 +62,10 @@ let redisStore = new RedisStore({
 const origin = [
 	"https://staging.1qma.games",
 	"https://admin.staging.1qma.games",
-	"http://localhost:4200",
+	"http://localhost:4200", // client
+	"http://localhost:4400", // admin
+	"localhost:4200", // client
+	"localhost:4400", // admin
 ];
 const corsOptions = {
 	credentials: true,
