@@ -191,7 +191,7 @@ router.get("/registerWithInvitationLink", async (req, res) => {
 router.post("/setEmail", isLoggedIn, async (req, res) => {
 	const setEmailResult = await setEmail(req.body);
 	if (setEmailResult.status === 1) {
-		// login or updat email
+		req.session.user = setEmailResult.data.user;
 	}
 	res.json(setEmailResult);
 });
@@ -631,8 +631,9 @@ router.get(
 	}),
 	(req, res) => {
 		const { _id, providerId, email, emailVerified } = req.user;
-		console.log(req.session.user, req.user);
-		Object.assign(req.session.user, req.user);
+		if (req.session.user) {
+			Object.assign(req.session.user, req.user);
+		}
 		const redirect = `${env.authServiceProviders.google.redirectUrl}?user_id=${_id}&provider=google&provider_id=${providerId}&email=${email}&email_verified=${emailVerified}`;
 
 		res.redirect(redirect);
