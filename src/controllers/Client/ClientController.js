@@ -92,7 +92,7 @@ exports.updateProfile = async (params) => {
 			const updatedEducation = educations.find(
 				(element) => element._id === education
 			);
-			console.log(updatedEducation);
+
 			if (!updatedEducation) {
 				return fail("invalid education was selected", params);
 			}
