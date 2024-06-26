@@ -43,7 +43,9 @@ exports.passportInit = () => {
 			},
 			async function (request, accessToken, refreshToken, profile, done) {
 				const user = await googleOAuth(profile, accessToken);
+				console.log(user);
 				Object.assign(user, request.session.user);
+				console.log(user);
 				return done(null, user);
 			}
 		)
