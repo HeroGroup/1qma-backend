@@ -5,6 +5,7 @@ const {
 	createHashedPasswordFromPlainText,
 	createReferCode,
 	checkSame,
+	createAccessToken,
 } = require("../../helpers/utils");
 const AccountType = require("../../models/AccountType");
 const Category = require("../../models/Category");
@@ -106,7 +107,7 @@ exports.loginWithEmail = async (params) => {
 		}
 
 		// create and send some token as well
-		const token = Math.round(Math.random() * 1e9) + "" + Date.now();
+		const token = createAccessToken();
 		await User.findOneAndUpdate(
 			{ _id: user.id },
 			{ $push: { accessTokens: { token, expire: null } } },
@@ -126,7 +127,7 @@ exports.loginWithAuthToken = async (token) => {
 		}
 
 		const user = await User.findOne(
-			{ "accessTokens.token": token },
+			{ "accessTokens.token": token, isActive: true },
 			{ _id: 1, __v: 0, password: 0, accessTokens: 0 }
 		);
 
@@ -235,6 +236,8 @@ exports.registerWithReferal = async (params) => {
 		}
 
 		const referCode = createReferCode();
+		const token = createAccessToken();
+
 		const newUser = new User({
 			anonymousName: `user_${referCode}`,
 			referCode,
@@ -247,6 +250,7 @@ exports.registerWithReferal = async (params) => {
 			isActive: true,
 			hasCompletedSignup: false,
 			created_at: moment(),
+			accessTokens: [{ token, expire: null }],
 		});
 
 		await newUser.save();

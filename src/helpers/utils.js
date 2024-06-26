@@ -47,3 +47,7 @@ exports.removeFile = (fileToUnlink) => {
 		console.log(`${fileToUnlink} removed successfully!`);
 	});
 };
+
+exports.createAccessToken = () => {
+	return Math.round(Math.random() * 1e9) + "" + Date.now();
+};
