@@ -948,10 +948,11 @@ exports.googleOAuth = async (profile, userSession, reason) => {
 			}
 		} else if (reason === "join_to_wait_list") {
 			if (googleUser) {
-				return fail("This Google user is already a member!");
+				return fail("This Google user is already a member!", reason);
 			} else if (normalUser) {
 				return fail(
-					"You have already registered with this email and a corresponding password!"
+					"You have already registered with this email and a corresponding password!",
+					reason
 				);
 			} else {
 				const newUser = new User({

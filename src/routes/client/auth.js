@@ -638,7 +638,9 @@ router.get("/google/callback", passport.authenticate("google"), (req, res) => {
 	} else {
 		const message = req.user.message;
 		const reason = req.user.data;
-		if (reason === "login") {
+		if (reason === "join_to_wait_list") {
+			redirect = `http://localhost:4200/#/signup?status=-1&message=${message}`;
+		} else if (reason === "login") {
 			redirect = `http://localhost:4200/#/login?status=-1&message=${message}`;
 		} else {
 			redirect += `?user_id=&provider=&provider_id=&email=&email_verified=&status=-1&message=${message}`;
