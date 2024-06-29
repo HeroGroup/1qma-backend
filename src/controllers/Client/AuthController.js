@@ -921,7 +921,7 @@ exports.googleOAuth = async (profile, userSession, reason) => {
 				return fail("This Google user is already a member!");
 			} else if (normalUser) {
 				return fail(
-					"You have registered with this email and a corresponding password!"
+					"You have already registered with this email and a corresponding password!"
 				);
 			} else {
 				if (userSession?._id) {
@@ -951,7 +951,7 @@ exports.googleOAuth = async (profile, userSession, reason) => {
 				return fail("This Google user is already a member!");
 			} else if (normalUser) {
 				return fail(
-					"You have registered with this email and a corresponding password!"
+					"You have already registered with this email and a corresponding password!"
 				);
 			} else {
 				const newUser = new User({
