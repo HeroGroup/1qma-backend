@@ -950,7 +950,7 @@ exports.googleOAuth = async (profile, userSession, reason) => {
 										.token,
 							});
 						}
-						User.findOneAndUpdate(
+						await User.findOneAndUpdate(
 							{ _id: userSession._id },
 							{ $push: { accessTokens: { token, expire: null } } }
 						);
@@ -985,7 +985,7 @@ exports.googleOAuth = async (profile, userSession, reason) => {
 			if (googleUser) {
 				// create and send some token as well
 				const token = createAccessToken();
-				User.findOneAndUpdate(
+				await User.findOneAndUpdate(
 					{ _id: googleUser._id },
 					{ $push: { accessTokens: token } }
 				);
