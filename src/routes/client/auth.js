@@ -632,7 +632,7 @@ router.get(
 	"/google/callback",
 	passport.authenticate("google", {
 		// failureRedirect: `${env.authServiceProviders.google.redirectUrl}?provider_id=&error_message=failed_to_login_via_google`,
-		failWithError: true,
+		// failWithError: true,
 		failureMessage: true, // req.session.messages
 	}),
 	(req, res) => {
@@ -640,8 +640,8 @@ router.get(
 		if (req.session.user) {
 			Object.assign(req.session.user, req.user);
 		}
-		console.log(req.session.messages);
-		console.log(req.session.user);
+		console.log("messages", req.session.messages);
+		console.log("user", req.session.user);
 		const redirect = `${env.authServiceProviders.google.redirectUrl}?user_id=${_id}&provider=google&provider_id=${providerId}&email=${email}&email_verified=${emailVerified}`;
 
 		res.redirect(redirect);

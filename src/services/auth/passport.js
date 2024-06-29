@@ -52,7 +52,7 @@ exports.passportInit = () => {
 					reason
 				);
 				if (googleOAuthResult.status === -1) {
-					return done(googleOAuthResult.message, {});
+					return done(googleOAuthResult.message, false);
 				}
 
 				return done(null, googleOAuthResult.data);
