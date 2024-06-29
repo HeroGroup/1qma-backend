@@ -628,24 +628,19 @@ router.get(
 	passport.authenticate("google", { scope: ["email", "profile"] })
 );
 
-router.get(
-	"/google/callback",
-	passport.authenticate("google", {
-		// failureRedirect: `${env.authServiceProviders.google.redirectUrl}?provider_id=&error_message=failed_to_login_via_google`,
-		// failWithError: true,
-		// failureMessage: true,
-	}),
-	(req, res) => {
+router.get("/google/callback", passport.authenticate("google"), (req, res) => {
+	console.log("message", req.session.message);
+	console.log("user", req.session.user);
+	let redirect = env.authServiceProviders.google.redirectUrl;
+	if (req.session.user) {
 		const { _id, providerId, email, emailVerified } = req.session.user;
-		// if (req.session.user) {
-		// 	Object.assign(req.session.user, req.user);
-		// }
-		console.log("message", req.session.message);
-		console.log("user", req.session.user);
-		const redirect = `${env.authServiceProviders.google.redirectUrl}?user_id=${_id}&provider=google&provider_id=${providerId}&email=${email}&email_verified=${emailVerified}`;
-
-		res.redirect(redirect);
+		redirect += `?user_id=${_id}&provider=google&provider_id=${providerId}&email=${email}&email_verified=${emailVerified}&status=1`;
+	} else {
+		const message = req.session.message;
+		redirect += `?user_id=&provider=&provider_id=&email=&email_verified=&status=-1&message=${message}`;
 	}
-);
+	console.log(redirect);
+	res.redirect(redirect);
+});
 
 module.exports = router;
