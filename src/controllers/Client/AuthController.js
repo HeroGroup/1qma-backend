@@ -903,7 +903,13 @@ exports.googleOAuth = async (profile, userSession, reason) => {
 			profilePicture: profile.picture,
 		};
 
-		const user = await User.findOne({
+		const normalUser = await User.findOne({
+			email: profile.email,
+			emailVerified: profile.email_verified,
+			password: { $exists: true },
+		});
+
+		const googleUser = await User.findOne({
 			loginProvider: "google",
 			providerId: profile.sub,
 			email: profile.email,
@@ -911,8 +917,12 @@ exports.googleOAuth = async (profile, userSession, reason) => {
 		});
 
 		if (reason === "register") {
-			if (user) {
-				return fail("This email address is already a member!");
+			if (googleUser) {
+				return fail("This Google user is already a member!");
+			} else if (normalUser) {
+				return fail(
+					"You have registered with this email and a corresponding password!"
+				);
 			} else {
 				if (userSession?._id) {
 					if (!userSession.googleId) {
@@ -937,12 +947,15 @@ exports.googleOAuth = async (profile, userSession, reason) => {
 				return success("ok", tempUser);
 			}
 		} else if (reason === "join_to_wait_list") {
-			if (user) {
-				return fail("This email address is already a member!");
+			if (googleUser) {
+				return fail("This Google user is already a member!");
+			} else if (normalUser) {
+				return fail(
+					"You have registered with this email and a corresponding password!"
+				);
 			} else {
 				const newUser = new User({
-					email: profile.email,
-					emailVerified: profile.email_verified,
+					...tempUser,
 					inWaitList: true,
 					isActive: false,
 					hasCompletedSignup: false,
@@ -954,8 +967,12 @@ exports.googleOAuth = async (profile, userSession, reason) => {
 				return success("ok", newUser);
 			}
 		} else if (reason === "login") {
-			if (user) {
+			if (googleUser) {
 				return success("ok", user);
+			} else if (normalUser) {
+				return fail(
+					"You have registered with this email and a corresponding password!"
+				);
 			}
 
 			return fail("There is no registered user with this email address!");
