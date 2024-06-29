@@ -51,8 +51,9 @@ exports.passportInit = () => {
 					request.session.user,
 					reason
 				);
+
 				if (googleOAuthResult.status === -1) {
-					return done(googleOAuthResult.message, false);
+					return done(googleOAuthResult.message, {});
 				}
 
 				return done(null, googleOAuthResult.data);
