@@ -976,7 +976,10 @@ exports.googleOAuth = async (profile, userSession, reason) => {
 				);
 			}
 
-			return fail("There is no registered user with this email address!");
+			return fail(
+				"There is no registered user with this email address!",
+				reason
+			);
 		}
 
 		return fail("No reason for google auth!");
