@@ -893,6 +893,7 @@ const createMobileVerification = async (mobile) => {
 
 exports.googleOAuth = async (profile, userSession, reason) => {
 	try {
+		const token = createAccessToken();
 		const tempUser = {
 			loginProvider: "google",
 			providerId: profile.sub,
@@ -901,6 +902,7 @@ exports.googleOAuth = async (profile, userSession, reason) => {
 			email: profile.email,
 			emailVerified: profile.email_verified,
 			profilePicture: profile.picture,
+			accessTokens: [{ token, expire: null }],
 		};
 
 		const normalUser = await User.findOne({
@@ -926,9 +928,8 @@ exports.googleOAuth = async (profile, userSession, reason) => {
 			} else {
 				if (userSession?._id) {
 					if (!userSession.googleId) {
-						return success(
-							"ok",
-							await User.findOneAndUpdate(
+						return success("ok", {
+							user: await User.findOneAndUpdate(
 								{
 									_id: userSession._id,
 									"referer._id": { $exists: true },
@@ -937,10 +938,23 @@ exports.googleOAuth = async (profile, userSession, reason) => {
 									...tempUser,
 								},
 								{ new: true }
-							)
-						);
+							),
+							token,
+						});
 					} else {
-						return success("ok", userSession);
+						if (userSession.accessTokens.length > 0) {
+							return success("ok", {
+								user: userSession,
+								token:
+									userSession.accessTokens[userSession.accessTokens.length - 1]
+										.token,
+							});
+						}
+						User.findOneAndUpdate(
+							{ _id: userSession._id },
+							{ $push: { accessTokens: { token, expire: null } } }
+						);
+						return success("ok", { user: userSession, token });
 					}
 				}
 
@@ -965,11 +979,17 @@ exports.googleOAuth = async (profile, userSession, reason) => {
 
 				newUser.save();
 
-				return success("ok", newUser);
+				return success("ok", { user: newUser, token: "" });
 			}
 		} else if (reason === "login") {
 			if (googleUser) {
-				return success("ok", googleUser);
+				// create and send some token as well
+				const token = createAccessToken();
+				User.findOneAndUpdate(
+					{ _id: googleUser._id },
+					{ $push: { accessTokens: token } }
+				);
+				return success("ok", { user: googleUser, token });
 			} else if (normalUser) {
 				return fail(
 					"You have registered with this email and a corresponding password!",

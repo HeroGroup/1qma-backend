@@ -632,9 +632,10 @@ router.get("/google/callback", passport.authenticate("google"), (req, res) => {
 	let redirect = env.authServiceProviders.google.successRedirectUrl;
 
 	if (req.user.status === 1) {
-		const { _id, providerId, email, emailVerified } = req.user.data;
-		redirect += `?user_id=${_id}&provider=google&provider_id=${providerId}&email=${email}&email_verified=${emailVerified}&status=1`;
-		req.session.user = req.user.data;
+		const { _id, providerId, email, emailVerified } = req.user.data.user;
+		const token = req.user.data.token;
+		redirect += `?user_id=${_id}&provider=google&provider_id=${providerId}&email=${email}&email_verified=${emailVerified}&status=1&token=${token}`;
+		req.session.user = req.user.data.user;
 	} else {
 		const message = req.user.message;
 		const reason = req.user.data;
