@@ -637,7 +637,7 @@ router.get("/google/callback", passport.authenticate("google"), (req, res) => {
 		req.session.user = req.user.data;
 	} else {
 		const message = req.user.message;
-		const reason = req.session.reason;
+		const reason = req.user.data;
 		if (reason === "login") {
 			redirect = `http://localhost:4200/#/login?status=-1&message=${message}`;
 		} else {
