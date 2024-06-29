@@ -2,6 +2,7 @@ module.exports = {
 	environment: process.env.ENVIRONMENT,
 	appName: process.env.APP_NAME,
 	appUrl: process.env.APP_URL,
+	frontAppUrl: process.env.FRONT_APP_URL,
 	appDomain: process.env.APP_DOMAIN,
 	port: process.env.PORT,
 	dbHost: process.env.DB_HOST,
@@ -13,7 +14,7 @@ module.exports = {
 			clientId: process.env.GOOGLE_CLIENT_ID,
 			clientSecret: process.env.GOOGLE_CLIENT_SECRET,
 			callbackUrl: process.env.GOOGLE_CALLBACK_URL,
-			redirectUrl: process.env.GOOGLE_REDIRECT_URL,
+			successRedirectUrl: process.env.GOOGLE_SUCCESS_REDIRECT_URL,
 		},
 		twitter: {
 			consumerKey: process.env.TWITTER_CONSUMER_KEY,

@@ -629,7 +629,7 @@ router.get(
 );
 
 router.get("/google/callback", passport.authenticate("google"), (req, res) => {
-	let redirect = env.authServiceProviders.google.redirectUrl;
+	let redirect = env.authServiceProviders.google.successRedirectUrl;
 
 	if (req.user.status === 1) {
 		const { _id, providerId, email, emailVerified } = req.user.data;
@@ -638,10 +638,11 @@ router.get("/google/callback", passport.authenticate("google"), (req, res) => {
 	} else {
 		const message = req.user.message;
 		const reason = req.user.data;
+		const frontAppUrl = env.frontAppUrl;
 		if (reason === "join_to_wait_list") {
-			redirect = `http://localhost:4200/#/signup?status=-1&message=${message}`;
+			redirect = `${frontAppUrl}/#/signup?status=-1&message=${message}`;
 		} else if (reason === "login") {
-			redirect = `http://localhost:4200/#/login?status=-1&message=${message}`;
+			redirect = `${frontAppUrl}/#/login?status=-1&message=${message}`;
 		} else {
 			redirect += `?user_id=&provider=&provider_id=&email=&email_verified=&status=-1&message=${message}`;
 		}
