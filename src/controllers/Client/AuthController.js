@@ -969,7 +969,7 @@ exports.googleOAuth = async (profile, userSession, reason) => {
 			}
 		} else if (reason === "login") {
 			if (googleUser) {
-				return success("ok", user);
+				return success("ok", googleUser);
 			} else if (normalUser) {
 				return fail(
 					"You have registered with this email and a corresponding password!",
