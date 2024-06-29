@@ -977,7 +977,7 @@ exports.googleOAuth = async (profile, userSession, reason) => {
 					created_at: moment(),
 				});
 
-				newUser.save();
+				await newUser.save();
 
 				return success("ok", { user: newUser, token: "" });
 			}
