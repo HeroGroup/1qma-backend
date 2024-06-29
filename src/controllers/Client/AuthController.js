@@ -983,11 +983,9 @@ exports.googleOAuth = async (profile, userSession, reason) => {
 			}
 		} else if (reason === "login") {
 			if (googleUser) {
-				// create and send some token as well
-				const token = createAccessToken();
-				await User.findOneAndUpdate(
+				User.findOneAndUpdate(
 					{ _id: googleUser._id },
-					{ $push: { accessTokens: token } }
+					{ $push: { accessTokens: { token, expire: null } } }
 				);
 				return success("ok", { user: googleUser, token });
 			} else if (normalUser) {
