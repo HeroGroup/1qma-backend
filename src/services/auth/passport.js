@@ -44,8 +44,10 @@ exports.passportInit = () => {
 			async function (request, accessToken, refreshToken, profile, done) {
 				const reason = request.session.reason;
 				if (!reasons.includes(reason)) {
-					request.session.message = "No reason for google auth!";
-					return done("No reason for google auth!", {});
+					return done(null, {
+						status: -1,
+						message: "No reason for google auth!",
+					});
 				}
 				const googleOAuthResult = await googleOAuth(
 					profile,
@@ -53,10 +55,7 @@ exports.passportInit = () => {
 					reason
 				);
 
-				request.session.user =
-					googleOAuthResult.status === -1 ? {} : googleOAuthResult.data;
-				request.session.message = googleOAuthResult.message;
-				return done(null, request.session.user);
+				return done(null, googleOAuthResult);
 			}
 		)
 	);

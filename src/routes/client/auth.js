@@ -629,14 +629,16 @@ router.get(
 );
 
 router.get("/google/callback", passport.authenticate("google"), (req, res) => {
-	console.log("message", req.session.message);
-	console.log("user", req.session.user);
 	let redirect = env.authServiceProviders.google.redirectUrl;
-	if (req.session.user) {
-		const { _id, providerId, email, emailVerified } = req.session.user;
+
+	console.log("passport user", req.user);
+
+	if (req.user.status === 1) {
+		const { _id, providerId, email, emailVerified } = req.user.data;
 		redirect += `?user_id=${_id}&provider=google&provider_id=${providerId}&email=${email}&email_verified=${emailVerified}&status=1`;
+		console.log("req.session.user", req.session.user);
 	} else {
-		const message = req.session.message;
+		const message = req.user.message;
 		redirect += `?user_id=&provider=&provider_id=&email=&email_verified=&status=-1&message=${message}`;
 	}
 	console.log(redirect);
