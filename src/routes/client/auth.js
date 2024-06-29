@@ -633,14 +633,14 @@ router.get(
 	passport.authenticate("google", {
 		// failureRedirect: `${env.authServiceProviders.google.redirectUrl}?provider_id=&error_message=failed_to_login_via_google`,
 		// failWithError: true,
-		failureMessage: true, // req.session.messages
+		// failureMessage: true,
 	}),
 	(req, res) => {
-		const { _id, providerId, email, emailVerified } = req.user;
-		if (req.session.user) {
-			Object.assign(req.session.user, req.user);
-		}
-		console.log("messages", req.session.messages);
+		const { _id, providerId, email, emailVerified } = req.session.user;
+		// if (req.session.user) {
+		// 	Object.assign(req.session.user, req.user);
+		// }
+		console.log("message", req.session.message);
 		console.log("user", req.session.user);
 		const redirect = `${env.authServiceProviders.google.redirectUrl}?user_id=${_id}&provider=google&provider_id=${providerId}&email=${email}&email_verified=${emailVerified}`;
 
