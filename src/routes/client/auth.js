@@ -636,6 +636,7 @@ router.get("/google/callback", passport.authenticate("google"), (req, res) => {
 		const token = req.user.data.token;
 		redirect += `?user_id=${_id}&provider=google&provider_id=${providerId}&email=${email}&email_verified=${emailVerified}&status=1&token=${token}`;
 		req.session.user = req.user.data.user;
+		console.log("1", req.session.user);
 	} else {
 		const message = req.user.message;
 		const reason = req.user.data;
@@ -652,7 +653,7 @@ router.get("/google/callback", passport.authenticate("google"), (req, res) => {
 
 	// clear auth result stored in req.user
 	req.logout((err) => {});
-
+	console.log("2", req.session.user);
 	res.redirect(redirect);
 });
 
