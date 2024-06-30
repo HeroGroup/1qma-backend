@@ -43,6 +43,7 @@ exports.passportInit = () => {
 			},
 			async function (request, accessToken, refreshToken, profile, done) {
 				const reason = request.session.reason;
+				console.log("reason", reason);
 				if (!reasons.includes(reason)) {
 					return done(null, {
 						status: -1,
@@ -54,6 +55,8 @@ exports.passportInit = () => {
 					request.session.user,
 					reason
 				);
+
+				console.log("googleOAuthResult", googleOAuthResult);
 
 				return done(null, googleOAuthResult);
 			}
