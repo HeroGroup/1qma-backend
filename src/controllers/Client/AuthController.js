@@ -391,7 +391,7 @@ exports.choosePreferedLanguage = async (params, sessionUser) => {
 
 	// update referer user
 	await User.findOneAndUpdate(
-		{ _id: user.referer._id },
+		{ _id: user.referer?._id },
 		{
 			$push: {
 				invitations: { _id: user._id, email: user.email, createdAt: moment() },

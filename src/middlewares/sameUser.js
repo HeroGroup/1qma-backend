@@ -2,6 +2,7 @@ const { loginWithAuthToken } = require("../controllers/Client/AuthController");
 
 exports.sameUser = async (req, res, next) => {
 	console.log("before", req.session.user);
+	console.log("Access-Token", req.header("Access-Token"));
 	if (!req.session.user && req.header("Access-Token")) {
 		req.session.user = await loginWithAuthToken(req.header("Access-Token"));
 	}
