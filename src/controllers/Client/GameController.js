@@ -1,4 +1,5 @@
 const { handleException } = require("../../helpers/utils");
+const Category = require("../../models/Category");
 const Setting = require("../../models/Setting");
 
 exports.init = async () => {
@@ -18,12 +19,33 @@ exports.init = async () => {
 			key: "CREATE_GAME_PRICE_BRONZE",
 		});
 
+		const categories = await Category.find();
+
 		return success("initialize game parameters", {
 			gameTypes,
 			numberOfPlayers: numberOfPlayers?.value || 5,
 			gamePrice: { coin: "bronze", count: createGamePrice?.value || 2 },
+			categories,
 		});
 	} catch (e) {
 		return handleException(e);
 	}
+};
+
+exports.createGame = async (params) => {
+	// creator id
+	// game type (normal, survival)
+	// create mode (gameTypes)
+	// category or choose random categoory
+	// question
+	// answer
+	// send invite to players (random or selected by creator)
+	// return game id;
+};
+
+exports.joinGame = async (params) => {
+	// player id
+	// game id
+	// question
+	// answer
 };

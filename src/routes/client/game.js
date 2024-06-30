@@ -1,6 +1,10 @@
 const express = require("express");
 const router = express.Router();
-const { init } = require("../../controllers/Client/GameController");
+const {
+	init,
+	createGame,
+	joinGame,
+} = require("../../controllers/Client/GameController");
 
 /**
  * @openapi
@@ -12,6 +16,14 @@ const { init } = require("../../controllers/Client/GameController");
  */
 router.get("/init", async (req, res) => {
 	res.json(await init());
+});
+
+router.post("/create", sameUSer, async (req, res) => {
+	res.json(await createGame(req.body));
+});
+
+router.post("join", sameUser, async (req, res) => {
+	res.json(await joinGame(req.body));
 });
 
 module.exports = router;
