@@ -991,6 +991,7 @@ exports.googleOAuth = async (profile, userSession, reason) => {
 				return success("ok", { user: newUser, token: "" });
 			}
 		} else if (reason === "login") {
+			console.log("login google user", googleUser);
 			if (googleUser) {
 				await User.findOneAndUpdate(
 					{
