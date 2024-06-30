@@ -5,6 +5,7 @@ const {
 	createGame,
 	joinGame,
 } = require("../../controllers/Client/GameController");
+const { sameUser } = require("../../middlewares/sameUser");
 
 /**
  * @openapi
@@ -18,7 +19,7 @@ router.get("/init", async (req, res) => {
 	res.json(await init());
 });
 
-router.post("/create", sameUSer, async (req, res) => {
+router.post("/create", sameUser, async (req, res) => {
 	res.json(await createGame(req.body));
 });
 
