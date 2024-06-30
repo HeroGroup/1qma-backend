@@ -895,7 +895,6 @@ const createMobileVerification = async (mobile) => {
 
 exports.googleOAuth = async (profile, userSession, reason) => {
 	try {
-		console.log("googleOAuth");
 		const token = createAccessToken();
 		const tempUser = {
 			loginProvider: "google",
@@ -907,14 +906,12 @@ exports.googleOAuth = async (profile, userSession, reason) => {
 			profilePicture: profile.picture,
 			accessTokens: [{ token, expire: null }],
 		};
-		console.log("tempUser", tempUser);
 
 		const normalUser = await User.findOne({
 			email: profile.email,
 			emailVerified: profile.email_verified,
 			password: { $exists: true },
 		});
-		console.log("normalUser", normalUser);
 
 		const googleUser = await User.findOne({
 			loginProvider: "google",
@@ -922,7 +919,6 @@ exports.googleOAuth = async (profile, userSession, reason) => {
 			email: profile.email,
 			emailVerified: profile.email_verified,
 		});
-		console.log("googleUser", googleUser);
 
 		if (reason === "register") {
 			if (googleUser) {

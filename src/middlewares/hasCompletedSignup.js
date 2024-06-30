@@ -1,7 +1,6 @@
 const { loginWithAuthToken } = require("../controllers/Client/AuthController");
 
 exports.hasCompletedSignup = async (req, res, next) => {
-	console.log("hasCompletedSignup");
 	if (!req.session.user && req.header("Access-Token")) {
 		req.session.user = await loginWithAuthToken(req.header("Access-Token"));
 	}
