@@ -640,6 +640,7 @@ router.get("/google/callback", passport.authenticate("google"), (req, res) => {
 		const message = req.user.message;
 		const reason = req.user.data;
 		const frontAppUrl = env.frontAppUrl;
+
 		if (reason === "join_to_wait_list") {
 			redirect = `${frontAppUrl}/#/signup?status=-1&message=${message}`;
 		} else if (reason === "login") {

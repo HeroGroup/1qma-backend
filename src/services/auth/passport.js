@@ -43,11 +43,25 @@ exports.passportInit = () => {
 			},
 			async function (request, accessToken, refreshToken, profile, done) {
 				const reason = request.session.reason;
+
 				if (!reasons.includes(reason)) {
-					return done(null, {
-						status: -1,
-						message: "No reason for google auth!",
-					});
+					return done(null, fail("No reason for google auth!", reason));
+				}
+
+				if (reason === "register") {
+					if (!request.session.user) {
+						return done(null, fail("Base user is invalid!", reason));
+					}
+
+					if (request.session.user.googleId) {
+						return done(
+							null,
+							fail(
+								`You are aleardy logged in as ${request.session.user.email}`,
+								reason
+							)
+						);
+					}
 				}
 				const googleOAuthResult = await googleOAuth(
 					profile,

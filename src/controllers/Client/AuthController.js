@@ -379,10 +379,6 @@ exports.choosePreferedLanguage = async (params, sessionUser) => {
 		return fail("invalid language was selected!");
 	}
 
-	// if (params.providerId && sessionUser?.providerId === params.providerId) {
-	// 	update = { ...update, ...sessionUser };
-	// }
-
 	const user = await User.findOneAndUpdate(
 		{ _id: params.id },
 		{ preferedLanguage: language },
@@ -391,17 +387,28 @@ exports.choosePreferedLanguage = async (params, sessionUser) => {
 		}
 	);
 
-	// update referer user
-	await User.findOneAndUpdate(
-		{ _id: user.referer?._id },
-		{
-			$push: {
-				invitations: { _id: user._id, email: user.email, createdAt: moment() },
-			},
-		}
-	);
+	if (user.referer) {
+		// update referer user
+		await User.findOneAndUpdate(
+			{ _id: user.referer._id },
+			{
+				$push: {
+					invitations: {
+						_id: user._id,
+						email: user.email,
+						createdAt: moment(),
+					},
+				},
+			}
+		);
 
-	return success("Language preferences updated successfully!", user);
+		return success("Language preferences updated successfully!", user);
+	} else {
+		return success(
+			"Language preferences updated successfully, but did not find referer user!",
+			user
+		);
+	}
 };
 
 exports.updateProfile = async (params) => {
@@ -895,7 +902,6 @@ const createMobileVerification = async (mobile) => {
 
 exports.googleOAuth = async (profile, userSession, reason) => {
 	try {
-		const token = createAccessToken();
 		const tempUser = {
 			loginProvider: "google",
 			providerId: profile.sub,
@@ -904,13 +910,13 @@ exports.googleOAuth = async (profile, userSession, reason) => {
 			email: profile.email,
 			emailVerified: profile.email_verified,
 			profilePicture: profile.picture,
-			accessTokens: [{ token, expire: null }],
 		};
 
 		const normalUser = await User.findOne({
 			email: profile.email,
 			emailVerified: profile.email_verified,
 			password: { $exists: true },
+			$or: [{ inWaitList: false }, { inWaitList: { $exists: false } }],
 		});
 
 		const googleUser = await User.findOne({
@@ -918,55 +924,31 @@ exports.googleOAuth = async (profile, userSession, reason) => {
 			providerId: profile.sub,
 			email: profile.email,
 			emailVerified: profile.email_verified,
+			$or: [{ inWaitList: false }, { inWaitList: { $exists: false } }],
 		});
 
 		if (reason === "register") {
 			if (googleUser) {
-				if (googleUser.inWaitList) {
-					// remove the user from wait list
-				}
 				return fail("This Google user is already a member!");
 			} else if (normalUser) {
-				if (normalUser.inWaitList) {
-					// remove the user from wait list
-				}
 				return fail(
 					"You have already registered with this email and a corresponding password!"
 				);
 			} else {
-				if (userSession?._id) {
-					if (!userSession.googleId) {
-						return success("ok", {
-							user: await User.findOneAndUpdate(
-								{
-									_id: userSession._id,
-									"referer._id": { $exists: true },
-								},
-								{
-									...tempUser,
-								},
-								{ new: true }
-							),
-							token,
-						});
-					} else {
-						if (userSession.accessTokens.length > 0) {
-							return success("ok", {
-								user: userSession,
-								token:
-									userSession.accessTokens[userSession.accessTokens.length - 1]
-										.token,
-							});
-						}
-						await User.findOneAndUpdate(
-							{ _id: userSession._id },
-							{ $push: { accessTokens: { token, expire: null } } }
-						);
-						return success("ok", { user: userSession, token });
-					}
-				}
-
-				return success("ok", tempUser);
+				await User.deleteMany({ email: profile.email, inWaitList: true });
+				return success("ok", {
+					user: await User.findOneAndUpdate(
+						{
+							_id: userSession._id,
+							"referer._id": { $exists: true },
+						},
+						{
+							...tempUser,
+						},
+						{ new: true }
+					),
+					token: "",
+				});
 			}
 		} else if (reason === "join_to_wait_list") {
 			if (googleUser) {
@@ -991,11 +973,11 @@ exports.googleOAuth = async (profile, userSession, reason) => {
 			}
 		} else if (reason === "login") {
 			if (googleUser) {
+				const token = createAccessToken();
 				await User.findOneAndUpdate(
 					{
 						_id: googleUser._id,
 						isActive: true,
-						$or: [{ inWaitList: false }, { inWaitList: { $exists: false } }],
 					},
 					{ $push: { accessTokens: { token, expire: null } } }
 				);
