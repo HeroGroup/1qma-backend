@@ -913,7 +913,6 @@ exports.googleOAuth = async (profile, userSession, reason) => {
 			email: profile.email,
 			emailVerified: profile.email_verified,
 			password: { $exists: true },
-			$or,
 		});
 		console.log("normalUser", normalUser);
 
