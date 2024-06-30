@@ -379,15 +379,17 @@ exports.choosePreferedLanguage = async (params, sessionUser) => {
 		return fail("invalid language was selected!");
 	}
 
-	let update = { preferedLanguage: language };
+	// if (params.providerId && sessionUser?.providerId === params.providerId) {
+	// 	update = { ...update, ...sessionUser };
+	// }
 
-	if (params.providerId && sessionUser?.providerId === params.providerId) {
-		update = { ...update, ...sessionUser };
-	}
-
-	const user = await User.findOneAndUpdate({ _id: params.id }, update, {
-		new: true,
-	});
+	const user = await User.findOneAndUpdate(
+		{ _id: params.id },
+		{ preferedLanguage: language },
+		{
+			new: true,
+		}
+	);
 
 	// update referer user
 	await User.findOneAndUpdate(
@@ -843,7 +845,7 @@ const createEmailVerification = async (email) => {
 		isVerified: false,
 	});
 
-	verification.save();
+	await verification.save();
 
 	// TODO: send email
 
@@ -884,7 +886,7 @@ const createMobileVerification = async (mobile) => {
 		isVerified: false,
 	});
 
-	verification.save();
+	await verification.save();
 
 	// TODO: send sms
 
@@ -909,6 +911,7 @@ exports.googleOAuth = async (profile, userSession, reason) => {
 			email: profile.email,
 			emailVerified: profile.email_verified,
 			password: { $exists: true },
+			$or,
 		});
 
 		const googleUser = await User.findOne({
@@ -920,8 +923,14 @@ exports.googleOAuth = async (profile, userSession, reason) => {
 
 		if (reason === "register") {
 			if (googleUser) {
+				if (googleUser.inWaitList) {
+					// remove the user from wait list
+				}
 				return fail("This Google user is already a member!");
 			} else if (normalUser) {
+				if (normalUser.inWaitList) {
+					// remove the user from wait list
+				}
 				return fail(
 					"You have already registered with this email and a corresponding password!"
 				);
