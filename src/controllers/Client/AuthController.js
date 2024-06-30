@@ -993,7 +993,11 @@ exports.googleOAuth = async (profile, userSession, reason) => {
 		} else if (reason === "login") {
 			if (googleUser) {
 				await User.findOneAndUpdate(
-					{ _id: googleUser._id },
+					{
+						_id: googleUser._id,
+						isActive: true,
+						$or: [{ inWaitList: false }, { inWaitList: { $exists: false } }],
+					},
 					{ $push: { accessTokens: { token, expire: null } } }
 				);
 				return success("ok", { user: googleUser, token });
