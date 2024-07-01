@@ -10,9 +10,6 @@ const {
 	updatePassword,
 	logout,
 } = require("../../controllers/Admin/AdminController");
-const {
-	loginWithAuthToken,
-} = require("../../controllers/Client/AuthController");
 
 /**
  * @openapi
@@ -41,9 +38,7 @@ const {
 router.post("/login", async (req, res) => {
 	const loginResult = await login(req.body);
 	if (loginResult.status === 1) {
-		const user = await loginWithAuthToken(loginResult.data.token);
-		req.session.user = user;
-		loginResult.data.user = user;
+		req.session.user = loginResult.data;
 	}
 
 	res.json(loginResult);

@@ -25,8 +25,6 @@ const {
 	forgotPasswordViaMobile,
 	registerWithInvitationLink,
 	loginWithEmail,
-	loginWithAuthToken,
-	logout,
 } = require("../../controllers/Client/AuthController");
 const { sameUser } = require("../../middlewares/sameUser");
 
@@ -69,9 +67,7 @@ router.get("/register/init", async (req, res) => {
 router.post("/loginWithEmail", async (req, res) => {
 	const loginWithEmailResult = await loginWithEmail(req.body);
 	if (loginWithEmailResult.status === 1) {
-		const user = await loginWithAuthToken(loginWithEmailResult.data.token);
-		req.session.user = user;
-		loginWithEmailResult.data.user = user;
+		req.session.user = loginWithEmailResult.data;
 	}
 
 	res.json(loginWithEmailResult);
@@ -629,11 +625,9 @@ router.get("/google/callback", passport.authenticate("google"), (req, res) => {
 	let redirect = env.authServiceProviders.google.successRedirectUrl;
 
 	if (req.user.status === 1) {
-		const { _id, providerId, email, emailVerified } = req.user.data.user;
-		const token = req.user.data.token;
-		redirect += `?user_id=${_id}&provider=google&provider_id=${providerId}&email=${email}&email_verified=${emailVerified}&status=1&token=${token}`;
-		req.session.user = req.user.data.user;
-		console.log("1", req.session.user);
+		const { _id, providerId, email, emailVerified } = req.user.data;
+		redirect += `?user_id=${_id}&provider=google&provider_id=${providerId}&email=${email}&email_verified=${emailVerified}&status=1`;
+		req.session.user = req.user.data;
 	} else {
 		const message = req.user.message;
 		const reason = req.user.data;

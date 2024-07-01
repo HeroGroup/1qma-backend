@@ -5,7 +5,6 @@ const {
 	createHashedPasswordFromPlainText,
 	createReferCode,
 	checkSame,
-	createAccessToken,
 } = require("../../helpers/utils");
 const AccountType = require("../../models/AccountType");
 const Category = require("../../models/Category");
@@ -106,34 +105,9 @@ exports.loginWithEmail = async (params) => {
 			return fail("Invalid email and password combination!", params);
 		}
 
-		// create and send some token as well
-		const token = createAccessToken();
-		await User.findOneAndUpdate(
-			{ _id: user.id },
-			{ $push: { accessTokens: { token, expire: null } } },
-			{ new: true }
-		);
-
-		return success("successfull login!", { token });
+		return success("successfull login!", user);
 	} catch (e) {
 		return handleException(e);
-	}
-};
-
-exports.loginWithAuthToken = async (token) => {
-	try {
-		if (!token) {
-			return {};
-		}
-
-		const user = await User.findOne(
-			{ "accessTokens.token": token, isActive: true },
-			{ _id: 1, __v: 0, password: 0, accessTokens: 0 }
-		);
-
-		return user || {};
-	} catch (e) {
-		throw e;
 	}
 };
 
@@ -236,7 +210,6 @@ exports.registerWithReferal = async (params) => {
 		}
 
 		const referCode = createReferCode();
-		const token = createAccessToken();
 
 		const newUser = new User({
 			anonymousName: `user_${referCode}`,
@@ -250,17 +223,11 @@ exports.registerWithReferal = async (params) => {
 			isActive: true,
 			hasCompletedSignup: false,
 			created_at: moment(),
-			accessTokens: [{ token, expire: null }],
 		});
 
 		await newUser.save();
 
-		delete newUser.accessTokens;
-
-		return success("New User was created successfully!", {
-			token,
-			user: newUser,
-		});
+		return success("New User was created successfully!", newUser);
 	} catch (e) {
 		return handleException(e);
 	}
@@ -917,6 +884,7 @@ exports.googleOAuth = async (profile, userSession, reason) => {
 			emailVerified: profile.email_verified,
 			password: { $exists: true },
 			$or: [{ inWaitList: false }, { inWaitList: { $exists: false } }],
+			isActive: true,
 		});
 
 		const googleUser = await User.findOne({
@@ -925,6 +893,7 @@ exports.googleOAuth = async (profile, userSession, reason) => {
 			email: profile.email,
 			emailVerified: profile.email_verified,
 			$or: [{ inWaitList: false }, { inWaitList: { $exists: false } }],
+			isActive: true,
 		});
 
 		if (reason === "register") {
@@ -936,8 +905,9 @@ exports.googleOAuth = async (profile, userSession, reason) => {
 				);
 			} else {
 				await User.deleteMany({ email: profile.email, inWaitList: true });
-				return success("ok", {
-					user: await User.findOneAndUpdate(
+				return success(
+					"ok",
+					await User.findOneAndUpdate(
 						{
 							_id: userSession._id,
 							"referer._id": { $exists: true },
@@ -946,9 +916,8 @@ exports.googleOAuth = async (profile, userSession, reason) => {
 							...tempUser,
 						},
 						{ new: true }
-					),
-					token: "",
-				});
+					)
+				);
 			}
 		} else if (reason === "join_to_wait_list") {
 			if (googleUser) {
@@ -969,19 +938,11 @@ exports.googleOAuth = async (profile, userSession, reason) => {
 
 				await newUser.save();
 
-				return success("ok", { user: newUser, token: "" });
+				return success("ok", newUser);
 			}
 		} else if (reason === "login") {
 			if (googleUser) {
-				const token = createAccessToken();
-				await User.findOneAndUpdate(
-					{
-						_id: googleUser._id,
-						isActive: true,
-					},
-					{ $push: { accessTokens: { token, expire: null } } }
-				);
-				return success("ok", { user: googleUser, token });
+				return success("ok", googleUser);
 			} else if (normalUser) {
 				return fail(
 					"You have registered with this email and a corresponding password!",
@@ -1008,11 +969,6 @@ exports.logout = async (id) => {
 		if (!id) {
 			return fail("invalid id!");
 		}
-
-		await User.findOneAndUpdate(
-			{ _id: id },
-			{ $pull: { accessTokens: { token: authToken } } }
-		);
 
 		return success("user logged out successfully!");
 	} catch (e) {
