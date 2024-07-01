@@ -64,8 +64,10 @@ let redisStore = new RedisStore({
 });
 
 const whiteList = [
+	"https://api.staging.1qma.games",
 	"https://staging.1qma.games",
 	"https://admin.staging.1qma.games",
+	"https://localhost",
 	"http://localhost:4200", // client
 	"http://localhost:4400", // admin
 	"localhost:4200", // client
