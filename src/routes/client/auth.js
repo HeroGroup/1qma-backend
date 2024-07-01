@@ -652,8 +652,7 @@ router.get("/google/callback", passport.authenticate("google"), (req, res) => {
 	}
 
 	// clear auth result stored in req.user
-	req.logout((err) => {});
-	console.log("2", req.session.user);
+	// req.logout((err) => {});
 	res.redirect(redirect);
 });
 
