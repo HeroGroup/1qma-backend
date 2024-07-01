@@ -647,6 +647,14 @@ router.get("/google/callback", passport.authenticate("google"), (req, res) => {
 	res.redirect(redirect);
 });
 
+/**
+ * @openapi
+ * '/auth/{id}/details}':
+ *  get:
+ *     tags:
+ *     - Authentication
+ *     summary: Get User Details
+ */
 router.get("/:id/details", sameUser, (req, res) => {
 	res.json(success("ok", req.session.user));
 });
