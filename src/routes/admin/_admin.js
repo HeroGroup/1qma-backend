@@ -10,6 +10,7 @@ const {
 	updatePassword,
 	logout,
 } = require("../../controllers/Admin/AdminController");
+const { sameUser } = require("../../middlewares/sameUser");
 
 /**
  * @openapi
@@ -92,7 +93,7 @@ router.get("/dashboard", isAdmin, async (req, res) => {
  *                type: string
  *                default: newpass
  */
-router.post("/updatePassword", isAdmin, async (req, res) => {
+router.post("/updatePassword", isAdmin, sameUser, async (req, res) => {
 	res.json(await updatePassword(req.body));
 });
 
@@ -116,8 +117,8 @@ router.post("/updatePassword", isAdmin, async (req, res) => {
  *                type: string
  *                default: 6644e9072019def5602933cb
  */
-router.post("/logout", isAdmin, async (req, res) => {
-	const logoutResponse = await logout(req.body.id, req.header("Access-Token"));
+router.post("/logout", isAdmin, sameUser, async (req, res) => {
+	const logoutResponse = await logout(req.body.id);
 	if (logoutResponse.status === 1) {
 		req.logout(function (err) {
 			if (err) {

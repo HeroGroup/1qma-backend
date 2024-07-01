@@ -113,7 +113,7 @@ exports.updatePassword = async (params) => {
 	}
 };
 
-exports.logout = async (id, authToken) => {
+exports.logout = async (id) => {
 	try {
 		if (!id) {
 			return fail("invalid id!");

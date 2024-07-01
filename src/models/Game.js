@@ -1,14 +1,14 @@
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
-const settingSchema = new Schema({
+const gameSchema = new Schema({
 	creator: Object,
 	createMode: String,
 	gameType: String,
 	category: Object,
 	players: Array,
 	questions: Array,
-	answers: Array,
+	status: String,
 });
 
 module.exports = mongoose.model("Game", gameSchema);
