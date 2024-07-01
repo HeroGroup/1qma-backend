@@ -133,7 +133,7 @@ app.use(
 
 app.use(sanitizeRequestInputs);
 
-app.options("*", cors(corsOptions));
+// app.options("*", cors(corsOptions));
 
 const port = env.port;
 app.listen(port, () => {
