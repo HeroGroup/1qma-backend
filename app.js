@@ -63,7 +63,7 @@ let redisStore = new RedisStore({
 	prefix: `${env.dbName}:`,
 });
 
-const origin = [
+const whiteList = [
 	"https://staging.1qma.games",
 	"https://admin.staging.1qma.games",
 	"http://localhost", // client
@@ -73,7 +73,13 @@ const origin = [
 ];
 const corsOptions = {
 	credentials: true,
-	origin,
+	origin: function (origin, callback) {
+		if (whiteList.indexOf(origin) !== -1) {
+			callback(null, true);
+		} else {
+			callback(new Error("Not allowed by CORS"));
+		}
+	},
 };
 
 app.use(cors(corsOptions));
