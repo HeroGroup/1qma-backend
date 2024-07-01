@@ -64,7 +64,6 @@ let redisStore = new RedisStore({
 });
 
 const whiteList = [
-	"https://api.staging.1qma.games",
 	"https://staging.1qma.games",
 	"https://admin.staging.1qma.games",
 	"http://localhost:4200", // client
@@ -72,14 +71,13 @@ const whiteList = [
 ];
 const corsOptions = {
 	credentials: true,
-	origin: "http://localhost:4200" /*function (origin, callback) {
-		console.log("origin", origin);
-		if (whiteList.indexOf(origin) !== -1) {
+	origin: function (origin, callback) {
+		if (whiteList.indexOf(origin) !== -1 || !origin) {
 			callback(null, true);
 		} else {
 			callback(new Error("Not allowed by CORS"));
 		}
-	},*/,
+	},
 };
 
 app.use(cors(corsOptions));
@@ -131,7 +129,7 @@ app.use(
 
 app.use(sanitizeRequestInputs);
 
-app.options("*", cors(corsOptions));
+// app.options("*", cors(corsOptions));
 
 const port = env.port;
 app.listen(port, () => {
