@@ -4,7 +4,7 @@ const Setting = require("../../models/Setting");
 
 exports.init = async () => {
 	try {
-		const gameTypes = [
+		const createMode = [
 			{ id: 0, text: "I'm ready" },
 			{ id: 1, text: "Topic by me" },
 			{ id: 2, text: "Players by me" },
@@ -22,7 +22,7 @@ exports.init = async () => {
 		const categories = await Category.find();
 
 		return success("initialize game parameters", {
-			gameTypes,
+			createMode,
 			numberOfPlayers: numberOfPlayers?.value || 5,
 			gamePrice: { coin: "bronze", count: createGamePrice?.value || 2 },
 			categories,
@@ -33,14 +33,18 @@ exports.init = async () => {
 };
 
 exports.createGame = async (params) => {
-	// creator id
-	// game type (normal, survival)
-	// create mode (gameTypes)
-	// category or choose random categoory
-	// question
-	// answer
-	// send invite to players (random or selected by creator)
-	// return game id;
+	try {
+		// creator id
+		// game type (normal, survival)
+		// create mode (gameTypes)
+		// category or choose random categoory
+		// questions
+		// answers
+		// send invite to players (random or selected by creator)
+		// return game id;
+	} catch (e) {
+		return handleException(e);
+	}
 };
 
 exports.joinGame = async (params) => {
@@ -48,4 +52,9 @@ exports.joinGame = async (params) => {
 	// game id
 	// question
 	// answer
+	try {
+		//
+	} catch (e) {
+		return handleException(e);
+	}
 };
