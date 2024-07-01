@@ -647,4 +647,8 @@ router.get("/google/callback", passport.authenticate("google"), (req, res) => {
 	res.redirect(redirect);
 });
 
+router.get("/:id/details", sameUser, (req, res) => {
+	res.json(success("ok", req.session.user));
+});
+
 module.exports = router;
