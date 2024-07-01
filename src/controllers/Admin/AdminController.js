@@ -28,15 +28,7 @@ exports.login = async (params) => {
 			return fail("Invalid email and password combination!", params);
 		}
 
-		// create and send some token as well
-		const token = Math.round(Math.random() * 1e9) + "" + Date.now();
-		await User.findOneAndUpdate(
-			{ _id: user.id },
-			{ $push: { accessTokens: { token, expire: null } } },
-			{ new: true }
-		);
-
-		return success("successfull login!", { token });
+		return success("successfull login!", user);
 	} catch (e) {
 		return handleException(e);
 	}
@@ -126,14 +118,6 @@ exports.logout = async (id, authToken) => {
 		if (!id) {
 			return fail("invalid id!");
 		}
-		if (!authToken) {
-			return fail("invalid token!");
-		}
-
-		await User.findOneAndUpdate(
-			{ _id: id },
-			{ $pull: { accessTokens: { token: authToken } } }
-		);
 
 		return success("user logged out successfully!");
 	} catch (e) {
