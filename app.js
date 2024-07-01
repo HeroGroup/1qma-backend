@@ -72,14 +72,14 @@ const whiteList = [
 ];
 const corsOptions = {
 	credentials: true,
-	origin: function (origin, callback) {
+	origin: "http://localhost:4200" /*function (origin, callback) {
 		console.log("origin", origin);
 		if (whiteList.indexOf(origin) !== -1) {
 			callback(null, true);
 		} else {
 			callback(new Error("Not allowed by CORS"));
 		}
-	},
+	},*/,
 };
 
 app.use(cors(corsOptions));
