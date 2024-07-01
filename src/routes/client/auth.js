@@ -597,18 +597,15 @@ router.post("/updatePassword/:media", async (req, res) => {
  *                default: 6644e9072019def5602933cb
  */
 router.post("/logout", sameUser, async (req, res) => {
-	const logoutResponse = await logout(req.body.id);
-	if (logoutResponse.status === 1) {
-		req.logout(function (err) {
-			if (err) {
-				res.json(fail(err));
-			}
-		});
-	}
-
 	req.session.user = {};
 
-	res.json(logoutResponse);
+	req.logout(function (err) {
+		if (err) {
+			res.json(fail(err));
+		}
+	});
+
+	res.json(success("user logged out successfully!"));
 });
 
 /**
