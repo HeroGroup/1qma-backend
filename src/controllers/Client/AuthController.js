@@ -1003,13 +1003,10 @@ exports.googleOAuth = async (profile, userSession, reason) => {
 
 exports.registerWithInvitationLink = async (params) => {};
 
-exports.logout = async (id, authToken) => {
+exports.logout = async (id) => {
 	try {
 		if (!id) {
 			return fail("invalid id!");
-		}
-		if (!authToken) {
-			return fail("invalid token!");
 		}
 
 		await User.findOneAndUpdate(
