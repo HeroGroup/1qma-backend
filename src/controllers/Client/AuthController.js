@@ -883,8 +883,6 @@ exports.googleOAuth = async (profile, userSession, reason) => {
 			email: profile.email,
 			emailVerified: profile.email_verified,
 			password: { $exists: true },
-			$or: [{ inWaitList: false }, { inWaitList: { $exists: false } }],
-			isActive: true,
 		});
 
 		const googleUser = await User.findOne({
@@ -892,14 +890,12 @@ exports.googleOAuth = async (profile, userSession, reason) => {
 			providerId: profile.sub,
 			email: profile.email,
 			emailVerified: profile.email_verified,
-			$or: [{ inWaitList: false }, { inWaitList: { $exists: false } }],
-			isActive: true,
 		});
 
 		if (reason === "register") {
-			if (googleUser) {
+			if (googleUser && !googleUser.inWaitList) {
 				return fail("This Google user is already a member!");
-			} else if (normalUser) {
+			} else if (normalUser && !normalUser.inWaitList) {
 				return fail(
 					"You have already registered with this email and a corresponding password!"
 				);
@@ -914,6 +910,8 @@ exports.googleOAuth = async (profile, userSession, reason) => {
 						},
 						{
 							...tempUser,
+							inWaitList: false,
+							isActive: true,
 						},
 						{ new: true }
 					)
