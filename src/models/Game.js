@@ -3,8 +3,8 @@ const { Schema } = mongoose;
 
 const gameSchema = new Schema({
 	creator: Object,
-	createMode: String,
-	gameType: String,
+	createMode: Object,
+	gameType: Object,
 	category: Object,
 	players: Array,
 	questions: Array,

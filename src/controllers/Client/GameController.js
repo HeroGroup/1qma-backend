@@ -40,7 +40,7 @@ exports.init = async () => {
 	}
 };
 
-exports.createGame = async (creator, params) => {
+exports.createGame = async (params) => {
 	try {
 		const { id, gameType, createMode, question, answer } = params;
 
@@ -51,7 +51,7 @@ exports.createGame = async (creator, params) => {
 		}
 
 		if (!gameType || !gameTypes.find((element) => element.id === gameType)) {
-			return fail("Invalid gmae type!");
+			return fail("Invalid game type!");
 		}
 
 		if (
@@ -113,6 +113,10 @@ exports.createGame = async (creator, params) => {
 			// implement a mechanism for all players to see and join this live game
 		}
 
+		const creator = await User.findById(id);
+		if (!creator) {
+			return fail("invalid creator!");
+		}
 		const { _id: creator_id, firstName, lastName, email } = creator;
 		const game = new Game({
 			creator: { creator_id, firstName, lastName, email },
@@ -146,12 +150,78 @@ exports.createGame = async (creator, params) => {
 };
 
 exports.joinGame = async (params) => {
-	// player id
-	// game id
-	// question
-	// answer
 	try {
-		//
+		const { id, gameId, question, answer } = params;
+
+		if (!id) {
+			return fail("Invalid player id!");
+		}
+
+		if (!gameId) {
+			return fail("Invalid game id!");
+		}
+
+		if (!question) {
+			return fail("Enter a question!");
+		}
+
+		if (!answer) {
+			return fail("Enter answer for the question!");
+		}
+
+		const player = await User.findById(id);
+		if (!player) {
+			return fail("invalid player!");
+		}
+
+		let game = await Game.findById(gameId);
+		if (!game) {
+			return fail("invalid game!");
+		}
+
+		let gameStatus = game.status;
+		if (gameStatus === "started") {
+			return fail("Sorry, Game is already started!");
+		} else if (gameStatus === "ended") {
+			return fail("Sorry, Game has already ended!");
+		}
+
+		const { _id: player_id, firstName, lastName, email } = player;
+
+		const numberOfPlayersSetting = await Setting.findOne({
+			key: "NUMBER_OF_PLAYERS_PER_GAME",
+		});
+		const currentPlayersCoount = game.players.length;
+		if (numberOfPlayersSetting.value === currentPlayersCoount + 1) {
+			gameStatus = "started";
+		}
+
+		game = await Game.findOneAndUpdate(
+			{ _id: game.id },
+			{
+				$push: { players: { player_id, firstName, lastName, email } },
+				$push: {
+					questions: {
+						user_id: player_id,
+						question,
+						answers: [
+							{
+								user_id: player_id,
+								answer,
+								rates: [],
+							},
+						],
+						rates: [],
+					},
+				},
+				status: gameStatus,
+			},
+			{ new: true }
+		);
+
+		// emit player added
+
+		return success("You have successfully joined the game!", game);
 	} catch (e) {
 		return handleException(e);
 	}
@@ -163,12 +233,16 @@ exports.searchUsers = async (text) => {
 			return fail("Enter at least 3 characters");
 		}
 
+		const filter = { $regex: text, $options: "i" };
+
 		const users = await User.find(
-			{ $or: [{ firstName: /text/ }, { lastName: /text/ }, { email: /text/ }] },
+			{
+				$or: [{ firstName: filter }, { lastName: filter }, { email: filter }],
+			},
 			{ _id: 1, email: 1, firstName: 1, lastName: 1, profilePicture: 1 }
 		);
 
-		return success("ok", users);
+		return success(`${users.length} matches found!`, users);
 	} catch (e) {
 		return handleException(e);
 	}

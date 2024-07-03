@@ -63,7 +63,7 @@ router.get("/init", async (req, res) => {
  *                default: any answer
  */
 router.post("/create", sameUser, async (req, res) => {
-	res.json(await createGame(req.session.user, req.body));
+	res.json(await createGame(req.body));
 });
 
 /**
@@ -98,7 +98,7 @@ router.post("/create", sameUser, async (req, res) => {
  *                type: string
  *                default: any answer
  */
-router.post("join", sameUser, async (req, res) => {
+router.post("/join", sameUser, async (req, res) => {
 	res.json(await joinGame(req.body));
 });
 
@@ -115,8 +115,8 @@ router.post("join", sameUser, async (req, res) => {
  *         schema:
  *           type: string
  */
-router.get("searchUsers", async (req, res) => {
-	res.json(await searchUsers(req.query("search")));
+router.get("/searchUsers", async (req, res) => {
+	res.json(await searchUsers(req.query.search));
 });
 
 module.exports = router;
