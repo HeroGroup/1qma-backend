@@ -152,7 +152,7 @@ router.post("/joinToWaitListWithMobile", async (req, res) => {
 router.post("/registerWithReferal", async (req, res) => {
 	const registerResult = await registerWithReferal(req.body);
 	if (registerResult.status === 1) {
-		req.session.user = registerResult.data.user;
+		req.session.user = registerResult.data;
 	}
 
 	res.json(registerResult);
@@ -185,7 +185,7 @@ router.get("/registerWithInvitationLink", async (req, res) => {
  *     parameters:
  *      - in: path
  */
-router.post("/setEmail", isLoggedIn, async (req, res) => {
+router.post("/setEmail", sameUser, async (req, res) => {
 	const setEmailResult = await setEmail(req.body);
 	if (setEmailResult.status === 1) {
 		req.session.user = setEmailResult.data.user;
@@ -225,7 +225,7 @@ router.post("/setEmail", isLoggedIn, async (req, res) => {
  *     parameters:
  *      - in: path
  */
-router.post("/setPassword", isLoggedIn, async (req, res) => {
+router.post("/setPassword", sameUser, async (req, res) => {
 	res.json(await setPassword(req.body));
 });
 
@@ -260,11 +260,7 @@ router.post("/setPassword", isLoggedIn, async (req, res) => {
  *                default: en
  */
 router.post("/updateLanguagePreference", sameUser, async (req, res) => {
-	const sessionUser = req.session.user;
-	const choosePreferedLanguageResult = await choosePreferedLanguage(
-		req.body,
-		sessionUser
-	);
+	const choosePreferedLanguageResult = await choosePreferedLanguage(req.body);
 	if (choosePreferedLanguageResult.status === 1) {
 		req.session.user = choosePreferedLanguageResult.data;
 	}
@@ -355,20 +351,15 @@ router.post("/updateProfile", sameUser, async (req, res) => {
  *                type: array
  *                default: [{_id: "6543234567890", name: "history"}]
  */
-router.post(
-	"/updateCategoryPreferences",
-	sameUser,
-	isLoggedIn,
-	async (req, res) => {
-		const chooseCategoryPreferencesResult = await chooseCategoryPreferences(
-			req.body
-		);
-		if (chooseCategoryPreferencesResult.status === 1) {
-			req.session.user = chooseCategoryPreferencesResult.data;
-		}
-		res.json(chooseCategoryPreferencesResult);
+router.post("/updateCategoryPreferences", sameUser, async (req, res) => {
+	const chooseCategoryPreferencesResult = await chooseCategoryPreferences(
+		req.body
+	);
+	if (chooseCategoryPreferencesResult.status === 1) {
+		req.session.user = chooseCategoryPreferencesResult.data;
 	}
-);
+	res.json(chooseCategoryPreferencesResult);
+});
 
 /**
  * @openapi

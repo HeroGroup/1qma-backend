@@ -327,13 +327,9 @@ exports.setPassword = async (params) => {
 	}
 };
 
-exports.choosePreferedLanguage = async (params, sessionUser) => {
+exports.choosePreferedLanguage = async (params) => {
 	if (!params.id) {
 		return fail("invalid user id", params);
-	}
-
-	if (params.providerId && sessionUser?.providerId !== params.providerId) {
-		return fail("invalid provider id!");
 	}
 
 	if (!params.language) {
