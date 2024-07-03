@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const imageUpload = require("../../services/imageUpload");
+const { hasCompletedSignup } = require("../../middlewares/hasCompletedSignup");
 const { sameUser } = require("../../middlewares/sameUser");
 
 const {
@@ -12,6 +13,7 @@ const {
 	userDetails,
 	invite,
 	addQuestion,
+	listQuestions,
 } = require("../../controllers/Client/ClientController");
 
 /**
@@ -233,6 +235,29 @@ router.get("/:id/details", async (req, res) => {
  */
 router.post("/invite", sameUser, async (req, res) => {
 	res.json(await invite(req.body));
+});
+
+/**
+ * @openapi
+ * '/client/questions':
+ *  get:
+ *     tags:
+ *     - Client
+ *     summary: search for questions (public, private, bookmarked)
+ *     parameters:
+ *       - in: query
+ *         name: category
+ *         schema:
+ *           type: string
+ *         name: type
+ *         schema:
+ *           type: string
+ *         name: search
+ *         schema:
+ *           type: string
+ */
+router.get("/questions", hasCompletedSignup, async (req, res) => {
+	res.json(await listQuestions(req.query));
 });
 
 /**

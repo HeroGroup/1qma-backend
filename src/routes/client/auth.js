@@ -629,7 +629,7 @@ router.get("/google/callback", passport.authenticate("google"), (req, res) => {
 		} else if (reason === "login") {
 			redirect = `${frontAppUrl}/#/login?status=-1&message=${message}`;
 		} else {
-			redirect += `?user_id=&provider=&provider_id=&email=&email_verified=&status=-1&message=${message}`;
+			redirect = `${frontAppUrl}/#/signup-refer-email?status=-1&message=${message}`;
 		}
 	}
 

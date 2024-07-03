@@ -273,6 +273,24 @@ exports.userDetails = async (id) => {
 	}
 };
 
+exports.listQuestions = async (params) => {
+	try {
+		const { category, type, search } = params;
+		if (!category) {
+			return fail("invalid category!");
+		}
+		if (!type) {
+			return fail(
+				"invalid type! Type should be public, private, or bookmarked."
+			);
+		}
+
+		//
+	} catch (e) {
+		return handleException(e);
+	}
+};
+
 exports.addQuestion = async (params) => {
 	try {
 		const { id, category, question, answer } = params;

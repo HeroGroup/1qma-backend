@@ -51,3 +51,7 @@ exports.removeFile = (fileToUnlink) => {
 exports.createAccessToken = () => {
 	return Math.round(Math.random() * 1e9) + "" + Date.now();
 };
+
+exports.createGameCode = () => {
+	return Math.round(Math.random() * 1e9);
+};

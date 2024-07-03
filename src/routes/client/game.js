@@ -5,6 +5,7 @@ const {
 	createGame,
 	joinGame,
 	searchUsers,
+	findFriendGames,
 } = require("../../controllers/Client/GameController");
 const { sameUser } = require("../../middlewares/sameUser");
 
@@ -37,6 +38,7 @@ router.get("/init", async (req, res) => {
  *              - id
  *              - gameType
  *              - createMode
+ *              - category
  *              - question
  *              - answer
  *            properties:
@@ -82,6 +84,7 @@ router.post("/create", sameUser, async (req, res) => {
  *            required:
  *              - id
  *              - gameId
+ *              - gameCode
  *              - question
  *              - answer
  *            properties:
@@ -91,6 +94,9 @@ router.post("/create", sameUser, async (req, res) => {
  *              gameId:
  *                type: string
  *                default: 65445678098765456
+ *              gameCode:
+ *                type: string
+ *                default: G-516317244
  *              question:
  *                type: string
  *                default: any question
@@ -117,6 +123,24 @@ router.post("/join", sameUser, async (req, res) => {
  */
 router.get("/searchUsers", async (req, res) => {
 	res.json(await searchUsers(req.query.search));
+});
+
+/**
+ * @openapi
+ * '/game/find/{:email}/games':
+ *  get:
+ *     tags:
+ *     - Game
+ *     summary: see friend games
+ *     parameters:
+ *       - in: path
+ *         name: email
+ *         schema:
+ *           type: string
+ *         required: true
+ */
+router.get("/find/:email/games", async (req, res) => {
+	res.json(await findFriendGames(req.params.email));
 });
 
 module.exports = router;

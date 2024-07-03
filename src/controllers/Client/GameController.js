@@ -1,4 +1,5 @@
-const { handleException } = require("../../helpers/utils");
+const { handleException, createGameCode } = require("../../helpers/utils");
+const { validateEmail } = require("../../helpers/validator");
 const Category = require("../../models/Category");
 const Game = require("../../models/Game");
 const Setting = require("../../models/Setting");
@@ -69,9 +70,12 @@ exports.createGame = async (params) => {
 			return fail("Answer is not entered!");
 		}
 
-		const numberOfPlayersKey = await Setting.findOne({
+		const numberOfPlayersSetting = await Setting.findOne({
 			key: "NUMBER_OF_PLAYERS_PER_GAME",
 		});
+		const playersShouldCount = numberOfPlayersSetting
+			? numberOfPlayersSetting.value
+			: 5;
 
 		switch (createMode) {
 			case "3":
@@ -79,14 +83,20 @@ exports.createGame = async (params) => {
 				if (!category) {
 					return fail("invalid category!");
 				}
-				if (!players || players.length !== (numberOfPlayersKey?.value || 5)) {
+				if (!players || players.length < playersShouldCount - 1) {
 					return fail("not enough players!");
+				}
+				if (players.length > playersShouldCount - 1) {
+					return fail("too much players were selected!");
 				}
 				break;
 			case "2":
 				// Players by me
-				if (!players || players.length !== (numberOfPlayersKey?.value || 5)) {
+				if (!players || players.length < playersShouldCount - 1) {
 					return fail("not enough players!");
+				}
+				if (players.length > playersShouldCount - 1) {
+					return fail("too much players were selected!");
 				}
 				break;
 			case "1":
@@ -104,7 +114,7 @@ exports.createGame = async (params) => {
 		if (!category) {
 			// choose random category
 			const random = Math.floor(Math.random() * categories.length);
-			category = categories[random];
+			category = categories[random]._id;
 		} else if (categories.find((element) => element._id === category)) {
 			return fail("Invalid category!");
 		}
@@ -117,13 +127,20 @@ exports.createGame = async (params) => {
 		if (!creator) {
 			return fail("invalid creator!");
 		}
-		const { _id: creator_id, firstName, lastName, email } = creator;
+		const {
+			_id: creator_id,
+			firstName,
+			lastName,
+			email,
+			profilePicture,
+		} = creator;
 		const game = new Game({
-			creator: { creator_id, firstName, lastName, email },
+			code: `G-${createGameCode()}`,
+			creator: { creator_id, firstName, lastName, email, profilePicture },
 			createMode: createModes.find((element) => element.id === createMode),
 			gameType: gameTypes.find((element) => element.id === gameType),
 			category: categories.find((element) => element._id === category),
-			players: [{ creator_id, firstName, lastName, email }],
+			players: [{ creator_id, firstName, lastName, email, profilePicture }],
 			questions: [
 				{
 					user_id: creator_id,
@@ -143,7 +160,10 @@ exports.createGame = async (params) => {
 
 		await game.save();
 
-		return success("Game was created successfully!", game._id);
+		return success("Game was created successfully!", {
+			gameId: game._id,
+			gameCode: game.code,
+		});
 	} catch (e) {
 		return handleException(e);
 	}
@@ -151,14 +171,14 @@ exports.createGame = async (params) => {
 
 exports.joinGame = async (params) => {
 	try {
-		const { id, gameId, question, answer } = params;
+		const { id, gameId, gameCode, question, answer } = params;
 
 		if (!id) {
 			return fail("Invalid player id!");
 		}
 
-		if (!gameId) {
-			return fail("Invalid game id!");
+		if (!gameId && !gameCode) {
+			return fail("Game id or code is required!");
 		}
 
 		if (!question) {
@@ -174,7 +194,9 @@ exports.joinGame = async (params) => {
 			return fail("invalid player!");
 		}
 
-		let game = await Game.findById(gameId);
+		let game = gameId
+			? await Game.findById(gameId)
+			: await Game.findOne({ code: gameCode });
 		if (!game) {
 			return fail("invalid game!");
 		}
@@ -186,7 +208,13 @@ exports.joinGame = async (params) => {
 			return fail("Sorry, Game has already ended!");
 		}
 
-		const { _id: player_id, firstName, lastName, email } = player;
+		const {
+			_id: player_id,
+			firstName,
+			lastName,
+			email,
+			profilePicture,
+		} = player;
 
 		const numberOfPlayersSetting = await Setting.findOne({
 			key: "NUMBER_OF_PLAYERS_PER_GAME",
@@ -199,7 +227,9 @@ exports.joinGame = async (params) => {
 		game = await Game.findOneAndUpdate(
 			{ _id: game.id },
 			{
-				$push: { players: { player_id, firstName, lastName, email } },
+				$push: {
+					players: { player_id, firstName, lastName, email, profilePicture },
+				},
 				$push: {
 					questions: {
 						user_id: player_id,
@@ -243,6 +273,46 @@ exports.searchUsers = async (text) => {
 		);
 
 		return success(`${users.length} matches found!`, users);
+	} catch (e) {
+		return handleException(e);
+	}
+};
+
+exports.findFriendGames = async (email) => {
+	try {
+		if (!validateEmail(email)) {
+			return fail("invalid email address!");
+		}
+
+		const friend = await User.findOne(
+			{
+				email,
+				emailVerified: true,
+				hasCompletedSignup: true,
+			},
+			{ _id: 1, firstName: 1, lastName: 1, profilePicture: 1 }
+		);
+
+		if (!friend) {
+			return fail("No user is associated with this email address!");
+		}
+
+		const liveGames = await Game.find(
+			{
+				"creator._id": friend._id,
+				status: "created",
+			},
+			{ _id: 1, category: 1, creator: 1, players: 1, gameType: 1 }
+		);
+		const endedGames = await Game.find(
+			{
+				"creator._id": friend._id,
+				status: "ended",
+			},
+			{ _id: 1, category: 1, creator: 1, players: 1, gameType: 1 }
+		);
+
+		return success("ok", { friend, liveGames, endedGames });
 	} catch (e) {
 		return handleException(e);
 	}
