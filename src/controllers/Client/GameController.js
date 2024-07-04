@@ -136,11 +136,13 @@ exports.createGame = async (params) => {
 		} = creator;
 		const game = new Game({
 			code: `G-${createGameCode()}`,
-			creator: { creator_id, firstName, lastName, email, profilePicture },
+			creator: { _id: creator_id, firstName, lastName, email, profilePicture },
 			createMode: createModes.find((element) => element.id === createMode),
 			gameType: gameTypes.find((element) => element.id === gameType),
 			category: categories.find((element) => element._id === category),
-			players: [{ creator_id, firstName, lastName, email, profilePicture }],
+			players: [
+				{ _id: creator_id, firstName, lastName, email, profilePicture },
+			],
 			questions: [
 				{
 					user_id: creator_id,
@@ -156,6 +158,7 @@ exports.createGame = async (params) => {
 				},
 			],
 			status: "created", // started, ended
+			createdAt: moment(),
 		});
 
 		await game.save();
@@ -219,8 +222,8 @@ exports.joinGame = async (params) => {
 		const numberOfPlayersSetting = await Setting.findOne({
 			key: "NUMBER_OF_PLAYERS_PER_GAME",
 		});
-		const currentPlayersCoount = game.players.length;
-		if (numberOfPlayersSetting.value === currentPlayersCoount + 1) {
+		const currentPlayersCount = game.players.length;
+		if (numberOfPlayersSetting.value === currentPlayersCount + 1) {
 			gameStatus = "started";
 		}
 

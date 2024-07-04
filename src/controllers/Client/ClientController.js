@@ -1,3 +1,4 @@
+const mongoose = require("mongoose");
 const {
 	handleException,
 	createHashedPasswordFromPlainText,
@@ -273,7 +274,7 @@ exports.userDetails = async (id) => {
 	}
 };
 
-exports.listQuestions = async (params) => {
+exports.listQuestions = async (user, params) => {
 	try {
 		const { category, type, search } = params;
 		if (!category) {
@@ -285,7 +286,29 @@ exports.listQuestions = async (params) => {
 			);
 		}
 
-		//
+		const categoryFilter = {
+			"category._id": new mongoose.Types.ObjectId(category),
+		};
+
+		const userFilter =
+			type === "private"
+				? { "user._id": new mongoose.Types.ObjectId(user._id) }
+				: {};
+
+		const searchFilter = search
+			? { question: { $regex: search, $options: "i" } }
+			: {};
+
+		const filter = { ...categoryFilter, ...userFilter, ...searchFilter };
+
+		const questions = await Question.find(filter, {
+			_id: 0,
+			category: 1,
+			question: 1,
+			answer: 1,
+		});
+
+		return success("ok", questions);
 	} catch (e) {
 		return handleException(e);
 	}
@@ -311,12 +334,17 @@ exports.addQuestion = async (params) => {
 			firstName: 1,
 			lastName: 1,
 			email: 1,
+			profilePicture: 1,
 		});
 		if (!user) {
 			return fail("invalid user!");
 		}
 
-		const dbCategory = await Category.findById(category);
+		const dbCategory = await Category.findById(category, {
+			_id: 1,
+			name: 1,
+			icon: 1,
+		});
 		if (!dbCategory) {
 			return fail("invalid category!");
 		}
@@ -324,7 +352,7 @@ exports.addQuestion = async (params) => {
 		const newQuestion = new Question({
 			question,
 			answer,
-			category: dbCategory,
+			category,
 			user,
 		});
 		await newQuestion.save();

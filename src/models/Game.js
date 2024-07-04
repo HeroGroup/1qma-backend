@@ -10,6 +10,7 @@ const gameSchema = new Schema({
 	players: Array,
 	questions: Array,
 	status: String,
+	createdAt: Date,
 });
 
 module.exports = mongoose.model("Game", gameSchema);
