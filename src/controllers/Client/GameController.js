@@ -127,6 +127,20 @@ exports.createGame = async (params) => {
 		if (!creator) {
 			return fail("invalid creator!");
 		}
+
+		// check if creator has enough coin
+		const createGamePriceSetting = await Setting.findOne({
+			key: "CREATE_GAME_PRICE_BRONZE",
+		});
+		const creatorBronzeCoins = creator.assets.coins.bronze;
+		const createGamePrice = createGamePriceSetting?.value || 2;
+		if (creatorBronzeCoins < createGamePrice) {
+			return fail(
+				"Unfortunately you do not have enough coins for creating a game!",
+				{ creatorBronzeCoins, createGamePrice }
+			);
+		}
+
 		const {
 			_id: creator_id,
 			firstName,
@@ -163,10 +177,49 @@ exports.createGame = async (params) => {
 
 		await game.save();
 
-		return success("Game was created successfully!", {
-			gameId: game._id,
-			gameCode: game.code,
+		// decrease creator coins
+		await User.findOneAndUpdate(
+			{ _id: creator._id },
+			{ $inc: { "assets.coins.bronze": -createGamePrice } }
+		);
+
+		return success(
+			"Game was created successfully!",
+			gameCustomProjection(game)
+		);
+	} catch (e) {
+		return handleException(e);
+	}
+};
+
+exports.prejoin = async (user, code) => {
+	try {
+		console.log(user);
+		if (!user) {
+			return fail("invalid user!");
+		}
+
+		if (!code) {
+			return fail("Invalid Game Code!");
+		}
+
+		const game = await Game.findOne(
+			{ $or: [{ _id: code }, { code }] },
+			{ _id: 1, creator: 1, category: 1, gameType: 1 }
+		);
+		if (!game) {
+			return fail("Invalid Game!");
+		}
+
+		const joinGamePriceSetting = await Setting.findOne({
+			key: "JOIN_GAME_PRICE_BRONZE",
 		});
+		const joinGamePrice = joinGamePriceSetting?.value || 2;
+
+		const dbUser = await User.findById(user._id);
+		const balance = dbUser?.assets.coins.bronze;
+
+		return "ok", { game, joinGamePrice, balance };
 	} catch (e) {
 		return handleException(e);
 	}
@@ -174,14 +227,33 @@ exports.createGame = async (params) => {
 
 exports.joinGame = async (params) => {
 	try {
-		const { id, gameId, gameCode, question, answer } = params;
+		const { id, gameId, question, answer } = params;
 
 		if (!id) {
 			return fail("Invalid player id!");
 		}
 
-		if (!gameId && !gameCode) {
-			return fail("Game id or code is required!");
+		const player = await User.findById(id);
+		if (!player) {
+			return fail("invalid player!");
+		}
+
+		if (!gameId) {
+			return fail("Game id required!");
+		}
+
+		let game = await Game.findById(gameId);
+		if (!game) {
+			return fail("invalid game!");
+		}
+
+		// check player is not already in game
+		if (
+			game.players.find(
+				(element) => element._id.toString() === player._id.toString()
+			)
+		) {
+			return fail("You are already in this game!");
 		}
 
 		if (!question) {
@@ -192,16 +264,17 @@ exports.joinGame = async (params) => {
 			return fail("Enter answer for the question!");
 		}
 
-		const player = await User.findById(id);
-		if (!player) {
-			return fail("invalid player!");
-		}
-
-		let game = gameId
-			? await Game.findById(gameId)
-			: await Game.findOne({ code: gameCode });
-		if (!game) {
-			return fail("invalid game!");
+		// check if player has enough coins
+		const joinGamePriceSetting = await Setting.findOne({
+			key: "JOIN_GAME_PRICE_BRONZE",
+		});
+		const playerBronzeCoins = player.assets.coins.bronze;
+		const joinGamePrice = joinGamePriceSetting?.value || 2;
+		if (playerBronzeCoins < joinGamePrice) {
+			return fail(
+				"Unfortunately you do not have enough coins for joining this game!",
+				{ playerBronzeCoins, joinGamePrice }
+			);
 		}
 
 		let gameStatus = game.status;
@@ -231,9 +304,13 @@ exports.joinGame = async (params) => {
 			{ _id: game.id },
 			{
 				$push: {
-					players: { player_id, firstName, lastName, email, profilePicture },
-				},
-				$push: {
+					players: {
+						_id: player_id,
+						firstName,
+						lastName,
+						email,
+						profilePicture,
+					},
 					questions: {
 						user_id: player_id,
 						question,
@@ -252,12 +329,31 @@ exports.joinGame = async (params) => {
 			{ new: true }
 		);
 
+		// update players coins
+		await User.findOneAndUpdate(
+			{ _id: player_id },
+			{ $inc: { "assets.coins.bronze": -joinGamePrice } }
+		);
+
 		// emit player added
 
-		return success("You have successfully joined the game!", game);
+		return success(
+			"You have successfully joined the game!",
+			gameCustomProjection(game)
+		);
 	} catch (e) {
 		return handleException(e);
 	}
+};
+
+const gameCustomProjection = (game) => {
+	return {
+		gameId: game._id,
+		gameCode: game.code,
+		gameCategory: game.category,
+		gameType: game.gameType,
+		gameLink: `https://staging.1qma.games/game/join?code=${game.code}`,
+	};
 };
 
 exports.searchUsers = async (text) => {
@@ -312,7 +408,7 @@ exports.findFriendGames = async (email) => {
 				"creator._id": friend._id,
 				status: "ended",
 			},
-			{ _id: 1, category: 1, creator: 1, players: 1, gameType: 1 }
+			{ _id: 1, category: 1, creator: 1, players: 1, gameType: 1, createdAt: 1 }
 		);
 
 		return success("ok", { friend, liveGames, endedGames });

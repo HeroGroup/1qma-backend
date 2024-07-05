@@ -6,6 +6,7 @@ const {
 	joinGame,
 	searchUsers,
 	findFriendGames,
+	prejoin,
 } = require("../../controllers/Client/GameController");
 const { sameUser } = require("../../middlewares/sameUser");
 
@@ -70,6 +71,24 @@ router.post("/create", sameUser, async (req, res) => {
 
 /**
  * @openapi
+ * '/game/{code}/join':
+ *  get:
+ *     tags:
+ *     - Game
+ *     summary: attempt to join a game
+ *     parameters:
+ *       - in: path
+ *         name: idOrCode
+ *         schema:
+ *           type: string
+ *         required: true
+ */
+router.get("/:idOrCode/join", async (req, res) => {
+	res.json(await prejoin(req.session.user, req.params.idOrCode));
+});
+
+/**
+ * @openapi
  * '/game/join':
  *  post:
  *     tags:
@@ -84,7 +103,6 @@ router.post("/create", sameUser, async (req, res) => {
  *            required:
  *              - id
  *              - gameId
- *              - gameCode
  *              - question
  *              - answer
  *            properties:
@@ -94,9 +112,6 @@ router.post("/create", sameUser, async (req, res) => {
  *              gameId:
  *                type: string
  *                default: 65445678098765456
- *              gameCode:
- *                type: string
- *                default: G-516317244
  *              question:
  *                type: string
  *                default: any question
@@ -127,7 +142,7 @@ router.get("/searchUsers", async (req, res) => {
 
 /**
  * @openapi
- * '/game/find/{:email}/games':
+ * '/game/find/{email}/games':
  *  get:
  *     tags:
  *     - Game

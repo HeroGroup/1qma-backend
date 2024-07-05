@@ -37,16 +37,16 @@ const { passportInit } = require("./src/services/auth/passport");
 
 globalThis.__basedir = __dirname;
 globalThis.moment = require("moment");
-globalThis.success = (message, data) => {
+globalThis.success = (message, data, status = 1) => {
 	return {
-		status: 1,
+		status,
 		message,
 		data,
 	};
 };
-globalThis.fail = (message, data) => {
+globalThis.fail = (message, data, status = -1) => {
 	return {
-		status: -1,
+		status,
 		message,
 		data,
 	};
