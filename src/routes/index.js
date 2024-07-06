@@ -4,8 +4,8 @@ const router = express.Router();
 const { getSocketClient } = require("../helpers/utils");
 
 router.get("/", (req, res) => {
-	res.send("Hello from DEV Team!");
-	// res.sendFile(join(__basedir, "index.html"));
+	// res.send("Hello from DEV Team!");
+	res.sendFile(join(__basedir, "index.html"));
 });
 
 module.exports = router;

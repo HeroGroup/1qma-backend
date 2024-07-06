@@ -140,8 +140,11 @@ async function main() {
 
 	app.use(sanitizeRequestInputs);
 
+	// Sharing the session context
 	io.engine.use(session(sess));
+
 	io.on("connection", (socket) => {
+		socket.join("gameid");
 		const sessionId = socket.request?.sessionID;
 		if (sessionId) {
 			sess.store.get(sessionId, (error, sessionData) => {

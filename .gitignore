@@ -4,4 +4,3 @@ node_modules
 public/uploads
 google_OAuth.json
 env.development.js
-index.html
