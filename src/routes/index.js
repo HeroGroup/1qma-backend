@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-// const { join } = require("node:path");
+const { join } = require("node:path");
 const { getSocketClient } = require("../helpers/utils");
 
 router.get("/", (req, res) => {
