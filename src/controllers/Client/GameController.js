@@ -1,4 +1,8 @@
-const { handleException, createGameCode } = require("../../helpers/utils");
+const {
+	handleException,
+	createGameCode,
+	joinUserToGameRoom,
+} = require("../../helpers/utils");
 const { validateEmail } = require("../../helpers/validator");
 const Category = require("../../models/Category");
 const Game = require("../../models/Game");
@@ -41,7 +45,7 @@ exports.init = async () => {
 	}
 };
 
-exports.createGame = async (params) => {
+exports.createGame = async (params, socketId) => {
 	try {
 		const { id, gameType, createMode, question, answer } = params;
 
@@ -120,7 +124,7 @@ exports.createGame = async (params) => {
 		}
 
 		if (!players) {
-			// implement a mechanism for all players to see and join this live game
+			// send invites to players
 		}
 
 		const creator = await User.findById(id);
@@ -183,6 +187,8 @@ exports.createGame = async (params) => {
 			{ $inc: { "assets.coins.bronze": -createGamePrice } }
 		);
 
+		await joinUserToGameRoom(socketId, game._id.toString());
+
 		return success(
 			"Game was created successfully!",
 			gameCustomProjection(game)
@@ -225,7 +231,7 @@ exports.prejoin = async (user, code) => {
 	}
 };
 
-exports.joinGame = async (params) => {
+exports.joinGame = async (params, socketId) => {
 	try {
 		const { id, gameId, question, answer } = params;
 
@@ -335,7 +341,15 @@ exports.joinGame = async (params) => {
 			{ $inc: { "assets.coins.bronze": -joinGamePrice } }
 		);
 
-		// emit player added
+		const gameRoom = game._id.toString();
+		await joinUserToGameRoom(socketId, gameRoom);
+		io.to(gameRoom).emit("player added", {
+			_id: player_id,
+			firstName,
+			lastName,
+			email,
+			profilePicture,
+		});
 
 		return success(
 			"You have successfully joined the game!",

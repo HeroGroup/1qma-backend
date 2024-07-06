@@ -1,13 +1,21 @@
 module.exports = {
 	environment: process.env.ENVIRONMENT,
-	appName: process.env.APP_NAME,
-	appUrl: process.env.APP_URL,
+	app: {
+		name: process.env.APP_NAME,
+		url: process.env.APP_URL,
+		domain: process.env.APP_DOMAIN,
+		port: process.env.APP_PORT,
+	},
+	db: {
+		host: process.env.DB_HOST,
+		name: process.env.DB_NAME,
+		port: process.env.DB_PORT,
+	},
+	session: {
+		name: process.env.SESSION_NAME,
+		key: process.env.SESSION_KEY,
+	},
 	frontAppUrl: process.env.FRONT_APP_URL,
-	appDomain: process.env.APP_DOMAIN,
-	port: process.env.PORT,
-	dbHost: process.env.DB_HOST,
-	dbName: process.env.DB_NAME,
-	dbPort: process.env.DB_PORT,
 	saltRounds: process.env.SALT_ROUNDS,
 	authServiceProviders: {
 		google: {

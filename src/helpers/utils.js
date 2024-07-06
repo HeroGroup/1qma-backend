@@ -55,3 +55,17 @@ exports.createAccessToken = () => {
 exports.createGameCode = () => {
 	return Math.round(Math.random() * 1e9);
 };
+
+exports.getSocketClient = async (socketId) => {
+	const sockets = await io.fetchSockets();
+	const socket = sockets.find((element) => element.id === socketId);
+
+	return socket;
+};
+
+exports.joinUserToGameRoom = async (socketId, room) => {
+	const socket = await this.getSocketClient(socketId);
+	if (socket) {
+		socket.join(room);
+	}
+};

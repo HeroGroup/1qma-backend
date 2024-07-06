@@ -66,7 +66,7 @@ router.get("/init", async (req, res) => {
  *                default: any answer
  */
 router.post("/create", sameUser, async (req, res) => {
-	res.json(await createGame(req.body));
+	res.json(await createGame(req.body, req.session.socketId));
 });
 
 /**
@@ -120,7 +120,7 @@ router.get("/:idOrCode/join", async (req, res) => {
  *                default: any answer
  */
 router.post("/join", sameUser, async (req, res) => {
-	res.json(await joinGame(req.body));
+	res.json(await joinGame(req.body, req.session.socketId));
 });
 
 /**
