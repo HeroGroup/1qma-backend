@@ -640,6 +640,53 @@ router.get("/google/callback", passport.authenticate("google"), (req, res) => {
 
 /**
  * @openapi
+ * '/auth/facebook':
+ *  get:
+ *     tags:
+ *     - Authentication
+ *     summary: Authenticate with facebook
+ */
+router.get(
+	"/facebook",
+	(req, res, next) => {
+		req.session.reason = req.query.reason;
+		next();
+	},
+	passport.authenticate("facebook")
+);
+
+router.get(
+	"/facebook/callback",
+	passport.authenticate("facebook"),
+	(req, res) => {
+		let redirect = env.authServiceProviders.facebook.successRedirectUrl;
+
+		if (req.user.status === 1) {
+			const { _id, providerId, email, emailVerified } = req.user.data;
+			redirect += `?user_id=${_id}&provider=facebook&provider_id=${providerId}&email=${email}&email_verified=${emailVerified}&status=1`;
+			req.session.user = req.user.data;
+		} else {
+			const message = req.user.message;
+			const reason = req.user.data;
+			const frontAppUrl = env.frontAppUrl;
+
+			if (reason === "join_to_wait_list") {
+				redirect = `${frontAppUrl}/#/signup?status=-1&message=${message}`;
+			} else if (reason === "login") {
+				redirect = `${frontAppUrl}/#/login?status=-1&message=${message}`;
+			} else {
+				redirect = `${frontAppUrl}/#/signup-refer-email?status=-1&message=${message}`;
+			}
+		}
+
+		// clear auth result stored in req.user
+		// req.logout((err) => {});
+		res.redirect(redirect);
+	}
+);
+
+/**
+ * @openapi
  * '/auth/{id}/details}':
  *  get:
  *     tags:

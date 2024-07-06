@@ -956,6 +956,8 @@ exports.googleOAuth = async (profile, userSession, reason) => {
 	}
 };
 
+exports.facebookAuth = async (profile, userSession, reason) => {};
+
 exports.registerWithInvitationLink = async (params) => {};
 
 exports.logout = async (id) => {

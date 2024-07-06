@@ -2,8 +2,10 @@ const passport = require("passport");
 const {
 	googleOAuth,
 	loginWithEmail,
+	facebookAuth,
 } = require("../../controllers/Client/AuthController");
 const GoogleStrategy = require("passport-google-oauth2").Strategy;
+const FacebookStrategy = require("passport-facebook").Strategy;
 const LocalStrategy = require("passport-local").Strategy;
 const reasons = ["register", "login", "join_to_wait_list"];
 exports.passportInit = () => {
@@ -15,6 +17,7 @@ exports.passportInit = () => {
 		done(null, user);
 	});
 
+	// email, password login
 	passport.use(
 		new LocalStrategy({ usernameField: "email" }, async function (
 			email,
@@ -33,6 +36,7 @@ exports.passportInit = () => {
 		})
 	);
 
+	// google login
 	passport.use(
 		new GoogleStrategy(
 			{
@@ -70,6 +74,50 @@ exports.passportInit = () => {
 				);
 
 				return done(null, googleOAuthResult);
+			}
+		)
+	);
+
+	// facebook login
+	passport.use(
+		new FacebookStrategy(
+			{
+				clientID: env.authServiceProviders.facebook.clientId,
+				clientSecret: env.authServiceProviders.facebook.clientSecret,
+				callbackURL: env.authServiceProviders.facebook.callbackUrl,
+				profileFields: ["id", "displayName", "photos", "email"],
+				enableProof: true,
+				passReqToCallback: true,
+			},
+			async function (request, accessToken, refreshToken, profile, cb) {
+				const reason = request.session.reason;
+
+				if (!reasons.includes(reason)) {
+					return done(null, fail("No reason for google auth!", reason));
+				}
+
+				if (reason === "register") {
+					if (!request.session.user) {
+						return done(null, fail("Base user is invalid!", reason));
+					}
+
+					if (request.session.user.googleId) {
+						return done(
+							null,
+							fail(
+								`You are aleardy logged in as ${request.session.user.email}`,
+								reason
+							)
+						);
+					}
+				}
+				const facebookAuthResult = await facebookAuth(
+					profile,
+					request.session.user,
+					reason
+				);
+
+				return done(null, facebookAuthResult);
 			}
 		)
 	);

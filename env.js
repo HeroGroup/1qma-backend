@@ -21,7 +21,12 @@ module.exports = {
 			consumerSecret: process.env.TWITTER_CONSUMER_SECRET,
 			callbackUrl: process.env.TWITTER_CALLBACK_URL,
 		},
-		facebook: {},
+		facebook: {
+			clientId: process.env.FACEBOOK_CLIENT_ID,
+			clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
+			callbackUrl: process.env.FACEBOOK_CALLBACK_URL,
+			successRedirectUrl: process.env.FACEBOOK_SUCCESS_REDIRECT_URL,
+		},
 		apple: {},
 	},
 };
