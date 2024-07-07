@@ -2,8 +2,6 @@ const express = require("express");
 const router = express.Router();
 const passport = require("passport");
 
-const { isLoggedIn } = require("../../middlewares/isLoggedIn");
-
 const {
 	init,
 	joinToWaitListWithEmailAndMobile,
@@ -226,7 +224,11 @@ router.post("/setEmail", sameUser, async (req, res) => {
  *      - in: path
  */
 router.post("/setPassword", sameUser, async (req, res) => {
-	res.json(await setPassword(req.body));
+	const setPasswordResult = await setPassword(req.body);
+	if (setPasswordResult.status === 1) {
+		req.session.user?.emailVerified = true;
+	}
+	res.json(setPasswordResult);
 });
 
 /**
