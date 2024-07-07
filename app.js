@@ -35,6 +35,7 @@ const { isLoggedIn } = require("./src/middlewares/isLoggedIn");
 const { passportInit } = require("./src/services/auth/passport");
 async function main() {
 	const whiteList = [
+		"https://api.staging.1qma.games",
 		"http://localhost:3000",
 		"https://staging.1qma.games",
 		"https://admin.staging.1qma.games",
@@ -55,8 +56,10 @@ async function main() {
 
 	const server = createServer(app);
 	const io = new Server(server, {
-		connectionStateRecovery: {},
+		// connectionStateRecovery: {},
 		cors: corsOptions,
+		methods: ["GET", "POST"],
+		allowEIO3: true,
 	});
 
 	globalThis.__basedir = __dirname;
