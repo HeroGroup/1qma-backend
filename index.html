@@ -10,7 +10,7 @@
 <script>
   const socket = io('https://api.staging.1qma.games', { withCredentials: true });
   socket.on("player added", (arg) => {
-    console.log("emit", arg);
+    console.log(arg);
   });
 </script>
 </html>

@@ -302,12 +302,30 @@ exports.joinGame = async (params, socketId) => {
 			profilePicture,
 		} = player;
 
+		// update players coins
+		await User.findOneAndUpdate(
+			{ _id: player_id },
+			{ $inc: { "assets.coins.bronze": -joinGamePrice } }
+		);
+
+		await joinUserToGameRoom(socketId, gameRoom);
+		io.to(gameRoom).emit("player added", {
+			_id: player_id,
+			firstName,
+			lastName,
+			email,
+			profilePicture,
+		});
+
+		const gameRoom = game._id.toString();
 		const numberOfPlayersSetting = await Setting.findOne({
 			key: "NUMBER_OF_PLAYERS_PER_GAME",
 		});
 		const currentPlayersCount = game.players.length;
 		if (numberOfPlayersSetting.value === currentPlayersCount + 1) {
 			gameStatus = "started";
+			// emit game is started
+			io.to(gameRoom).emit("start game", {});
 		}
 
 		game = await Game.findOneAndUpdate(
@@ -338,22 +356,6 @@ exports.joinGame = async (params, socketId) => {
 			},
 			{ new: true }
 		);
-
-		// update players coins
-		await User.findOneAndUpdate(
-			{ _id: player_id },
-			{ $inc: { "assets.coins.bronze": -joinGamePrice } }
-		);
-
-		const gameRoom = game._id.toString();
-		await joinUserToGameRoom(socketId, gameRoom);
-		io.to(gameRoom).emit("player added", {
-			_id: player_id,
-			firstName,
-			lastName,
-			email,
-			profilePicture,
-		});
 
 		return success(
 			"You have successfully joined the game!",
