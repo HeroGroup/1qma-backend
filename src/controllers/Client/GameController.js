@@ -138,7 +138,7 @@ exports.createGame = async (params, socketId) => {
 		});
 		const creatorBronzeCoins = creator.assets.coins.bronze;
 		const createGamePrice = createGamePriceSetting?.value || 2;
-		if (creatorBronzeCoins < createGamePrice) {
+		if (parseInt(creatorBronzeCoins) < parseInt(createGamePrice)) {
 			return fail(
 				"Unfortunately you do not have enough coins for creating a game!",
 				{ creatorBronzeCoins, createGamePrice }
