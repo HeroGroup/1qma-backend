@@ -184,7 +184,7 @@ exports.createGame = async (params, socketId) => {
 		// decrease creator coins
 		await User.findOneAndUpdate(
 			{ _id: creator._id },
-			{ $inc: { "assets.coins.bronze": -createGamePrice } }
+			{ $inc: { "assets.coins.bronze": -parseInt(createGamePrice) } }
 		);
 
 		await joinUserToGameRoom(socketId, game._id.toString());
