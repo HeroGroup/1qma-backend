@@ -144,7 +144,7 @@ async function main() {
 	io.engine.use(session(sess));
 
 	io.on("connection", (socket) => {
-		socket.join("gameid");
+		socket.join("668a536a7fa8ee90291eae9c");
 		const sessionId = socket.request?.sessionID;
 		if (sessionId) {
 			sess.store.get(sessionId, (error, sessionData) => {
