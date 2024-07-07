@@ -280,7 +280,7 @@ exports.joinGame = async (params, socketId) => {
 		});
 		const playerBronzeCoins = player.assets.coins.bronze;
 		const joinGamePrice = joinGamePriceSetting?.value || 2;
-		if (playerBronzeCoins < joinGamePrice) {
+		if (parseInt(playerBronzeCoins) < parseInt(joinGamePrice)) {
 			return fail(
 				"Unfortunately you do not have enough coins for joining this game!",
 				{ playerBronzeCoins, joinGamePrice }
