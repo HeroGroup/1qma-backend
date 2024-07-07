@@ -210,9 +210,9 @@ exports.prejoin = async (user, code) => {
 		}
 
 		const gameProjection = { _id: 1, creator: 1, category: 1, gameType: 1 };
-		let game = await Game.findById(code, gameProjection);
+		let game = await Game.findOne({ code }, gameProjection);
 		if (!game) {
-			game = await Game.findOne({ code }, gameProjection);
+			game = await Game.findById(code, gameProjection);
 			if (!game) {
 				return fail("Invalid Game!");
 			}
