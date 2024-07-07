@@ -58,8 +58,8 @@ async function main() {
 	const io = new Server(server, {
 		// connectionStateRecovery: {},
 		cors: corsOptions,
-		methods: ["GET", "POST"],
-		allowEIO3: true,
+		// methods: ["GET", "POST"],
+		// allowEIO3: true,
 	});
 
 	globalThis.__basedir = __dirname;
@@ -147,9 +147,7 @@ async function main() {
 	io.engine.use(session(sess));
 
 	io.engine.on("connection_error", (err) => {
-		console.log(err.code);
-		console.log(err.message);
-		console.log(err.context);
+		console.log(err.code, err.message, err.context);
 	});
 
 	io.on("connection", (socket) => {
