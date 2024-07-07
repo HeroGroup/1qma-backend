@@ -209,12 +209,13 @@ exports.prejoin = async (user, code) => {
 			return fail("Invalid Game Code!");
 		}
 
-		const game = await Game.findOne(
-			{ $or: [{ _id: code }, { code }] },
-			{ _id: 1, creator: 1, category: 1, gameType: 1 }
-		);
+		const gameProjection = { _id: 1, creator: 1, category: 1, gameType: 1 };
+		let game = await Game.findById(code, gameProjection);
 		if (!game) {
-			return fail("Invalid Game!");
+			game = await Game.findOne({ code }, gameProjection);
+			if (!game) {
+				return fail("Invalid Game!");
+			}
 		}
 
 		const joinGamePriceSetting = await Setting.findOne({
