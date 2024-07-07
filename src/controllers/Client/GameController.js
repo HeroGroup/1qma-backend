@@ -200,7 +200,6 @@ exports.createGame = async (params, socketId) => {
 
 exports.prejoin = async (user, code) => {
 	try {
-		console.log(user);
 		if (!user) {
 			return fail("invalid user!");
 		}
@@ -218,6 +217,10 @@ exports.prejoin = async (user, code) => {
 			}
 		}
 
+		if (game.creator._id.toString() === user._id) {
+			return fail("You are already in this game!");
+		}
+
 		const joinGamePriceSetting = await Setting.findOne({
 			key: "JOIN_GAME_PRICE_BRONZE",
 		});
@@ -226,7 +229,7 @@ exports.prejoin = async (user, code) => {
 		const dbUser = await User.findById(user._id);
 		const balance = dbUser?.assets.coins.bronze;
 
-		return "ok", { game, joinGamePrice, balance };
+		return success("ok", { game, joinGamePrice, balance });
 	} catch (e) {
 		return handleException(e);
 	}
