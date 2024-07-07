@@ -141,7 +141,7 @@ async function main() {
 	app.use(sanitizeRequestInputs);
 
 	// Sharing the session context
-	// io.engine.use(session(sess));
+	io.engine.use(session(sess));
 
 	io.engine.on("connection_error", (err) => {
 		console.log(err.code);
