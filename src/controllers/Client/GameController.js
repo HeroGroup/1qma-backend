@@ -198,7 +198,7 @@ exports.createGame = async (params, socketId) => {
 	}
 };
 
-exports.prejoin = async (user, code) => {
+exports.attemptjoin = async (user, code) => {
 	try {
 		if (!user) {
 			return fail("invalid user!");

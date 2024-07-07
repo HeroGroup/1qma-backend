@@ -36,11 +36,11 @@ const { passportInit } = require("./src/services/auth/passport");
 async function main() {
 	const whiteList = [
 		"https://api.staging.1qma.games",
-		"http://localhost:3000",
+		"http://localhost:3000", // local backend
 		"https://staging.1qma.games",
 		"https://admin.staging.1qma.games",
-		"http://localhost:4200", // client
-		"http://localhost:4400", // admin
+		"http://localhost:4200", // local client
+		"http://localhost:4400", // local admin
 	];
 
 	const corsOptions = {
@@ -58,8 +58,6 @@ async function main() {
 	const io = new Server(server, {
 		// connectionStateRecovery: {},
 		cors: corsOptions,
-		// methods: ["GET", "POST"],
-		// allowEIO3: true,
 	});
 
 	globalThis.__basedir = __dirname;
@@ -151,7 +149,6 @@ async function main() {
 	});
 
 	io.on("connection", (socket) => {
-		socket.join("668a536a7fa8ee90291eae9c");
 		const sessionId = socket.request?.sessionID;
 		if (sessionId) {
 			sess.store.get(sessionId, (error, sessionData) => {
