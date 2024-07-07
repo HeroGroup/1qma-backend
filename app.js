@@ -143,6 +143,12 @@ async function main() {
 	// Sharing the session context
 	io.engine.use(session(sess));
 
+	io.engine.on("connection_error", (err) => {
+		console.log(err.code);
+		console.log(err.message);
+		console.log(err.context);
+	});
+
 	io.on("connection", (socket) => {
 		socket.join("668a536a7fa8ee90291eae9c");
 		const sessionId = socket.request?.sessionID;
