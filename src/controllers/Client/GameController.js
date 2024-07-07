@@ -415,7 +415,7 @@ exports.findFriendGames = async (email) => {
 				"creator._id": friend._id,
 				status: "created",
 			},
-			{ _id: 1, category: 1, creator: 1, players: 1, gameType: 1 }
+			{ _id: 1, code: 1, category: 1, creator: 1, players: 1, gameType: 1 }
 		);
 		const endedGames = await Game.find(
 			{
