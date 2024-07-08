@@ -325,7 +325,7 @@ exports.joinGame = async (params, socketId) => {
 		if (numberOfPlayersSetting.value === currentPlayersCount + 1) {
 			gameStatus = "started";
 			// emit game is started
-			io.to(gameRoom).emit("start game", {});
+			io.to(gameRoom).emit("start game", { question: game.questions[0] });
 		}
 
 		game = await Game.findOneAndUpdate(
@@ -432,6 +432,30 @@ exports.findFriendGames = async (email) => {
 		);
 
 		return success("ok", { friend, liveGames, endedGames });
+	} catch (e) {
+		return handleException(e);
+	}
+};
+
+exports.submitAnswer = async (params) => {
+	try {
+		const { id, gameId, questionId, answer } = params;
+
+		if (!id) {
+			return fail("invalid user id!");
+		}
+
+		if (!gameId) {
+			return fail("invalid game id!");
+		}
+
+		if (!questionId) {
+			return fail("invalid question id!");
+		}
+
+		if (!answer) {
+			return fail("invalid answer!");
+		}
 	} catch (e) {
 		return handleException(e);
 	}

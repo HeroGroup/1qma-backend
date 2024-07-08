@@ -142,25 +142,25 @@ async function main() {
 	app.use(sanitizeRequestInputs);
 
 	// Sharing the session context
-	// io.engine.use(session(sess));
+	io.engine.use(session(sess));
 
-	// io.engine.on("connection_error", (err) => {
-	// 	console.log(err.code, err.message, err.context);
-	// });
+	io.engine.on("connection_error", (err) => {
+		console.log(err.code, err.message, err.context);
+	});
 
-	// io.on("connection", (socket) => {
-	// 	const sessionId = socket.request?.sessionID;
-	// 	if (sessionId) {
-	// 		sess.store.get(sessionId, (error, sessionData) => {
-	// 			if (sessionData) {
-	// 				sessionData.socketId = socket.id;
-	// 				sess.store.set(sessionId, sessionData);
-	// 			}
-	// 		});
-	// 	}
-	// });
+	io.on("connection", (socket) => {
+		const sessionId = socket.request?.sessionID;
+		if (sessionId) {
+			sess.store.get(sessionId, (error, sessionData) => {
+				if (sessionData) {
+					sessionData.socketId = socket.id;
+					sess.store.set(sessionId, sessionData);
+				}
+			});
+		}
+	});
 
-	// globalThis.io = io;
+	globalThis.io = io;
 
 	const port = env.app.port;
 	server.listen(port, () => {
