@@ -308,6 +308,7 @@ exports.joinGame = async (params, socketId) => {
 			{ $inc: { "assets.coins.bronze": -joinGamePrice } }
 		);
 
+		const gameRoom = game._id.toString();
 		await joinUserToGameRoom(socketId, gameRoom);
 		io.to(gameRoom).emit("player added", {
 			_id: player_id,
@@ -317,7 +318,6 @@ exports.joinGame = async (params, socketId) => {
 			profilePicture,
 		});
 
-		const gameRoom = game._id.toString();
 		const numberOfPlayersSetting = await Setting.findOne({
 			key: "NUMBER_OF_PLAYERS_PER_GAME",
 		});
