@@ -25,7 +25,10 @@ const { getSocketClient } = require("../../helpers/utils");
  *     summary: initialize game parameters
  */
 router.get("/init", async (req, res) => {
-	console.log(getSocketClient(req.session.socketId).rooms);
+	const socketId = req.session.socketId;
+	console.log(socketId);
+	const socketClient = getSocketClient(req.session.socketId);
+	console.log(socketClient.rooms);
 	res.json(await init());
 });
 
