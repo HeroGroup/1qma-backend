@@ -68,8 +68,6 @@ router.post("/loginWithEmail", async (req, res) => {
 		req.session.user = loginWithEmailResult.data;
 	}
 
-	console.log("after login", req.session.user);
-
 	res.json(loginWithEmailResult);
 });
 

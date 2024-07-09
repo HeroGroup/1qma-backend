@@ -8,9 +8,16 @@
 <body></body>
 <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 <script>
-  const socket = io('https://api.staging.1qma.games', { withCredentials: true });
+  const socket = io('http://localhost:3000', { withCredentials: true });
+  // socket.on("connect");
   socket.on("player added", (arg) => {
-    console.log(arg);
+    console.log("player added", arg);
+  });
+  socket.on("start game", (arg) => {
+    console.log("start game", arg);
+  });
+  socket.on("next step", (arg) => {
+    console.log("next step", arg);
   });
 </script>
 </html>

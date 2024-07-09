@@ -7,6 +7,11 @@ const {
 	searchUsers,
 	findFriendGames,
 	attemptjoin,
+	getQuestion,
+	submitAnswer,
+	rateAnswer,
+	getAllQuestions,
+	rateQuestions,
 } = require("../../controllers/Client/GameController");
 const { sameUser } = require("../../middlewares/sameUser");
 
@@ -19,6 +24,7 @@ const { sameUser } = require("../../middlewares/sameUser");
  *     summary: initialize game parameters
  */
 router.get("/init", async (req, res) => {
+	console.log("req.session", req.session);
 	res.json(await init());
 });
 
@@ -156,6 +162,92 @@ router.get("/searchUsers", async (req, res) => {
  */
 router.get("/find/:email/games", async (req, res) => {
 	res.json(await findFriendGames(req.params.email));
+});
+
+/**
+ * @openapi
+ * '/game/{gameId}/question/{step}':
+ *  get:
+ *     tags:
+ *     - Game
+ *     summary: get question in each step
+ *     parameters:
+ *       - in: path
+ *         name: gameId
+ *         schema:
+ *           type: string
+ *         required: true
+ *       - in: path
+ *         name: step
+ *         schema:
+ *           type: string
+ *         required: true
+ */
+router.get("/:gameId/question/:step", async (req, res) => {
+	const { gameId, step } = req.params;
+	res.json(await getQuestion(req.session.user?._id, gameId, step));
+});
+
+/**
+ * @openapi
+ * '/game/submitAnswer':
+ *  post:
+ *     tags:
+ *     - Game
+ *     summary: submit answer to a question
+ *     requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *           schema:
+ *            type: object
+ *            required:
+ *              - id
+ *              - gameId
+ *              - questionId
+ *              - answer
+ *            properties:
+ *              id:
+ *                type: string
+ *                default: 65445678098765456
+ *              gameId:
+ *                type: string
+ *                default: 65445678098765456
+ *              questionId:
+ *                type: string
+ *                default: 65445678098765456
+ *              answer:
+ *                type: string
+ *                default: any answer
+ */
+router.post("/submitAnswer", async (req, res) => {
+	res.json(await submitAnswer(req.body));
+});
+
+router.post("/rateAnswer", async (req, res) => {
+	res.json(rateAnswer(req.body));
+});
+
+/**
+ * @openapi
+ * '/game/{gameId}/questions':
+ *  get:
+ *     tags:
+ *     - Game
+ *     summary: get all question of the game
+ *     parameters:
+ *       - in: path
+ *         name: gameId
+ *         schema:
+ *           type: string
+ *         required: true
+ */
+router.get("/:gameId/questions", async (req, res) => {
+	res.json(await getAllQuestions(req.session.user?._Id, req.params.gameId));
+});
+
+router.post("/rateQuestions", async (req, res) => {
+	res.json(rateQuestions(req.body));
 });
 
 module.exports = router;

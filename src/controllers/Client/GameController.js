@@ -1,7 +1,9 @@
+const mongoose = require("mongoose");
 const {
 	handleException,
 	createGameCode,
 	joinUserToGameRoom,
+	getSocketClient,
 } = require("../../helpers/utils");
 const { validateEmail } = require("../../helpers/validator");
 const Category = require("../../models/Category");
@@ -47,9 +49,9 @@ exports.init = async () => {
 
 exports.createGame = async (params, socketId) => {
 	try {
-		const { id, gameType, createMode, question, answer } = params;
+		const { id, gameType, createMode, category, question, answer } = params;
 
-		let { category, players } = params;
+		let { players } = params;
 
 		if (!id) {
 			return fail("Invalid creator id!");
@@ -64,6 +66,10 @@ exports.createGame = async (params, socketId) => {
 			!createModes.find((element) => element.id === createMode)
 		) {
 			return fail("Invalid create mode!");
+		}
+
+		if (!category) {
+			return fail("invalid category id!");
 		}
 
 		if (!question) {
@@ -81,49 +87,21 @@ exports.createGame = async (params, socketId) => {
 			? numberOfPlayersSetting.value
 			: 5;
 
-		switch (createMode) {
-			case "3":
-				// I'm in Full Control
-				if (!category) {
-					return fail("invalid category!");
-				}
-				if (!players || players.length < playersShouldCount - 1) {
-					return fail("not enough players!");
-				}
-				if (players.length > playersShouldCount - 1) {
-					return fail("too much players were selected!");
-				}
-				break;
-			case "2":
-				// Players by me
-				if (!players || players.length < playersShouldCount - 1) {
-					return fail("not enough players!");
-				}
-				if (players.length > playersShouldCount - 1) {
-					return fail("too much players were selected!");
-				}
-				break;
-			case "1":
-				// Topic by me
-				if (!category) {
-					return fail("invalid category!");
-				}
-				break;
-			default:
-				// I'm ready
-				break;
+		if (createMode === "3" || createMode === "2") {
+			if (!players || players.length < playersShouldCount - 1) {
+				return fail("not enough players!");
+			}
+			if (players.length > playersShouldCount - 1) {
+				return fail("too much players were selected!");
+			}
 		}
 
-		const categories = await Category.find({ isActive: true });
-		if (!category) {
-			// choose random category
-			const random = Math.floor(Math.random() * categories.length);
-			category = categories[random]._id;
-		} else if (categories.find((element) => element._id === category)) {
+		const dbCategory = await Category.findById(category);
+		if (!dbCategory) {
 			return fail("Invalid category!");
 		}
 
-		if (!players) {
+		if (players) {
 			// send invites to players
 		}
 
@@ -157,7 +135,7 @@ exports.createGame = async (params, socketId) => {
 			creator: { _id: creator_id, firstName, lastName, email, profilePicture },
 			createMode: createModes.find((element) => element.id === createMode),
 			gameType: gameTypes.find((element) => element.id === gameType),
-			category: categories.find((element) => element._id === category),
+			category: dbCategory,
 			players: [
 				{ _id: creator_id, firstName, lastName, email, profilePicture },
 			],
@@ -187,12 +165,16 @@ exports.createGame = async (params, socketId) => {
 			{ $inc: { "assets.coins.bronze": -createGamePrice } }
 		);
 
-		await joinUserToGameRoom(socketId, game._id.toString());
+		joinUserToGameRoom(socketId, game._id.toString());
 
-		return success(
-			"Game was created successfully!",
-			gameCustomProjection(game)
-		);
+		const socket = getSocketClient(socketId);
+		const rooms = socket.rooms || {};
+
+		return success("Game was created successfully!", {
+			game: gameCustomProjection(game),
+			socketId,
+			rooms,
+		});
 	} catch (e) {
 		return handleException(e);
 	}
@@ -309,7 +291,7 @@ exports.joinGame = async (params, socketId) => {
 		);
 
 		const gameRoom = game._id.toString();
-		await joinUserToGameRoom(socketId, gameRoom);
+		joinUserToGameRoom(socketId, gameRoom);
 		io.to(gameRoom).emit("player added", {
 			_id: player_id,
 			firstName,
@@ -322,10 +304,8 @@ exports.joinGame = async (params, socketId) => {
 			key: "NUMBER_OF_PLAYERS_PER_GAME",
 		});
 		const currentPlayersCount = game.players.length;
-		if (numberOfPlayersSetting.value === currentPlayersCount + 1) {
+		if (parseInt(numberOfPlayersSetting.value) === currentPlayersCount + 1) {
 			gameStatus = "started";
-			// emit game is started
-			io.to(gameRoom).emit("start game", { question: game.questions[0] });
 		}
 
 		game = await Game.findOneAndUpdate(
@@ -357,10 +337,15 @@ exports.joinGame = async (params, socketId) => {
 			{ new: true }
 		);
 
-		return success(
-			"You have successfully joined the game!",
-			gameCustomProjection(game)
-		);
+		if (game.status === "started") {
+			// emit game is started
+			io.to(gameRoom).emit("start game", {});
+		}
+
+		return success("You have successfully joined the game!", {
+			game: gameCustomProjection(game),
+			rooms: getSocketClient(socketId).rooms,
+		});
 	} catch (e) {
 		return handleException(e);
 	}
@@ -456,7 +441,216 @@ exports.submitAnswer = async (params) => {
 		if (!answer) {
 			return fail("invalid answer!");
 		}
+
+		const player = await User.findById(id);
+		if (!player) {
+			return fail("invalid player");
+		}
+
+		let game = await Game.findById(gameId);
+		if (!game) {
+			return fail("invalid game");
+		}
+
+		if (!game.status === "started") {
+			return fail("game is not started yet!");
+		}
+
+		const questionIndex = game.questions.findIndex((element) => {
+			return element.user_id.toString() === questionId;
+		});
+
+		// check if user has already submited their answer, replace the answer
+		// otherwise create new answer object
+		const answers = game.questions[questionIndex].answers;
+		const answerIndex = answers.findIndex((element) => {
+			return element.user_id.toString() === id;
+		});
+
+		console.log(questionIndex, answerIndex);
+
+		const findQuery = { _id: new mongoose.Types.ObjectId(gameId) };
+		let updateQuery = { "questions.$[i].answers.$[j].answer": answer };
+		let arrayFilters = [
+			{ "i.user_id": new mongoose.Types.ObjectId(questionId) },
+			{ "j.user_id": new mongoose.Types.ObjectId(id) },
+		];
+
+		if (answerIndex === -1) {
+			// add answer
+			update = {
+				$push: {
+					"questions.$[i].answers": {
+						user_id: player._id,
+						answer,
+						rates: [],
+					},
+				},
+			};
+			arrayFilters = [{ "i.user_id": new mongoose.Types.ObjectId(questionId) }];
+		}
+
+		game = await Game.findOneAndUpdate(query, update, {
+			arrayFilters,
+			new: true,
+		});
+
+		let answersAreComplete = true;
+		game.questions.forEach((element) => {
+			if (!element.answer) {
+				answersAreComplete = false;
+			}
+		});
+
+		if (answersAreComplete) {
+			// emit next question
+			io.to(game._id.toString()).emit("next step", {});
+		}
+
+		return success("Thank you for the answer.");
 	} catch (e) {
 		return handleException(e);
 	}
 };
+
+exports.getQuestion = async (userId, gameId, step) => {
+	try {
+		if (!userId) {
+			return fail("invalid user id!");
+		}
+		if (!gameId) {
+			return fail("invalid game id!");
+		}
+		if (!step) {
+			return fail("invalid step!");
+		}
+
+		const player = await User.findById(userId);
+		if (!player) {
+			return fail("invalid player");
+		}
+
+		const game = await Game.findById(gameId);
+		if (!game) {
+			return fail("invalid game");
+		}
+
+		if (!game.status === "started") {
+			return fail("game is not started yet!");
+		}
+
+		const numberOfPlayersSetting = await Setting.findOne({
+			key: "NUMBER_OF_PLAYERS_PER_GAME",
+		});
+
+		if (parseInt(step) > parseInt(numberOfPlayersSetting?.value || "5")) {
+			return fail("questions are finished!", {
+				step,
+				nop: numberOfPlayersSetting?.value || "5",
+			});
+		}
+
+		const questionObject = game.questions[step - 1];
+		const question = questionObject?.question;
+		const answers = questionObject?.answers;
+		let myAnswer = answers.find((element) => {
+			element.user_id.toString() === userId.toString();
+		})?.answer;
+
+		return success("ok", {
+			step,
+			_id: questionObject.user_id,
+			question,
+			myAnswer,
+		});
+	} catch (e) {
+		return handleException(e);
+	}
+};
+
+exports.getAnswers = async (params) => {
+	try {
+		const { gameId, questionId } = params;
+		if (!gameId) {
+			return fail("invalid game id!");
+		}
+		if (!questionId) {
+			return fail("invalid question id!");
+		}
+
+		const game = await Game.findById(gameId);
+		if (!game) {
+			return fail("invalid game");
+		}
+
+		const questionObject = game.questions.find((element) => {
+			element.user_id.toString() === questionId;
+		});
+
+		const answers = (questionObject?.answers || []).map((element) => {
+			return {
+				_id: element.user_id,
+				answer: element.answer,
+			};
+		});
+
+		return success("ok", answers);
+	} catch (e) {
+		return handleException(e);
+	}
+};
+
+exports.rateAnswer = async (params) => {
+	try {
+		const { id, questionId, answerId } = params;
+	} catch (e) {
+		return handleException(e);
+	}
+};
+
+exports.getAllQuestions = async (userId, gameId) => {
+	try {
+		if (!gameId) {
+			return fail("invalid game id!");
+		}
+		const game = await Game.findById(gameId);
+		if (!game) {
+			return fail("invalid game!");
+		}
+
+		// check use is in game
+		const player = game.players.find((element) => {
+			element._id.toString() === userId.toString();
+		});
+		if (!player) {
+			return fail("You are not in this game!");
+		}
+
+		const questions = game.questions.map((element) => {
+			return {
+				_id: element.user_id,
+				question: element.question,
+			};
+		});
+
+		return success("ok", questions);
+	} catch (e) {
+		return handleException(e);
+	}
+};
+
+exports.rateQuestions = async (params) => {
+	try {
+		const {} = params;
+	} catch (e) {
+		return handleException(e);
+	}
+};
+
+/*
+try {
+	//
+} catch (e) {
+	return handleException(e);
+}
+*/
