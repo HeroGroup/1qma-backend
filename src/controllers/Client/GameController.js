@@ -137,7 +137,14 @@ exports.createGame = async (params, socketId) => {
 			gameType: gameTypes.find((element) => element.id === gameType),
 			category: dbCategory,
 			players: [
-				{ _id: creator_id, firstName, lastName, email, profilePicture },
+				{
+					_id: creator_id,
+					firstName,
+					lastName,
+					email,
+					profilePicture,
+					socketId,
+				},
 			],
 			questions: [
 				{
@@ -292,7 +299,7 @@ exports.joinGame = async (params, socketId) => {
 
 		const gameRoom = game._id.toString();
 		joinUserToGameRoom(socketId, gameRoom);
-		io.to(gameRoom).emit("player added", {
+		io.to(gameRoom).to(game.players[0].socketId).emit("player added", {
 			_id: player_id,
 			firstName,
 			lastName,
@@ -318,6 +325,7 @@ exports.joinGame = async (params, socketId) => {
 						lastName,
 						email,
 						profilePicture,
+						socketId,
 					},
 					questions: {
 						user_id: player_id,

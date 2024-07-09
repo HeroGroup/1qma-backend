@@ -26,9 +26,9 @@ const { getSocketClient } = require("../../helpers/utils");
  */
 router.get("/init", async (req, res) => {
 	const socketId = req.session.socketId;
-	console.log(socketId);
+	console.log("socketId", socketId);
 	const socketClient = getSocketClient(req.session.socketId);
-	console.log(socketClient.rooms);
+	console.log("rooms", socketClient.rooms);
 	res.json(await init());
 });
 

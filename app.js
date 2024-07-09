@@ -56,7 +56,7 @@ async function main() {
 
 	const server = createServer(app);
 	const io = new Server(server, {
-		// connectionStateRecovery: {},
+		connectionStateRecovery: {},
 		cors: corsOptions,
 	});
 
