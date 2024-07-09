@@ -299,13 +299,14 @@ exports.joinGame = async (params, socketId) => {
 
 		const gameRoom = game._id.toString();
 		joinUserToGameRoom(socketId, gameRoom);
-		io.to(gameRoom).to(game.players[0].socketId).emit("player added", {
-			_id: player_id,
-			firstName,
-			lastName,
-			email,
-			profilePicture,
-		});
+		io.to(gameRoom) /*.to(game.players[0].socketId)*/
+			.emit("player added", {
+				_id: player_id,
+				firstName,
+				lastName,
+				email,
+				profilePicture,
+			});
 
 		const numberOfPlayersSetting = await Setting.findOne({
 			key: "NUMBER_OF_PLAYERS_PER_GAME",
