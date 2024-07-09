@@ -14,6 +14,7 @@ const {
 	rateQuestions,
 } = require("../../controllers/Client/GameController");
 const { sameUser } = require("../../middlewares/sameUser");
+const { getSocketClient } = require("../../helpers/utils");
 
 /**
  * @openapi
@@ -24,7 +25,7 @@ const { sameUser } = require("../../middlewares/sameUser");
  *     summary: initialize game parameters
  */
 router.get("/init", async (req, res) => {
-	console.log("req.session", req.session);
+	console.log(getSocketClient(req.session.socketId).rooms);
 	res.json(await init());
 });
 
