@@ -144,15 +144,12 @@ async function main() {
 	// Sharing the session context
 	io.engine.use(session(sess));
 
-	// io.engine.on("connection_error", (err) => {
-	// 	console.log(err.code, err.message, err.context);
-	// });
+	io.engine.on("connection_error", (err) => {
+		console.log(err.code, err.message, err.context);
+	});
 
 	io.on("connection", (socket) => {
 		const sessionId = socket.request?.sessionID;
-		console.log("sessionId", sessionId);
-		console.log("socket.id", socket.id);
-
 		if (sessionId) {
 			sess.store.get(sessionId, (error, sessionData) => {
 				if (sessionData) {
@@ -161,8 +158,6 @@ async function main() {
 				}
 			});
 		}
-
-		console.log("rooms", socket.rooms);
 	});
 
 	globalThis.io = io;

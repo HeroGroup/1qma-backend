@@ -1,9 +1,9 @@
-const mongoose = require("mongoose");
 const {
 	handleException,
 	createHashedPasswordFromPlainText,
 	checkSame,
 	removeFile,
+	objectId,
 } = require("../../helpers/utils");
 const User = require("../../models/User");
 const AccountType = require("../../models/AccountType");
@@ -287,13 +287,11 @@ exports.listQuestions = async (user, params) => {
 		}
 
 		const categoryFilter = {
-			"category._id": new mongoose.Types.ObjectId(category),
+			"category._id": objectId(category),
 		};
 
 		const userFilter =
-			type === "private"
-				? { "user._id": new mongoose.Types.ObjectId(user._id) }
-				: {};
+			type === "private" ? { "user._id": objectId(user._id) } : {};
 
 		const searchFilter = search
 			? { question: { $regex: search, $options: "i" } }

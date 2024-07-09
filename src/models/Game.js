@@ -8,7 +8,20 @@ const gameSchema = new Schema({
 	gameType: Object,
 	category: Object,
 	players: Array,
-	questions: Array,
+	questions: [
+		{
+			user_id: mongoose.ObjectId,
+			question: String,
+			answers: [
+				{
+					user_id: mongoose.ObjectId,
+					answer: String,
+					rates: [{ user_id: mongoose.ObjectId, rate: Number }],
+				},
+			],
+			rates: [{ user_id: mongoose.ObjectId, rate: Number }],
+		},
+	],
 	status: String,
 	createdAt: Date,
 });

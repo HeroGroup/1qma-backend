@@ -1,9 +1,9 @@
-const mongoose = require("mongoose");
 const {
 	handleException,
 	createGameCode,
 	joinUserToGameRoom,
 	getSocketClient,
+	objectId,
 } = require("../../helpers/utils");
 const { validateEmail } = require("../../helpers/validator");
 const Category = require("../../models/Category");
@@ -299,14 +299,13 @@ exports.joinGame = async (params, socketId) => {
 
 		const gameRoom = game._id.toString();
 		joinUserToGameRoom(socketId, gameRoom);
-		io.to(gameRoom) /*.to(game.players[0].socketId)*/
-			.emit("player added", {
-				_id: player_id,
-				firstName,
-				lastName,
-				email,
-				profilePicture,
-			});
+		io.to(gameRoom).emit("player added", {
+			_id: player_id,
+			firstName,
+			lastName,
+			email,
+			profilePicture,
+		});
 
 		const numberOfPlayersSetting = await Setting.findOne({
 			key: "NUMBER_OF_PLAYERS_PER_GAME",
@@ -476,18 +475,13 @@ exports.submitAnswer = async (params) => {
 			return element.user_id.toString() === id;
 		});
 
-		console.log(questionIndex, answerIndex);
-
-		const findQuery = { _id: new mongoose.Types.ObjectId(gameId) };
-		let updateQuery = { "questions.$[i].answers.$[j].answer": answer };
-		let arrayFilters = [
-			{ "i.user_id": new mongoose.Types.ObjectId(questionId) },
-			{ "j.user_id": new mongoose.Types.ObjectId(id) },
-		];
+		const findQuery = { _id: objectId(gameId) };
+		let updateQuery = {};
+		let arrayFilters = [];
 
 		if (answerIndex === -1) {
 			// add answer
-			update = {
+			updateQuery = {
 				$push: {
 					"questions.$[i].answers": {
 						user_id: player._id,
@@ -496,10 +490,17 @@ exports.submitAnswer = async (params) => {
 					},
 				},
 			};
-			arrayFilters = [{ "i.user_id": new mongoose.Types.ObjectId(questionId) }];
+			arrayFilters = [{ "i.user_id": objectId(questionId) }];
+		} else {
+			// edit answer
+			updateQuery = { $set: { "questions.$[i].answers.$[j].answer": answer } };
+			arrayFilters = [
+				{ "i.user_id": objectId(questionId) },
+				{ "j.user_id": objectId(id) },
+			];
 		}
 
-		game = await Game.findOneAndUpdate(query, update, {
+		game = await Game.findOneAndUpdate(findQuery, updateQuery, {
 			arrayFilters,
 			new: true,
 		});
@@ -577,9 +578,8 @@ exports.getQuestion = async (userId, gameId, step) => {
 	}
 };
 
-exports.getAnswers = async (params) => {
+exports.getAnswers = async (gameId, questionId) => {
 	try {
-		const { gameId, questionId } = params;
 		if (!gameId) {
 			return fail("invalid game id!");
 		}
@@ -592,22 +592,32 @@ exports.getAnswers = async (params) => {
 			return fail("invalid game");
 		}
 
-		const questionObject = game.questions.find((element) => {
-			element.user_id.toString() === questionId;
+		const gameQuestions = game.questions;
+
+		const questionIndex = gameQuestions.findIndex((element) => {
+			return element.user_id.toString() === questionId;
 		});
 
-		const answers = (questionObject?.answers || []).map((element) => {
-			return {
-				_id: element.user_id,
-				answer: element.answer,
-			};
-		});
+		const answers = (gameQuestions[questionIndex]?.answers || []).map(
+			(element) => {
+				return {
+					_id: element.user_id,
+					answer: element.answer,
+				};
+			}
+		);
 
-		return success("ok", answers);
+		return success("ok", {
+			questionId,
+			question: gameQuestions[questionIndex]?.question,
+			answers,
+		});
 	} catch (e) {
 		return handleException(e);
 	}
 };
+
+// tested
 
 exports.rateAnswer = async (params) => {
 	try {
@@ -651,6 +661,22 @@ exports.getAllQuestions = async (userId, gameId) => {
 exports.rateQuestions = async (params) => {
 	try {
 		const {} = params;
+	} catch (e) {
+		return handleException(e);
+	}
+};
+
+exports.showREsult = async (gameId) => {
+	try {
+		if (!gameId) {
+			return fail("invalid game id!");
+		}
+		const game = await Game.findById(gameId);
+		if (!game) {
+			return fail("invalid game!");
+		}
+
+		return success("result is not ready yet!", gameProjection(game));
 	} catch (e) {
 		return handleException(e);
 	}

@@ -12,6 +12,8 @@ const {
 	rateAnswer,
 	getAllQuestions,
 	rateQuestions,
+	getAnswers,
+	showREsult,
 } = require("../../controllers/Client/GameController");
 const { sameUser } = require("../../middlewares/sameUser");
 const { getSocketClient } = require("../../helpers/utils");
@@ -228,8 +230,34 @@ router.post("/submitAnswer", async (req, res) => {
 	res.json(await submitAnswer(req.body));
 });
 
+/**
+ * @openapi
+ * '/game/{gameId}/{questionId}/answers':
+ *  get:
+ *     tags:
+ *     - Game
+ *     summary: get answers of one specific question
+ *     parameters:
+ *       - in: path
+ *         name: gameId
+ *         schema:
+ *           type: string
+ *         required: true
+ *       - in: path
+ *         name: questionId
+ *         schema:
+ *           type: string
+ *         required: true
+ */
+router.get("/:gameId/:questionId/answers", async (req, res) => {
+	const { gameId, questionId } = req.params;
+	res.send(await getAnswers(gameId, questionId));
+});
+
+// tested
+
 router.post("/rateAnswer", async (req, res) => {
-	res.json(rateAnswer(req.body));
+	res.json(await rateAnswer(req.body));
 });
 
 /**
@@ -251,7 +279,25 @@ router.get("/:gameId/questions", async (req, res) => {
 });
 
 router.post("/rateQuestions", async (req, res) => {
-	res.json(rateQuestions(req.body));
+	res.json(await rateQuestions(req.body));
+});
+
+/**
+ * @openapi
+ * '/game/{gameId}/result':
+ *  get:
+ *     tags:
+ *     - Game
+ *     summary: show result of the game
+ *     parameters:
+ *       - in: path
+ *         name: gameId
+ *         schema:
+ *           type: string
+ *         required: true
+ */
+router.get("/:gameId/result", async (req, res) => {
+	res.json(await showREsult(req.params.gameId));
 });
 
 module.exports = router;

@@ -1,3 +1,4 @@
+const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const { unlink } = require("node:fs");
 const SALT_ROUNDS = parseInt(env.saltRounds);
@@ -68,4 +69,8 @@ exports.joinUserToGameRoom = async (socketId, room) => {
 	if (socket) {
 		socket.join(room);
 	}
+};
+
+exports.objectId = (input) => {
+	return mongoose.Types.ObjectId.createFromHexString(input);
 };
