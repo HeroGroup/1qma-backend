@@ -167,9 +167,10 @@ exports.createGame = async (params, socketId) => {
 		await game.save();
 
 		// decrease creator coins
-		await User.findOneAndUpdate(
+		const playerUser = await User.findOneAndUpdate(
 			{ _id: creator._id },
-			{ $inc: { "assets.coins.bronze": -createGamePrice } }
+			{ $inc: { "assets.coins.bronze": -createGamePrice } },
+			{ new: true }
 		);
 
 		joinUserToGameRoom(socketId, game._id.toString());
@@ -179,8 +180,7 @@ exports.createGame = async (params, socketId) => {
 
 		return success("Game was created successfully!", {
 			game: gameCustomProjection(game),
-			socketId,
-			rooms,
+			newBalance: playerUser.assets,
 		});
 	} catch (e) {
 		return handleException(e);
@@ -292,9 +292,10 @@ exports.joinGame = async (params, socketId) => {
 		} = player;
 
 		// update players coins
-		await User.findOneAndUpdate(
+		const playerUser = await User.findOneAndUpdate(
 			{ _id: player_id },
-			{ $inc: { "assets.coins.bronze": -joinGamePrice } }
+			{ $inc: { "assets.coins.bronze": -joinGamePrice } },
+			{ new: true }
 		);
 
 		const gameRoom = game._id.toString();
@@ -352,7 +353,7 @@ exports.joinGame = async (params, socketId) => {
 
 		return success("You have successfully joined the game!", {
 			game: gameCustomProjection(game),
-			rooms: getSocketClient(socketId).rooms,
+			newBalance: playerUser.assets,
 		});
 	} catch (e) {
 		return handleException(e);
@@ -362,6 +363,7 @@ exports.joinGame = async (params, socketId) => {
 const gameCustomProjection = (game) => {
 	return {
 		gameId: game._id,
+		gameCreator: game.creator,
 		gameCode: game.code,
 		gameCategory: game.category,
 		gameType: game.gameType,
