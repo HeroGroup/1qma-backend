@@ -9,7 +9,7 @@ const {
 	attemptjoin,
 	getQuestion,
 	submitAnswer,
-	rateAnswer,
+	rateAnswers,
 	getAllQuestions,
 	rateQuestions,
 	getAnswers,
@@ -250,8 +250,40 @@ router.get("/:gameId/:questionId/answers", isPlayerInGame, async (req, res) => {
 	res.send(await getAnswers(gameId, questionId));
 });
 
-router.post("/rateAnswer", sameUser, isPlayerInGame, async (req, res) => {
-	res.json(await rateAnswer(req.body));
+/**
+ * @openapi
+ * '/game/rateAnswers':
+ *  post:
+ *     tags:
+ *     - Game
+ *     summary: rate all answers of a question
+ *     requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *           schema:
+ *            type: object
+ *            required:
+ *              - id
+ *              - gameId
+ *              - questionId
+ *              - rates
+ *            properties:
+ *              id:
+ *                type: string
+ *                default: 65445678098765456
+ *              gameId:
+ *                type: string
+ *                default: 65445678098765456
+ *              questionId:
+ *                type: string
+ *                default: 65445678098765456
+ *              rates:
+ *                type: Array
+ *                default: [{"answer_id": "65445678098765456", "rate": "3"}]
+ */
+router.post("/rateAnswers", sameUser, isPlayerInGame, async (req, res) => {
+	res.json(await rateAnswers(req.body));
 });
 
 /**
@@ -272,11 +304,39 @@ router.get("/:gameId/questions", isPlayerInGame, async (req, res) => {
 	res.json(await getAllQuestions(req.params.gameId));
 });
 
-// tested
-
+/**
+ * @openapi
+ * '/game/rateQuestions':
+ *  post:
+ *     tags:
+ *     - Game
+ *     summary: rate all questions of the game
+ *     requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *           schema:
+ *            type: object
+ *            required:
+ *              - id
+ *              - gameId
+ *              - rates
+ *            properties:
+ *              id:
+ *                type: string
+ *                default: 65445678098765456
+ *              gameId:
+ *                type: string
+ *                default: 65445678098765456
+ *              rates:
+ *                type: Array
+ *                default: [{"question_id": "65445678098765456", "rate": "3"}]
+ */
 router.post("/rateQuestions", sameUser, isPlayerInGame, async (req, res) => {
 	res.json(await rateQuestions(req.body));
 });
+
+// tested
 
 /**
  * @openapi
