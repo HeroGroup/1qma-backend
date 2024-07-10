@@ -16,7 +16,6 @@ const {
 	showREsult,
 } = require("../../controllers/Client/GameController");
 const { sameUser } = require("../../middlewares/sameUser");
-const { getSocketClient } = require("../../helpers/utils");
 const { isPlayerInGame } = require("../../middlewares/isPlayerInGame");
 
 /**
@@ -28,10 +27,6 @@ const { isPlayerInGame } = require("../../middlewares/isPlayerInGame");
  *     summary: initialize game parameters
  */
 router.get("/init", async (req, res) => {
-	const socketId = req.session.socketId;
-	console.log("socketId", socketId);
-	const socketClient = getSocketClient(req.session.socketId);
-	console.log("rooms", socketClient.rooms);
 	res.json(await init());
 });
 
