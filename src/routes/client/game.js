@@ -17,6 +17,7 @@ const {
 } = require("../../controllers/Client/GameController");
 const { sameUser } = require("../../middlewares/sameUser");
 const { getSocketClient } = require("../../helpers/utils");
+const { isPlayerInGame } = require("../../middlewares/isPlayerinGame");
 
 /**
  * @openapi
@@ -189,7 +190,7 @@ router.get("/find/:email/games", async (req, res) => {
  *           type: string
  *         required: true
  */
-router.get("/:gameId/question/:step", async (req, res) => {
+router.get("/:gameId/question/:step", isPlayerInGame, async (req, res) => {
 	const { gameId, step } = req.params;
 	res.json(await getQuestion(req.session.user?._id, gameId, step));
 });
@@ -226,7 +227,7 @@ router.get("/:gameId/question/:step", async (req, res) => {
  *                type: string
  *                default: any answer
  */
-router.post("/submitAnswer", async (req, res) => {
+router.post("/submitAnswer", sameUser, isPlayerInGame, async (req, res) => {
 	res.json(await submitAnswer(req.body));
 });
 
@@ -249,14 +250,12 @@ router.post("/submitAnswer", async (req, res) => {
  *           type: string
  *         required: true
  */
-router.get("/:gameId/:questionId/answers", async (req, res) => {
+router.get("/:gameId/:questionId/answers", isPlayerInGame, async (req, res) => {
 	const { gameId, questionId } = req.params;
 	res.send(await getAnswers(gameId, questionId));
 });
 
-// tested
-
-router.post("/rateAnswer", async (req, res) => {
+router.post("/rateAnswer", sameUser, isPlayerInGame, async (req, res) => {
 	res.json(await rateAnswer(req.body));
 });
 
@@ -274,11 +273,13 @@ router.post("/rateAnswer", async (req, res) => {
  *           type: string
  *         required: true
  */
-router.get("/:gameId/questions", async (req, res) => {
-	res.json(await getAllQuestions(req.session.user?._Id, req.params.gameId));
+router.get("/:gameId/questions", isPlayerInGame, async (req, res) => {
+	res.json(await getAllQuestions(req.session.user?._id, req.params.gameId));
 });
 
-router.post("/rateQuestions", async (req, res) => {
+// tested
+
+router.post("/rateQuestions", sameUser, isPlayerInGame, async (req, res) => {
 	res.json(await rateQuestions(req.body));
 });
 
@@ -296,7 +297,7 @@ router.post("/rateQuestions", async (req, res) => {
  *           type: string
  *         required: true
  */
-router.get("/:gameId/result", async (req, res) => {
+router.get("/:gameId/result", isPlayerInGame, async (req, res) => {
 	res.json(await showREsult(req.params.gameId));
 });
 

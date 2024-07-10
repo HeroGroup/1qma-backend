@@ -466,16 +466,16 @@ exports.submitAnswer = async (params) => {
 			return fail("game is not started yet!");
 		}
 
+		// check if user has already submited their answer, replace the answer
+		// otherwise create new answer object
 		const questionIndex = game.questions.findIndex((element) => {
 			return element.user_id.toString() === questionId;
 		});
-
-		// check if user has already submited their answer, replace the answer
-		// otherwise create new answer object
-		const answers = game.questions[questionIndex].answers;
-		const answerIndex = answers.findIndex((element) => {
-			return element.user_id.toString() === id;
-		});
+		const answerIndex = game.questions[questionIndex].answers.findIndex(
+			(element) => {
+				return element.user_id.toString() === id;
+			}
+		);
 
 		const findQuery = { _id: objectId(gameId) };
 		let updateQuery = {};
@@ -507,14 +507,14 @@ exports.submitAnswer = async (params) => {
 			new: true,
 		});
 
-		let answersAreComplete = true;
-		game.questions.forEach((element) => {
-			if (!element.answer) {
-				answersAreComplete = false;
-			}
+		const numberOfPlayersSetting = await Setting.findOne({
+			key: "NUMBER_OF_PLAYERS_PER_GAME",
 		});
 
-		if (answersAreComplete) {
+		if (
+			game.questions[questionIndex].answers.length ===
+			parseInt(numberOfPlayersSetting?.value || 5)
+		) {
 			// emit next question
 			io.to(game._id.toString()).emit("next step", {});
 		}
@@ -619,11 +619,98 @@ exports.getAnswers = async (gameId, questionId) => {
 	}
 };
 
-// tested
-
 exports.rateAnswer = async (params) => {
 	try {
-		const { id, questionId, answerId } = params;
+		const { id, gameId, questionId, rates } = params;
+		if (!id) {
+			return fail("invalid user id!");
+		}
+		if (!gameId) {
+			return fail("invalid game id!");
+		}
+		if (!questionId) {
+			return fail("invalid question id!");
+		}
+		if (!rates) {
+			return fail("invalid rates!");
+		}
+
+		let game = await Game.findById(gameId);
+		if (!game) {
+			return fail("invalid game!");
+		}
+		if (game.status !== "started") {
+			return fail("You are not allowed to rate in this step!");
+		}
+
+		const user = await User.findById(id);
+		if (!user) {
+			return fail("invalid rater user");
+		}
+
+		// check if user has already submited their answer, replace the answer
+		// otherwise create new answer object
+		const questionIndex = game.questions.findIndex((element) => {
+			return element.user_id.toString() === questionId;
+		});
+		const answerIndex = game.questions[questionIndex].answers.findIndex(
+			(element) => {
+				return element.user_id.toString() === id;
+			}
+		);
+		const rateIndex = game.questions[questionIndex].answers[
+			answerIndex
+		].rates.findIndex((element) => {
+			return element.user_id.toString() === id;
+		});
+
+		if (rateIndex === -1) {
+			// rate is new
+			game = await Game.findOneAndUpdate(
+				{ _id: objectId(gameId) },
+				{
+					$push: {
+						"questions.$[i].answers.$[j].rates": rates,
+					},
+				},
+				{
+					arrayFilters: [
+						{ "i.user_id": objectId(questionId) },
+						{ "j.user_id": objectId(id) },
+					],
+				}
+			);
+		} else {
+			// player has already rated this answer
+			game = await Game.findOneAndUpdate(
+				{ _id: objectId(gameId) },
+				{
+					"questions.$[i].answers.$[j].rates.$[k]": rates,
+				},
+				{
+					arrayFilters: [
+						{ "i.user_id": objectId(questionId) },
+						{ "j.user_id": objectId(id) },
+						{ "k.user_id": objectId(id) },
+					],
+				}
+			);
+		}
+
+		// check if all users has rated, go to the next step
+		const numberOfPlayersSetting = await Setting.findOne({
+			key: "NUMBER_OF_PLAYERS_PER_GAME",
+		});
+
+		if (
+			game.questions[questionIndex].answers[answerIndex].rates.length ===
+			parseInt(numberOfPlayersSetting?.value || 5)
+		) {
+			// emit next question
+			io.to(game._id.toString()).emit("next step", {});
+		}
+
+		return success("Thank you for the rates");
 	} catch (e) {
 		return handleException(e);
 	}
@@ -637,14 +724,6 @@ exports.getAllQuestions = async (userId, gameId) => {
 		const game = await Game.findById(gameId);
 		if (!game) {
 			return fail("invalid game!");
-		}
-
-		// check use is in game
-		const player = game.players.find((element) => {
-			element._id.toString() === userId.toString();
-		});
-		if (!player) {
-			return fail("You are not in this game!");
 		}
 
 		const questions = game.questions.map((element) => {
@@ -662,7 +741,29 @@ exports.getAllQuestions = async (userId, gameId) => {
 
 exports.rateQuestions = async (params) => {
 	try {
-		const {} = params;
+		const { id, gameId, rates } = params;
+		if (!id) {
+			return fail("invalid user id!");
+		}
+		if (!gameId) {
+			return fail("invalid game id!");
+		}
+		if (!rates) {
+			return fail("invalid rates!");
+		}
+
+		let game = await Game.findById(gameId);
+		if (!game) {
+			return fail("invalid game!");
+		}
+		if (game.status !== "started") {
+			return fail("You are not allowed to rate in this step!");
+		}
+
+		const user = await User.findById(id);
+		if (!user) {
+			return fail("invalid rater user");
+		}
 	} catch (e) {
 		return handleException(e);
 	}
