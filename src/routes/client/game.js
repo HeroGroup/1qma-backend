@@ -17,7 +17,7 @@ const {
 } = require("../../controllers/Client/GameController");
 const { sameUser } = require("../../middlewares/sameUser");
 const { getSocketClient } = require("../../helpers/utils");
-const { isPlayerInGame } = require("../../middlewares/isPlayerinGame");
+const { isPlayerInGame } = require("../../middlewares/isPlayerInGame");
 
 /**
  * @openapi
