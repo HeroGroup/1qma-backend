@@ -716,7 +716,7 @@ exports.rateAnswer = async (params) => {
 	}
 };
 
-exports.getAllQuestions = async (userId, gameId) => {
+exports.getAllQuestions = async (gameId) => {
 	try {
 		if (!gameId) {
 			return fail("invalid game id!");

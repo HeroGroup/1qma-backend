@@ -274,7 +274,7 @@ router.post("/rateAnswer", sameUser, isPlayerInGame, async (req, res) => {
  *         required: true
  */
 router.get("/:gameId/questions", isPlayerInGame, async (req, res) => {
-	res.json(await getAllQuestions(req.session.user?._id, req.params.gameId));
+	res.json(await getAllQuestions(req.params.gameId));
 });
 
 // tested
