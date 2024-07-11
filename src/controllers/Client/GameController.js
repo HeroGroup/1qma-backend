@@ -853,6 +853,10 @@ exports.showResult = async (gameId) => {
 			return success("game is not ended yet!", gameProjection(game));
 		}
 
+		if (game.result) {
+			return success("ok", game.result);
+		}
+
 		const scoreboard = game.players
 			.map((player) => {
 				const questions = game.questions;
@@ -912,7 +916,11 @@ exports.showResult = async (gameId) => {
 				answers,
 			};
 		});
-		return success("ok", { scoreboard, details });
+
+		const result = { scoreboard, details };
+		await Game.findOneAndUpdate({ _id: objectId(gameId) }, { result });
+
+		return success("ok", result);
 	} catch (e) {
 		return handleException(e);
 	}
