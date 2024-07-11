@@ -611,7 +611,7 @@ router.get(
 );
 
 router.get("/google/callback", passport.authenticate("google"), (req, res) => {
-	let redirect = env.authServiceProviders.google.successRedirectUrl;
+	let redirect = env.authServiceProviders.successRedirectUrl;
 
 	if (req.user.status === 1) {
 		const { _id, providerId, email, emailVerified } = req.user.data;

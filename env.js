@@ -22,7 +22,6 @@ module.exports = {
 			clientId: process.env.GOOGLE_CLIENT_ID,
 			clientSecret: process.env.GOOGLE_CLIENT_SECRET,
 			callbackUrl: process.env.GOOGLE_CALLBACK_URL,
-			successRedirectUrl: process.env.GOOGLE_SUCCESS_REDIRECT_URL,
 		},
 		twitter: {
 			consumerKey: process.env.TWITTER_CONSUMER_KEY,
@@ -31,5 +30,6 @@ module.exports = {
 		},
 		facebook: {},
 		apple: {},
+		successRedirectUrl: process.env.SOCIAL_SUCCESS_REDIRECT_URL,
 	},
 };
