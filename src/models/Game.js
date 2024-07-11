@@ -24,6 +24,8 @@ const gameSchema = new Schema({
 	],
 	status: String,
 	createdAt: Date,
+	startedAt: Date,
+	endedAt: Date,
 });
 
 module.exports = mongoose.model("Game", gameSchema);

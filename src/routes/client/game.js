@@ -13,7 +13,7 @@ const {
 	getAllQuestions,
 	rateQuestions,
 	getAnswers,
-	showREsult,
+	showResult,
 } = require("../../controllers/Client/GameController");
 const { sameUser } = require("../../middlewares/sameUser");
 const { isPlayerInGame } = require("../../middlewares/isPlayerInGame");
@@ -336,8 +336,6 @@ router.post("/rateQuestions", sameUser, isPlayerInGame, async (req, res) => {
 	res.json(await rateQuestions(req.body));
 });
 
-// tested
-
 /**
  * @openapi
  * '/game/{gameId}/result':
@@ -353,7 +351,7 @@ router.post("/rateQuestions", sameUser, isPlayerInGame, async (req, res) => {
  *         required: true
  */
 router.get("/:gameId/result", isPlayerInGame, async (req, res) => {
-	res.json(await showREsult(req.params.gameId));
+	res.json(await showResult(req.params.gameId));
 });
 
 module.exports = router;

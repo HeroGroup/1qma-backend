@@ -33,6 +33,10 @@ exports.init = async () => {
 			key: "CREATE_GAME_PRICE_BRONZE",
 		});
 
+		const eachStepDurationSetting = await Setting.findOne({
+			key: "GAME_STEP_DURATION_SECONDS",
+		});
+
 		const categories = await Category.find();
 
 		return success("initialize game parameters", {
@@ -40,6 +44,7 @@ exports.init = async () => {
 			gameTypes,
 			numberOfPlayers: numberOfPlayers?.value || 5,
 			gamePrice: { coin: "bronze", count: createGamePrice?.value || 2 },
+			eachStepDurationSeconds: eachStepDurationSetting?.value || 120,
 			categories,
 		});
 	} catch (e) {
@@ -322,8 +327,9 @@ exports.joinGame = async (params, socketId) => {
 			key: "NUMBER_OF_PLAYERS_PER_GAME",
 		});
 		const currentPlayersCount = game.players.length;
+		let isStarted = false;
 		if (parseInt(numberOfPlayersSetting.value) === currentPlayersCount + 1) {
-			gameStatus = "started";
+			isStarted = true;
 		}
 
 		game = await Game.findOneAndUpdate(
@@ -351,7 +357,7 @@ exports.joinGame = async (params, socketId) => {
 						rates: [],
 					},
 				},
-				status: gameStatus,
+				...(isStarted ? { status: "started", startedAt: moment() } : {}),
 			},
 			{ new: true }
 		);
@@ -517,14 +523,7 @@ exports.submitAnswer = async (params) => {
 			new: true,
 		});
 
-		const numberOfPlayersSetting = await Setting.findOne({
-			key: "NUMBER_OF_PLAYERS_PER_GAME",
-		});
-
-		if (
-			game.questions[questionIndex].answers.length ===
-			parseInt(numberOfPlayersSetting?.value || 5)
-		) {
+		if (game.questions[questionIndex].answers.length === game.players.length) {
 			// emit next question
 			io.to(game._id.toString()).emit("next step", {});
 		}
@@ -561,14 +560,10 @@ exports.getQuestion = async (userId, gameId, step) => {
 			return fail("game is not started yet!");
 		}
 
-		const numberOfPlayersSetting = await Setting.findOne({
-			key: "NUMBER_OF_PLAYERS_PER_GAME",
-		});
-
-		if (parseInt(step) > parseInt(numberOfPlayersSetting?.value || "5")) {
+		if (parseInt(step) > game.players.length) {
 			return fail("questions are finished!", {
 				step,
-				nop: numberOfPlayersSetting?.value || "5",
+				nop: game.players.length,
 			});
 		}
 
@@ -690,8 +685,6 @@ exports.rateAnswers = async (params) => {
 							{ "i.user_id": objectId(questionId) },
 							{ "j.user_id": objectId(element.answer_id) },
 						],
-					},
-					{
 						new: true,
 					}
 				);
@@ -707,8 +700,6 @@ exports.rateAnswers = async (params) => {
 							{ "j.user_id": objectId(element.answer_id) },
 							{ "k.user_id": objectId(id) },
 						],
-					},
-					{
 						new: true,
 					}
 				);
@@ -723,11 +714,7 @@ exports.rateAnswers = async (params) => {
 			ratesCount += element.rates.length;
 		}
 
-		const numberOfPlayersSetting = await Setting.findOne({
-			key: "NUMBER_OF_PLAYERS_PER_GAME",
-		});
-		const playersCount = parseInt(numberOfPlayersSetting?.value || 5);
-
+		const playersCount = game.players.length;
 		if (ratesCount == playersCount * playersCount) {
 			// everyone has answered, emit next question
 			io.to(game._id.toString()).emit("next step", {});
@@ -809,8 +796,6 @@ exports.rateQuestions = async (params) => {
 					},
 					{
 						arrayFilters: [{ "i.user_id": objectId(element.question_id) }],
-					},
-					{
 						new: true,
 					}
 				);
@@ -825,15 +810,13 @@ exports.rateQuestions = async (params) => {
 							{ "i.user_id": objectId(element.question_id) },
 							{ "j.user_id": objectId(id) },
 						],
-					},
-					{
 						new: true,
 					}
 				);
 			}
 		});
 
-		// check if all users has rated, go to the next step
+		// check if all users has rated, end the game
 		let ratesCount = 0;
 		const gameQuestions = game.questions;
 		for (let index = 0; index < gameQuestions.length; index++) {
@@ -841,25 +824,23 @@ exports.rateQuestions = async (params) => {
 			ratesCount += element.rates.length;
 		}
 
-		const numberOfPlayersSetting = await Setting.findOne({
-			key: "NUMBER_OF_PLAYERS_PER_GAME",
-		});
-		const playersCount = parseInt(numberOfPlayersSetting?.value || 5);
-
+		const playersCount = game.players.length;
 		if (ratesCount == playersCount * playersCount) {
 			// everyone has answered, emit next question
-			io.to(game._id.toString()).emit("result", {});
+			io.to(game._id.toString()).emit("end game", {});
+			await Game.findOneAndUpdate(
+				{ _id: objectId(gameId) },
+				{ status: "ended", endedAt: moment() }
+			);
 		}
 
-		return success("Thank you for the rates", ratesCount);
+		return success("Thank you for the rates");
 	} catch (e) {
 		return handleException(e);
 	}
 };
 
-// tested
-
-exports.showREsult = async (gameId) => {
+exports.showResult = async (gameId) => {
 	try {
 		if (!gameId) {
 			return fail("invalid game id!");
@@ -868,8 +849,9 @@ exports.showREsult = async (gameId) => {
 		if (!game) {
 			return fail("invalid game!");
 		}
-
-		return success("result is not ready yet!", gameProjection(game));
+		if (game.status !== "ended") {
+			return success("result is not ready yet!", gameProjection(game));
+		}
 	} catch (e) {
 		return handleException(e);
 	}
