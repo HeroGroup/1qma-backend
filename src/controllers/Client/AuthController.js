@@ -510,7 +510,7 @@ exports.chooseAccountType = async (params) => {
 			maxInvites: initialMaxNumberOfAllowedRefers?.value || 0,
 			assets: {
 				coins: {
-					bronze: defaultNumberOfBronzeCoins?.value || 0,
+					bronze: parseInt(defaultNumberOfBronzeCoins?.value) || 0,
 					silver: 0,
 					gold: 0,
 				},

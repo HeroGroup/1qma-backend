@@ -6,9 +6,17 @@ const {
 	joinGame,
 	searchUsers,
 	findFriendGames,
-	prejoin,
+	attemptjoin,
+	getQuestion,
+	submitAnswer,
+	rateAnswers,
+	getAllQuestions,
+	rateQuestions,
+	getAnswers,
+	showResult,
 } = require("../../controllers/Client/GameController");
 const { sameUser } = require("../../middlewares/sameUser");
+const { isPlayerInGame } = require("../../middlewares/isPlayerInGame");
 
 /**
  * @openapi
@@ -66,12 +74,12 @@ router.get("/init", async (req, res) => {
  *                default: any answer
  */
 router.post("/create", sameUser, async (req, res) => {
-	res.json(await createGame(req.body));
+	res.json(await createGame(req.body, req.session.socketId));
 });
 
 /**
  * @openapi
- * '/game/{code}/join':
+ * '/game/{idOrCode}/join':
  *  get:
  *     tags:
  *     - Game
@@ -84,7 +92,7 @@ router.post("/create", sameUser, async (req, res) => {
  *         required: true
  */
 router.get("/:idOrCode/join", async (req, res) => {
-	res.json(await prejoin(req.session.user, req.params.idOrCode));
+	res.json(await attemptjoin(req.session.user, req.params.idOrCode));
 });
 
 /**
@@ -120,7 +128,7 @@ router.get("/:idOrCode/join", async (req, res) => {
  *                default: any answer
  */
 router.post("/join", sameUser, async (req, res) => {
-	res.json(await joinGame(req.body));
+	res.json(await joinGame(req.body, req.session.socketId));
 });
 
 /**
@@ -156,6 +164,194 @@ router.get("/searchUsers", async (req, res) => {
  */
 router.get("/find/:email/games", async (req, res) => {
 	res.json(await findFriendGames(req.params.email));
+});
+
+/**
+ * @openapi
+ * '/game/{gameId}/question/{step}':
+ *  get:
+ *     tags:
+ *     - Game
+ *     summary: get question in each step
+ *     parameters:
+ *       - in: path
+ *         name: gameId
+ *         schema:
+ *           type: string
+ *         required: true
+ *       - in: path
+ *         name: step
+ *         schema:
+ *           type: string
+ *         required: true
+ */
+router.get("/:gameId/question/:step", isPlayerInGame, async (req, res) => {
+	const { gameId, step } = req.params;
+	res.json(await getQuestion(req.session.user?._id, gameId, step));
+});
+
+/**
+ * @openapi
+ * '/game/submitAnswer':
+ *  post:
+ *     tags:
+ *     - Game
+ *     summary: submit answer to a question
+ *     requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *           schema:
+ *            type: object
+ *            required:
+ *              - id
+ *              - gameId
+ *              - questionId
+ *              - answer
+ *            properties:
+ *              id:
+ *                type: string
+ *                default: 65445678098765456
+ *              gameId:
+ *                type: string
+ *                default: 65445678098765456
+ *              questionId:
+ *                type: string
+ *                default: 65445678098765456
+ *              answer:
+ *                type: string
+ *                default: any answer
+ */
+router.post("/submitAnswer", sameUser, isPlayerInGame, async (req, res) => {
+	res.json(await submitAnswer(req.body));
+});
+
+/**
+ * @openapi
+ * '/game/{gameId}/{questionId}/answers':
+ *  get:
+ *     tags:
+ *     - Game
+ *     summary: get answers of one specific question
+ *     parameters:
+ *       - in: path
+ *         name: gameId
+ *         schema:
+ *           type: string
+ *         required: true
+ *       - in: path
+ *         name: questionId
+ *         schema:
+ *           type: string
+ *         required: true
+ */
+router.get("/:gameId/:questionId/answers", isPlayerInGame, async (req, res) => {
+	const { gameId, questionId } = req.params;
+	res.send(await getAnswers(gameId, questionId));
+});
+
+/**
+ * @openapi
+ * '/game/rateAnswers':
+ *  post:
+ *     tags:
+ *     - Game
+ *     summary: rate all answers of a question
+ *     requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *           schema:
+ *            type: object
+ *            required:
+ *              - id
+ *              - gameId
+ *              - questionId
+ *              - rates
+ *            properties:
+ *              id:
+ *                type: string
+ *                default: 65445678098765456
+ *              gameId:
+ *                type: string
+ *                default: 65445678098765456
+ *              questionId:
+ *                type: string
+ *                default: 65445678098765456
+ *              rates:
+ *                type: Array
+ *                default: [{"answer_id": "65445678098765456", "rate": "3"}]
+ */
+router.post("/rateAnswers", sameUser, isPlayerInGame, async (req, res) => {
+	res.json(await rateAnswers(req.body));
+});
+
+/**
+ * @openapi
+ * '/game/{gameId}/questions':
+ *  get:
+ *     tags:
+ *     - Game
+ *     summary: get all question of the game
+ *     parameters:
+ *       - in: path
+ *         name: gameId
+ *         schema:
+ *           type: string
+ *         required: true
+ */
+router.get("/:gameId/questions", isPlayerInGame, async (req, res) => {
+	res.json(await getAllQuestions(req.params.gameId));
+});
+
+/**
+ * @openapi
+ * '/game/rateQuestions':
+ *  post:
+ *     tags:
+ *     - Game
+ *     summary: rate all questions of the game
+ *     requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *           schema:
+ *            type: object
+ *            required:
+ *              - id
+ *              - gameId
+ *              - rates
+ *            properties:
+ *              id:
+ *                type: string
+ *                default: 65445678098765456
+ *              gameId:
+ *                type: string
+ *                default: 65445678098765456
+ *              rates:
+ *                type: Array
+ *                default: [{"question_id": "65445678098765456", "rate": "3"}]
+ */
+router.post("/rateQuestions", sameUser, isPlayerInGame, async (req, res) => {
+	res.json(await rateQuestions(req.body));
+});
+
+/**
+ * @openapi
+ * '/game/{gameId}/result':
+ *  get:
+ *     tags:
+ *     - Game
+ *     summary: show result of the game
+ *     parameters:
+ *       - in: path
+ *         name: gameId
+ *         schema:
+ *           type: string
+ *         required: true
+ */
+router.get("/:gameId/result", isPlayerInGame, async (req, res) => {
+	res.json(await showResult(req.params.gameId));
 });
 
 module.exports = router;

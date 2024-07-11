@@ -1,4 +1,12 @@
 const express = require("express");
+const app = express();
+if (app.get("env") === "production") {
+	globalThis.env = require("./env.js");
+} else {
+	globalThis.env = require("./env.development.js");
+}
+const { createServer } = require("node:http");
+const { Server } = require("socket.io");
 const qs = require("qs");
 const morgan = require("morgan");
 const cors = require("cors");
@@ -8,16 +16,7 @@ const session = require("express-session");
 const RedisStore = require("connect-redis").default;
 const { createClient } = require("redis");
 const passport = require("passport");
-
 const { swaggerSpec } = require("./src/services/swagger.js");
-
-const app = express();
-if (app.get("env") === "production") {
-	globalThis.env = require("./env.js");
-} else {
-	globalThis.env = require("./env.development.js");
-}
-
 const authRoutes = require("./src/routes/client/auth");
 const adminRoutes = require("./src/routes/admin/_admin");
 const accountTypesRoutes = require("./src/routes/admin/accountTypes");
@@ -34,106 +33,141 @@ const { isAdmin } = require("./src/middlewares/isAdmin");
 const { hasCompletedSignup } = require("./src/middlewares/hasCompletedSignup");
 const { isLoggedIn } = require("./src/middlewares/isLoggedIn");
 const { passportInit } = require("./src/services/auth/passport");
+async function main() {
+	const whiteList = [
+		"https://api.staging.1qma.games",
+		"http://localhost:3000", // local backend
+		"https://staging.1qma.games",
+		"https://admin.staging.1qma.games",
+		"http://localhost:4200", // local client
+		"http://localhost:4400", // local admin
+	];
 
-globalThis.__basedir = __dirname;
-globalThis.moment = require("moment");
-globalThis.success = (message, data, status = 1) => {
-	return {
-		status,
-		message,
-		data,
+	const corsOptions = {
+		credentials: true,
+		origin: function (origin, callback) {
+			if (whiteList.indexOf(origin) !== -1 || !origin) {
+				callback(null, true);
+			} else {
+				callback(new Error("Not allowed by CORS"));
+			}
+		},
 	};
-};
-globalThis.fail = (message, data, status = -1) => {
-	return {
-		status,
-		message,
-		data,
+
+	const server = createServer(app);
+	const io = new Server(server, {
+		connectionStateRecovery: {},
+		cors: corsOptions,
+	});
+
+	globalThis.__basedir = __dirname;
+	globalThis.moment = require("moment");
+	globalThis.success = (message, data, status = 1) => {
+		return {
+			status,
+			message,
+			data,
+		};
 	};
-};
+	globalThis.fail = (message, data, status = -1) => {
+		return {
+			status,
+			message,
+			data,
+		};
+	};
 
-mongoose
-	.connect(`mongodb://${env.dbHost}:${env.dbPort}/${env.dbName}`)
-	.catch((err) => console.log(err));
+	mongoose
+		.connect(`mongodb://${env.db.host}:${env.db.port}/${env.db.name}`)
+		.catch((err) => console.log(err));
 
-let redisClient = createClient();
-redisClient.connect().catch(console.error);
-let redisStore = new RedisStore({
-	client: redisClient,
-	prefix: `${env.dbName}:`,
-});
+	let redisClient = createClient();
+	redisClient.connect().catch(console.error);
+	let redisStore = new RedisStore({
+		client: redisClient,
+		prefix: `${env.db.name}:`,
+	});
 
-const whiteList = [
-	"https://staging.1qma.games",
-	"https://admin.staging.1qma.games",
-	"http://localhost:4200", // client
-	"http://localhost:4400", // admin
-];
-const corsOptions = {
-	credentials: true,
-	origin: function (origin, callback) {
-		if (whiteList.indexOf(origin) !== -1 || !origin) {
-			callback(null, true);
-		} else {
-			callback(new Error("Not allowed by CORS"));
+	app.use(cors(corsOptions));
+	app.use(express.json());
+	app.use(morgan("dev"));
+
+	app.set("query parser", function (str) {
+		return qs.parse(str);
+	});
+
+	const sessionName = env.session.name;
+	const sessionKey = env.session.key;
+
+	const sess = {
+		name: sessionName,
+		secret: sessionKey,
+		store: redisStore,
+		resave: false,
+		saveUninitialized: true,
+		cookie: {},
+	};
+
+	if (app.get("env") === "production") {
+		app.set("trust proxy", 1);
+		// sess.cookie.domain = env.app.domain;
+		sess.cookie.sameSite = "none";
+		sess.cookie.secure = true;
+	}
+
+	app.use(session(sess));
+
+	passportInit();
+
+	app.use(passport.initialize());
+	app.use(passport.session());
+
+	app.use("/auth", authRoutes);
+	app.use("/admin", adminRoutes);
+	app.use("/admin/accountTypes", isAdmin, accountTypesRoutes);
+	app.use("/admin/categories", isAdmin, categoriesRoutes);
+	app.use("/admin/users", isAdmin, usersRoutes);
+	app.use("/admin/settings", isAdmin, settingsRoutes);
+	app.use("/client", isLoggedIn, clientGeneralRoutes);
+	app.use("/game", hasCompletedSignup, gameRoutes);
+	app.use("/", indexRoutes);
+	app.use(express.static("public"));
+
+	app.use(
+		"/api-docs",
+		swaggerUI.serve,
+		swaggerUI.setup(swaggerSpec, { explorer: true })
+	);
+
+	app.use(sanitizeRequestInputs);
+
+	// Sharing the session context
+	io.engine.use(session(sess));
+
+	io.engine.on("connection_error", (err) => {
+		console.log(err.code, err.message, err.context);
+	});
+
+	io.on("connection", (socket) => {
+		const sessionId = socket.request?.sessionID;
+		if (sessionId) {
+			sess.store.get(sessionId, (error, sessionData) => {
+				if (sessionData) {
+					sessionData.socketId = socket.id;
+					sess.store.set(sessionId, sessionData);
+				}
+			});
 		}
-	},
-};
+	});
 
-app.use(cors(corsOptions));
-app.use(express.json());
-app.use(morgan("dev"));
+	globalThis.io = io;
 
-app.set("query parser", function (str) {
-	return qs.parse(str);
-});
-
-const sess = {
-	store: redisStore,
-	resave: false,
-	saveUninitialized: true,
-	secret: "whatissecret",
-	cookie: {},
-};
-
-if (app.get("env") === "production") {
-	app.set("trust proxy", 1);
-	// sess.cookie.domain = env.appDomain;
-	sess.cookie.sameSite = "none";
-	sess.cookie.secure = true;
+	const port = env.app.port;
+	server.listen(port, () => {
+		console.log(
+			`${env.app.name} app is listening on port ${port} in ${app.get("env")}`
+		);
+	});
 }
 
-app.use(session(sess));
-
-passportInit();
-
-app.use(passport.initialize());
-app.use(passport.session());
-
-app.use("/auth", authRoutes);
-app.use("/admin", adminRoutes);
-app.use("/admin/accountTypes", isAdmin, accountTypesRoutes);
-app.use("/admin/categories", isAdmin, categoriesRoutes);
-app.use("/admin/users", isAdmin, usersRoutes);
-app.use("/admin/settings", isAdmin, settingsRoutes);
-app.use("/client", isLoggedIn, clientGeneralRoutes);
-app.use("/game", hasCompletedSignup, gameRoutes);
-app.use("/", indexRoutes);
-app.use(express.static("public"));
-
-app.use(
-	"/api-docs",
-	swaggerUI.serve,
-	swaggerUI.setup(swaggerSpec, { explorer: true })
-);
-
-app.use(sanitizeRequestInputs);
-
-// app.options("*", cors(corsOptions));
-
-const port = env.port;
-app.listen(port, () => {
-	console.log(
-		`${env.appName} app is listening on port ${port} in ${app.get("env")}`
-	);
-});
+main();
