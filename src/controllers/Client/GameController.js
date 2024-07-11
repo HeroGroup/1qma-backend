@@ -464,9 +464,9 @@ exports.submitAnswer = async (params) => {
 			return fail("invalid question id!");
 		}
 
-		if (!answer) {
-			return fail("invalid answer!");
-		}
+		// if (!answer) {
+		// 	return fail("invalid answer!");
+		// }
 
 		const player = await User.findById(id);
 		if (!player) {
@@ -568,16 +568,16 @@ exports.getQuestion = async (userId, gameId, step) => {
 		}
 
 		const questionObject = game.questions[step - 1];
-		const question = questionObject?.question;
-		const answers = questionObject?.answers;
-		let myAnswer = answers.find((element) => {
-			element.user_id.toString() === userId.toString();
+		const answers = questionObject.answers;
+
+		const myAnswer = answers.find((answerObj) => {
+			return answerObj.user_id.toString() === player._id.toString();
 		})?.answer;
 
 		return success("ok", {
 			step,
 			_id: questionObject.user_id,
-			question,
+			question: questionObject.question,
 			myAnswer,
 		});
 	} catch (e) {
@@ -850,8 +850,69 @@ exports.showResult = async (gameId) => {
 			return fail("invalid game!");
 		}
 		if (game.status !== "ended") {
-			return success("result is not ready yet!", gameProjection(game));
+			return success("game is not ended yet!", gameProjection(game));
 		}
+
+		const scoreboard = game.players
+			.map((player) => {
+				const questions = game.questions;
+				const ownQuestionIndex = questions.findIndex((element) => {
+					return element.user_id.toString() === player._id.toString();
+				});
+
+				const answersRates = [];
+				for (let i = 0; i < questions.length; i++) {
+					const question = questions[i];
+					const answer = question.answers.find(
+						(elm) => elm.user_id.toString() === player._id.toString()
+					);
+					const sumRates = answer.rates.reduce((n, { rate }) => n + rate, 0);
+					answersRates.push(sumRates);
+				}
+
+				const questionRate = questions[ownQuestionIndex].rates.reduce(
+					(n, { rate }) => n + rate,
+					0
+				);
+
+				return {
+					firstName: player.firstName,
+					lastName: player.lastName,
+					profilePicture: player.profilePicture,
+					answersRates,
+					questionRate,
+					totalScore:
+						answersRates.reduce((acc, cur) => acc + cur) + questionRate,
+				};
+			})
+			.sort((a, b) => a.totalScore - b.totalScore)
+			.reverse();
+
+		const players = game.players;
+		const details = game.questions.map((questionObj) => {
+			const questioner = players.find(
+				(elm) => elm._id.toString() === questionObj.user_id.toString()
+			);
+
+			const answers = questionObj.answers.map((answerObj) => {
+				const answerer = players.find(
+					(elm) => elm._id.toString() === answerObj.user_id.toString()
+				);
+				return {
+					answerer,
+					answer: answerObj.answer,
+					rate: answerObj.rates.reduce((n, { rate }) => n + rate, 0),
+				};
+			});
+
+			return {
+				questioner,
+				question: questionObj.question,
+				rate: questionObj.rates.reduce((n, { rate }) => n + rate, 0),
+				answers,
+			};
+		});
+		return success("ok", { scoreboard, details });
 	} catch (e) {
 		return handleException(e);
 	}
