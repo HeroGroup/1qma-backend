@@ -681,11 +681,11 @@ exports.rateAnswers = async (params) => {
 						},
 					},
 					{
-						new: true,
 						arrayFilters: [
 							{ "i.user_id": objectId(questionId) },
 							{ "j.user_id": objectId(element.answer_id) },
 						],
+						new: true,
 					}
 				);
 			} else {
@@ -695,18 +695,19 @@ exports.rateAnswers = async (params) => {
 						"questions.$[i].answers.$[j].rates.$[k].rate": element.rate,
 					},
 					{
-						new: true,
 						arrayFilters: [
 							{ "i.user_id": objectId(questionId) },
 							{ "j.user_id": objectId(element.answer_id) },
 							{ "k.user_id": objectId(id) },
 						],
+						new: true,
 					}
 				);
 			}
 		});
 
 		// check if all users has rated, go to the next step
+		game = await Game.findById(gameId);
 		let ratesCount = 0;
 		const answers = game.questions[questionIndex].answers;
 		for (let index = 0; index < answers.length; index++) {
@@ -717,7 +718,7 @@ exports.rateAnswers = async (params) => {
 		const playersCount = game.players.length;
 		if (ratesCount == playersCount * playersCount) {
 			// everyone has answered, emit next question
-			io.to(game._id.toString()).emit("next step", {});
+			io.to(gameId).emit("next step", {});
 		}
 
 		return success("Thank you for the rates", ratesCount);
@@ -817,6 +818,7 @@ exports.rateQuestions = async (params) => {
 		});
 
 		// check if all users has rated, end the game
+		game = await Game.findById(gameId);
 		let ratesCount = 0;
 		const gameQuestions = game.questions;
 		for (let index = 0; index < gameQuestions.length; index++) {
@@ -828,7 +830,7 @@ exports.rateQuestions = async (params) => {
 		if (ratesCount == playersCount * playersCount) {
 			// everyone has answered, emit next question
 			await calculateResult(game._id);
-			io.to(game._id.toString()).emit("end game", {});
+			io.to(gameId).emit("end game", {});
 		}
 
 		return success("Thank you for the rates", ratesCount);
