@@ -827,6 +827,7 @@ exports.rateQuestions = async (params) => {
 		const playersCount = game.players.length;
 		if (ratesCount == playersCount * playersCount) {
 			// everyone has answered, emit next question
+			await calculateResult(game._id);
 			io.to(game._id.toString()).emit("end game", {});
 			await Game.findOneAndUpdate(
 				{ _id: objectId(gameId) },
@@ -841,6 +842,29 @@ exports.rateQuestions = async (params) => {
 };
 
 exports.showResult = async (gameId) => {
+	try {
+		if (!gameId) {
+			return fail("invalid game id!");
+		}
+		const game = await Game.findById(gameId);
+		if (!game) {
+			return fail("invalid game!");
+		}
+		if (game.status !== "ended") {
+			return success("game is not ended yet!", gameProjection(game));
+		}
+
+		if (game.result) {
+			return success("ok", game.result);
+		} else {
+			return fail("Result is not ready yet!");
+		}
+	} catch (e) {
+		return handleException(e);
+	}
+};
+
+const calculateResult = async (gameId) => {
 	try {
 		if (!gameId) {
 			return fail("invalid game id!");

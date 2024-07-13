@@ -7,7 +7,9 @@ const {
 const GoogleStrategy = require("passport-google-oauth2").Strategy;
 const FacebookStrategy = require("passport-facebook").Strategy;
 const LocalStrategy = require("passport-local").Strategy;
+
 const reasons = ["register", "login", "join_to_wait_list"];
+
 exports.passportInit = () => {
 	passport.serializeUser(function (user, done) {
 		done(null, user);
@@ -85,7 +87,7 @@ exports.passportInit = () => {
 				clientID: env.authServiceProviders.facebook.clientId,
 				clientSecret: env.authServiceProviders.facebook.clientSecret,
 				callbackURL: env.authServiceProviders.facebook.callbackUrl,
-				profileFields: ["id", "displayName", "photos", "email"],
+				profileFields: ["id", "displayName", "email"],
 				enableProof: true,
 				passReqToCallback: true,
 			},
