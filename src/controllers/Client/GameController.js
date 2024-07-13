@@ -681,11 +681,11 @@ exports.rateAnswers = async (params) => {
 						},
 					},
 					{
+						new: true,
 						arrayFilters: [
 							{ "i.user_id": objectId(questionId) },
 							{ "j.user_id": objectId(element.answer_id) },
 						],
-						new: true,
 					}
 				);
 			} else {
@@ -695,12 +695,12 @@ exports.rateAnswers = async (params) => {
 						"questions.$[i].answers.$[j].rates.$[k].rate": element.rate,
 					},
 					{
+						new: true,
 						arrayFilters: [
 							{ "i.user_id": objectId(questionId) },
 							{ "j.user_id": objectId(element.answer_id) },
 							{ "k.user_id": objectId(id) },
 						],
-						new: true,
 					}
 				);
 			}
@@ -795,8 +795,8 @@ exports.rateQuestions = async (params) => {
 						},
 					},
 					{
-						arrayFilters: [{ "i.user_id": objectId(element.question_id) }],
 						new: true,
+						arrayFilters: [{ "i.user_id": objectId(element.question_id) }],
 					}
 				);
 			} else {
@@ -806,11 +806,11 @@ exports.rateQuestions = async (params) => {
 						"questions.$[i].rates.$[j].rate": element.rate,
 					},
 					{
+						new: true,
 						arrayFilters: [
 							{ "i.user_id": objectId(element.question_id) },
 							{ "j.user_id": objectId(id) },
 						],
-						new: true,
 					}
 				);
 			}
@@ -829,13 +829,9 @@ exports.rateQuestions = async (params) => {
 			// everyone has answered, emit next question
 			await calculateResult(game._id);
 			io.to(game._id.toString()).emit("end game", {});
-			await Game.findOneAndUpdate(
-				{ _id: objectId(gameId) },
-				{ status: "ended", endedAt: moment() }
-			);
 		}
 
-		return success("Thank you for the rates");
+		return success("Thank you for the rates", ratesCount);
 	} catch (e) {
 		return handleException(e);
 	}
@@ -942,7 +938,10 @@ const calculateResult = async (gameId) => {
 		});
 
 		const result = { scoreboard, details };
-		await Game.findOneAndUpdate({ _id: objectId(gameId) }, { result });
+		await Game.findOneAndUpdate(
+			{ _id: objectId(gameId) },
+			{ status: "ended", endedAt: moment(), result }
+		);
 
 		return success("ok", result);
 	} catch (e) {

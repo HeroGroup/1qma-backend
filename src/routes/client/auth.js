@@ -25,6 +25,7 @@ const {
 	loginWithEmail,
 } = require("../../controllers/Client/AuthController");
 const { sameUser } = require("../../middlewares/sameUser");
+const { authReasons } = require("../../helpers/utils");
 
 /**
  * @openapi
@@ -655,7 +656,36 @@ router.get(
 
 router.get(
 	"/facebook/callback",
-	passport.authenticate("facebook"),
+	(req, res, next) => {
+		passport.authenticate("facebook");
+	},
+	(async function (accessToken, refreshToken, profile, cb) {
+		const reason = req.session.reason;
+
+		if (!authReasons.includes(reason)) {
+			return done(null, fail("No reason for google auth!", reason));
+		}
+
+		if (reason === "register") {
+			if (!req.session.user) {
+				return done(null, fail("Base user is invalid!", reason));
+			}
+
+			if (req.session.user.facebookId) {
+				return done(
+					null,
+					fail(`You are aleardy logged in as ${req.session.user.email}`, reason)
+				);
+			}
+		}
+		const facebookAuthResult = await facebookAuth(
+			profile,
+			req.session.user,
+			reason
+		);
+
+		return done(null, facebookAuthResult);
+	})(req, res, next),
 	(req, res) => {
 		let redirect = env.authServiceProviders.facebook.successRedirectUrl;
 

@@ -4,11 +4,10 @@ const {
 	loginWithEmail,
 	facebookAuth,
 } = require("../../controllers/Client/AuthController");
+const { authReasons } = require("../../helpers/utils");
 const GoogleStrategy = require("passport-google-oauth2").Strategy;
 const FacebookStrategy = require("passport-facebook").Strategy;
 const LocalStrategy = require("passport-local").Strategy;
-
-const reasons = ["register", "login", "join_to_wait_list"];
 
 exports.passportInit = () => {
 	passport.serializeUser(function (user, done) {
@@ -50,7 +49,7 @@ exports.passportInit = () => {
 			async function (request, accessToken, refreshToken, profile, done) {
 				const reason = request.session.reason;
 
-				if (!reasons.includes(reason)) {
+				if (!authReasons.includes(reason)) {
 					return done(null, fail("No reason for google auth!", reason));
 				}
 
@@ -82,45 +81,13 @@ exports.passportInit = () => {
 
 	// facebook login
 	passport.use(
-		new FacebookStrategy(
-			{
-				clientID: env.authServiceProviders.facebook.clientId,
-				clientSecret: env.authServiceProviders.facebook.clientSecret,
-				callbackURL: env.authServiceProviders.facebook.callbackUrl,
-				profileFields: ["id", "displayName", "email"],
-				enableProof: true,
-				passReqToCallback: true,
-			},
-			async function (request, accessToken, refreshToken, profile, cb) {
-				const reason = request.session.reason;
-
-				if (!reasons.includes(reason)) {
-					return done(null, fail("No reason for google auth!", reason));
-				}
-
-				if (reason === "register") {
-					if (!request.session.user) {
-						return done(null, fail("Base user is invalid!", reason));
-					}
-
-					if (request.session.user.googleId) {
-						return done(
-							null,
-							fail(
-								`You are aleardy logged in as ${request.session.user.email}`,
-								reason
-							)
-						);
-					}
-				}
-				const facebookAuthResult = await facebookAuth(
-					profile,
-					request.session.user,
-					reason
-				);
-
-				return done(null, facebookAuthResult);
-			}
-		)
+		new FacebookStrategy({
+			clientID: env.authServiceProviders.facebook.clientId,
+			clientSecret: env.authServiceProviders.facebook.clientSecret,
+			callbackURL: env.authServiceProviders.facebook.callbackUrl,
+			profileFields: ["id", "displayName", "email"],
+			enableProof: true,
+			passReqToCallback: true,
+		})
 	);
 };

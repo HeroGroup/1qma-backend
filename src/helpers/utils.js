@@ -74,3 +74,5 @@ exports.joinUserToGameRoom = async (socketId, room) => {
 exports.objectId = (input) => {
 	return mongoose.Types.ObjectId.createFromHexString(input);
 };
+
+exports.authReasons = ["register", "login", "join_to_wait_list"];
