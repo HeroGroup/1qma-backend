@@ -81,13 +81,45 @@ exports.passportInit = () => {
 
 	// facebook login
 	passport.use(
-		new FacebookStrategy({
-			clientID: env.authServiceProviders.facebook.clientId,
-			clientSecret: env.authServiceProviders.facebook.clientSecret,
-			callbackURL: env.authServiceProviders.facebook.callbackUrl,
-			profileFields: ["id", "displayName", "email"],
-			enableProof: true,
-			passReqToCallback: true,
-		})
+		new FacebookStrategy(
+			{
+				clientID: env.authServiceProviders.facebook.clientId,
+				clientSecret: env.authServiceProviders.facebook.clientSecret,
+				callbackURL: env.authServiceProviders.facebook.callbackUrl,
+				profileFields: ["id", "displayName", "email"],
+				enableProof: true,
+				passReqToCallback: true,
+			},
+			async function (accessToken, refreshToken, profile, cb) {
+				const reason = req.session.reason;
+
+				if (!authReasons.includes(reason)) {
+					return done(null, fail("No reason for google auth!", reason));
+				}
+
+				if (reason === "register") {
+					if (!req.session.user) {
+						return done(null, fail("Base user is invalid!", reason));
+					}
+
+					if (req.session.user.facebookId) {
+						return done(
+							null,
+							fail(
+								`You are aleardy logged in as ${req.session.user.email}`,
+								reason
+							)
+						);
+					}
+				}
+				const facebookAuthResult = await facebookAuth(
+					profile,
+					req.session.user,
+					reason
+				);
+
+				return done(null, facebookAuthResult);
+			}
+		)
 	);
 };
