@@ -25,7 +25,7 @@ const {
 	loginWithEmail,
 } = require("../../controllers/Client/AuthController");
 const { sameUser } = require("../../middlewares/sameUser");
-const { authReasons } = require("../../helpers/utils");
+const { authReasons } = require("../../helpers/constants");
 
 /**
  * @openapi

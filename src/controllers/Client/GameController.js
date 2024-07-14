@@ -6,22 +6,11 @@ const {
 	objectId,
 } = require("../../helpers/utils");
 const { validateEmail } = require("../../helpers/validator");
+const { createModes, gameTypes } = require("../../helpers/constants");
 const Category = require("../../models/Category");
 const Game = require("../../models/Game");
 const Setting = require("../../models/Setting");
 const User = require("../../models/User");
-
-const createModes = [
-	{ id: "0", text: "I'm ready" },
-	{ id: "1", text: "Topic by me" },
-	{ id: "2", text: "Players by me" },
-	{ id: "3", text: "I'm in Full Control" },
-];
-
-const gameTypes = [
-	{ id: "normal", text: "Normal" },
-	{ id: "survival", text: "Survival" },
-];
 
 exports.init = async () => {
 	try {
@@ -523,9 +512,11 @@ exports.submitAnswer = async (params) => {
 			new: true,
 		});
 
+		console.log(game.questions[questionIndex].answers, game.players.length);
 		if (game.questions[questionIndex].answers.length === game.players.length) {
 			// emit next question
-			io.to(game._id.toString()).emit("next step", {});
+			console.log("next step");
+			io.to(gameId).emit("next step", {});
 		}
 
 		return success("Thank you for the answer.");
@@ -717,6 +708,7 @@ exports.rateAnswers = async (params) => {
 		const playersCount = game.players.length;
 		if (ratesCount === playersCount * playersCount) {
 			// everyone has answered, emit next question
+			console.log("next step");
 			io.to(gameId).emit("next step", {});
 		}
 

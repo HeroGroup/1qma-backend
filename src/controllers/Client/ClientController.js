@@ -110,6 +110,7 @@ exports.updateProfile = async (params) => {
 			accountType: params.accountType,
 		};
 
+		console.log(currentPassword, password, passwordConfirmation, user.password);
 		if (currentPassword && password && passwordConfirmation && user.password) {
 			if (!checkSame(currentPassword, user.password)) {
 				return fail("current password is incorrect!");

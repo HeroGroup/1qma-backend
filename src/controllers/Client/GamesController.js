@@ -1,5 +1,6 @@
 const { handleException, objectId } = require("../../helpers/utils");
 const Game = require("../../models/Game");
+const User = require("../../models/User");
 
 exports.overview = async (userId) => {
 	try {
@@ -7,17 +8,17 @@ exports.overview = async (userId) => {
 		const myGames = await Game.find({
 			"result.scoreboard._id": objectId(userId),
 			result: { $exists: true },
-		}).sort({ endedAt: -1 });
+		});
 
 		const scoreboard = myGames.map((myGame) => {
-			const myRank = myGame.result.scoreboard.findIndex(
-				(elm) => elm._id === userId
-			);
+			const myRankIndex = myGame.result.scoreboard.findIndex((elm) => {
+				return elm._id.toString() === userId.toString();
+			});
 			return {
 				endedAt: myGame.endedAt,
 				gameType: myGame.gameType,
 				category: myGame.category,
-				rank: myRank + 1,
+				rank: myRankIndex + 1,
 				result: myGame.result.scoreboard[myRank],
 			};
 		});
@@ -27,3 +28,63 @@ exports.overview = async (userId) => {
 		return handleException(e);
 	}
 };
+
+exports.liveGames = async (type, category) => {
+	try {
+		// find games that players are going to be random
+		const games = await Game.find(
+			{
+				status: "created",
+				"gameType.id": type,
+				$or: [{ createMode: "0" }, { createMode: "1" }],
+				...(category ? { "category.name": category } : {}),
+			},
+			{ _id: 1, code: 1, creator: 1, category: 1, players: 1, gameType: 1 }
+		)
+			.sort({ createdAt: -1 })
+			.limit(5);
+
+		return success("ok", games);
+	} catch (e) {
+		return handleException(e);
+	}
+};
+
+exports.friendsRecentGames = async (userId) => {
+	try {
+		const friends = await User.find(
+			{
+				"referer._id": userId,
+				hasCompletedSignup: true,
+			},
+			{ _id: 1 }
+		);
+
+		const friendsIds = [];
+		for (const friend of friends) {
+			friendsIds.push(friend._id);
+		}
+
+		const games = await Game.find(
+			{
+				status: "ended",
+				"players._id": { $in: friendsIds },
+			},
+			{ _id: 1, code: 1, creator: 1, category: 1, players: 1, gameType: 1 }
+		)
+			.sort({ createdAt: -1 })
+			.limit(5);
+
+		return success("ok", games);
+	} catch (e) {
+		return handleException(e);
+	}
+};
+
+/*
+try {
+	//
+} catch (e) {
+	return handleException(e);
+}
+*/

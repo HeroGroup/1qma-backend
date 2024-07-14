@@ -4,7 +4,7 @@ const {
 	loginWithEmail,
 	facebookAuth,
 } = require("../../controllers/Client/AuthController");
-const { authReasons } = require("../../helpers/utils");
+const { authReasons } = require("../../helpers/constants");
 const GoogleStrategy = require("passport-google-oauth2").Strategy;
 const FacebookStrategy = require("passport-facebook").Strategy;
 const LocalStrategy = require("passport-local").Strategy;
