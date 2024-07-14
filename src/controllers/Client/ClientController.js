@@ -76,7 +76,7 @@ exports.updateProfile = async (params) => {
 			return fail("invalid user id!");
 		}
 
-		let user = User.findById(id);
+		let user = await User.findById(id);
 		if (!user) {
 			return fail("invalid user!");
 		}
