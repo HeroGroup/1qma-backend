@@ -26,6 +26,7 @@ const settingsRoutes = require("./src/routes/admin/settings");
 const usersRoutes = require("./src/routes/admin/users");
 const clientGeneralRoutes = require("./src/routes/client/general");
 const gameRoutes = require("./src/routes/client/game");
+const gamesRoutes = require("./src/routes/client/games");
 const {
 	sanitizeRequestInputs,
 } = require("./src/middlewares/sanitizeRequestInputs");
@@ -130,6 +131,7 @@ async function main() {
 	app.use("/admin/settings", isAdmin, settingsRoutes);
 	app.use("/client", isLoggedIn, clientGeneralRoutes);
 	app.use("/game", hasCompletedSignup, gameRoutes);
+	app.use("/games", hasCompletedSignup, gamesRoutes);
 	app.use("/", indexRoutes);
 	app.use(express.static("public"));
 

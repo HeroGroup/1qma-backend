@@ -657,7 +657,8 @@ exports.rateAnswers = async (params) => {
 			return element.user_id.toString() === questionId;
 		});
 
-		rates.forEach(async function (element) {
+		let ratesCount = 0;
+		for (const element of rates) {
 			// check if player has already rated, replace the rate
 			const answerIndex = game.questions[questionIndex].answers.findIndex(
 				(answr) => {
@@ -688,8 +689,11 @@ exports.rateAnswers = async (params) => {
 						new: true,
 					}
 				);
+
+				ratesCount +=
+					game.questions[questionIndex].answers[answerIndex].rates.length;
 			} else {
-				game = await Game.findOneAndUpdate(
+				await Game.findOneAndUpdate(
 					{ _id: objectId(gameId) },
 					{
 						"questions.$[i].answers.$[j].rates.$[k].rate": element.rate,
@@ -703,20 +707,15 @@ exports.rateAnswers = async (params) => {
 						new: true,
 					}
 				);
-			}
-		});
 
-		// check if all users has rated, go to the next step
-		game = await Game.findById(gameId);
-		let ratesCount = 0;
-		const answers = game.questions[questionIndex].answers;
-		for (let index = 0; index < answers.length; index++) {
-			const element = answers[index];
-			ratesCount += element.rates.length;
+				ratesCount +=
+					game.questions[questionIndex].answers[answerIndex].rates.length;
+			}
 		}
 
+		// check if all users has rated, go to the next step
 		const playersCount = game.players.length;
-		if (ratesCount == playersCount * playersCount) {
+		if (ratesCount === playersCount * playersCount) {
 			// everyone has answered, emit next question
 			io.to(gameId).emit("next step", {});
 		}
@@ -776,7 +775,8 @@ exports.rateQuestions = async (params) => {
 			return fail("invalid rater user");
 		}
 
-		rates.forEach(async function (element) {
+		let ratesCount = 0;
+		for (const element of rates) {
 			// check if player has already rated, replace the rate
 			const questionIndex = game.questions.findIndex((qstn) => {
 				return qstn.user_id.toString() === element.question_id;
@@ -796,10 +796,12 @@ exports.rateQuestions = async (params) => {
 						},
 					},
 					{
-						new: true,
 						arrayFilters: [{ "i.user_id": objectId(element.question_id) }],
+						new: true,
 					}
 				);
+
+				ratesCount += game.questions[questionIndex].rates.length;
 			} else {
 				game = await Game.findOneAndUpdate(
 					{ _id: objectId(gameId) },
@@ -807,29 +809,23 @@ exports.rateQuestions = async (params) => {
 						"questions.$[i].rates.$[j].rate": element.rate,
 					},
 					{
-						new: true,
 						arrayFilters: [
 							{ "i.user_id": objectId(element.question_id) },
 							{ "j.user_id": objectId(id) },
 						],
+						new: true,
 					}
 				);
-			}
-		});
 
-		// check if all users has rated, end the game
-		game = await Game.findById(gameId);
-		let ratesCount = 0;
-		const gameQuestions = game.questions;
-		for (let index = 0; index < gameQuestions.length; index++) {
-			const element = gameQuestions[index];
-			ratesCount += element.rates.length;
+				ratesCount += game.questions[questionIndex].rates.length;
+			}
 		}
 
+		// check if all users has rated, end the game
 		const playersCount = game.players.length;
-		if (ratesCount == playersCount * playersCount) {
-			// everyone has answered, emit next question
-			await calculateResult(game._id);
+		if (ratesCount === playersCount * playersCount) {
+			// everyone has answered, calculate and emit result!
+			calculateResult(gameId);
 			io.to(gameId).emit("end game", {});
 		}
 
@@ -863,92 +859,87 @@ exports.showResult = async (gameId) => {
 };
 
 const calculateResult = async (gameId) => {
-	try {
-		if (!gameId) {
-			return fail("invalid game id!");
-		}
-		const game = await Game.findById(gameId);
-		if (!game) {
-			return fail("invalid game!");
-		}
-		if (game.status !== "ended") {
-			return success("game is not ended yet!", gameProjection(game));
-		}
+	console.time("calculate-game-result");
+	if (!gameId) {
+		return fail("invalid game id!");
+	}
+	const game = await Game.findById(gameId);
+	if (!game) {
+		return fail("invalid game!");
+	}
 
-		if (game.result) {
-			return success("ok", game.result);
-		}
+	if (game.result) {
+		return success("ok", game.result);
+	}
 
-		const scoreboard = game.players
-			.map((player) => {
-				const questions = game.questions;
-				const ownQuestionIndex = questions.findIndex((element) => {
-					return element.user_id.toString() === player._id.toString();
-				});
-
-				const answersRates = [];
-				for (let i = 0; i < questions.length; i++) {
-					const question = questions[i];
-					const answer = question.answers.find(
-						(elm) => elm.user_id.toString() === player._id.toString()
-					);
-					const sumRates = answer.rates.reduce((n, { rate }) => n + rate, 0);
-					answersRates.push(sumRates);
-				}
-
-				const questionRate = questions[ownQuestionIndex].rates.reduce(
-					(n, { rate }) => n + rate,
-					0
-				);
-
-				return {
-					firstName: player.firstName,
-					lastName: player.lastName,
-					profilePicture: player.profilePicture,
-					answersRates,
-					questionRate,
-					totalScore:
-						answersRates.reduce((acc, cur) => acc + cur) + questionRate,
-				};
-			})
-			.sort((a, b) => a.totalScore - b.totalScore)
-			.reverse();
-
-		const players = game.players;
-		const details = game.questions.map((questionObj) => {
-			const questioner = players.find(
-				(elm) => elm._id.toString() === questionObj.user_id.toString()
-			);
-
-			const answers = questionObj.answers.map((answerObj) => {
-				const answerer = players.find(
-					(elm) => elm._id.toString() === answerObj.user_id.toString()
-				);
-				return {
-					answerer,
-					answer: answerObj.answer,
-					rate: answerObj.rates.reduce((n, { rate }) => n + rate, 0),
-				};
+	const scoreboard = game.players
+		.map((player) => {
+			const questions = game.questions;
+			const ownQuestionIndex = questions.findIndex((element) => {
+				return element.user_id.toString() === player._id.toString();
 			});
 
+			const answersRates = [];
+			for (let i = 0; i < questions.length; i++) {
+				const question = questions[i];
+				const answer = question.answers.find(
+					(elm) => elm.user_id.toString() === player._id.toString()
+				);
+				const sumRates = answer.rates.reduce((n, { rate }) => n + rate, 0);
+				answersRates.push(sumRates);
+			}
+
+			const questionRate = questions[ownQuestionIndex].rates.reduce(
+				(n, { rate }) => n + rate,
+				0
+			);
+
 			return {
-				questioner,
-				question: questionObj.question,
-				rate: questionObj.rates.reduce((n, { rate }) => n + rate, 0),
-				answers,
+				_id: player._id,
+				firstName: player.firstName,
+				lastName: player.lastName,
+				profilePicture: player.profilePicture,
+				answersRates,
+				questionRate,
+				totalScore: answersRates.reduce((acc, cur) => acc + cur) + questionRate,
+			};
+		})
+		.sort((a, b) => a.totalScore - b.totalScore)
+		.reverse();
+
+	const players = game.players;
+	const details = game.questions.map((questionObj) => {
+		const questioner = players.find(
+			(elm) => elm._id.toString() === questionObj.user_id.toString()
+		);
+
+		const answers = questionObj.answers.map((answerObj) => {
+			const answerer = players.find(
+				(elm) => elm._id.toString() === answerObj.user_id.toString()
+			);
+			return {
+				answerer,
+				answer: answerObj.answer,
+				rate: answerObj.rates.reduce((n, { rate }) => n + rate, 0),
 			};
 		});
 
-		const result = { scoreboard, details };
-		await Game.findOneAndUpdate(
-			{ _id: objectId(gameId) },
-			{ status: "ended", endedAt: moment(), result }
-		);
+		return {
+			questioner,
+			question: questionObj.question,
+			rate: questionObj.rates.reduce((n, { rate }) => n + rate, 0),
+			answers,
+		};
+	});
 
-		return success("ok", result);
-	} catch (e) {
-		return handleException(e);
-	}
+	const result = { scoreboard, details };
+	await Game.findOneAndUpdate(
+		{ _id: objectId(gameId) },
+		{ status: "ended", endedAt: moment(), result }
+	);
+
+	console.timeEnd("calculate-game-result");
+	return success("ok", result);
 };
 
 /*
