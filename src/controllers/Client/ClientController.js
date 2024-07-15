@@ -11,43 +11,12 @@ const { validateEmail } = require("../../helpers/validator");
 const Category = require("../../models/Category");
 const Question = require("../../models/Question");
 
-const languages = [{ _id: "0", code: "en", title: "English" }];
-
-const genders = [
-	{ _id: "0", title: "Male" },
-	{ _id: "1", title: "Female" },
-	{ _id: "2", title: "prefer not to say" },
-];
-
-const educations = [
-	{
-		_id: "0",
-		title: "Uneducated",
-	},
-	{
-		_id: "1",
-		title: "Bachelor Degree",
-	},
-	{
-		_id: "2",
-		title: "Masters Degree",
-	},
-	{
-		_id: "3",
-		title: "Phd",
-	},
-];
-
-const homePages = [
-	{
-		id: "/dashboard",
-		name: "Dashboard",
-	},
-	{
-		id: "/games",
-		name: "Games",
-	},
-];
+const {
+	languages,
+	genders,
+	educations,
+	homePages,
+} = require("../../helpers/constants");
 
 exports.init = async () => {
 	try {

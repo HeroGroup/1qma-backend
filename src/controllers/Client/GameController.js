@@ -841,7 +841,8 @@ exports.showResult = async (gameId) => {
 		}
 
 		if (game.result) {
-			return success("ok", game.result);
+			const { creator, category, gameType, endedAt, result } = game;
+			return success("ok", { creator, category, gameType, endedAt, result });
 		} else {
 			return fail("Result is not ready yet!");
 		}
@@ -923,6 +924,14 @@ const calculateResult = async (gameId) => {
 			answers,
 		};
 	});
+
+	// update statistics
+	for (const item of scoreboard) {
+		await User.findOneAndUpdate(
+			{ _id: item._id },
+			{ $inc: { "statistics.totalScore": item.totalScore } }
+		);
+	}
 
 	const result = { scoreboard, details };
 	await Game.findOneAndUpdate(
