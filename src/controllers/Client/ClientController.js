@@ -259,24 +259,19 @@ exports.listQuestions = async (userId, params) => {
 			);
 		}
 
-		const categoryFilter = {
-			"category._id": objectId(category),
-		};
-
-		const userFilter = type === "private" ? { "user._id": userId } : {};
-
-		const searchFilter = search
-			? { question: { $regex: search, $options: "i" } }
-			: {};
-
-		const filter = { ...categoryFilter, ...userFilter, ...searchFilter };
-
-		const questions = await Question.find(filter, {
-			_id: 0,
-			category: 1,
-			question: 1,
-			answer: 1,
-		})
+		const questions = await Question.find(
+			{
+				"category._id": objectId(category),
+				...(type === "private" ? { "user._id": userId } : {}),
+				...(search ? { question: { $regex: search, $options: "i" } } : {}),
+			},
+			{
+				_id: 1,
+				category: 1,
+				question: 1,
+				answer: 1,
+			}
+		)
 			.skip((page - 1) * limit)
 			.limit(limit);
 
