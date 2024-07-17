@@ -259,11 +259,11 @@ exports.listQuestions = async (userId, params) => {
 			);
 		}
 
-		console.log(category, type, search);
+		console.log(userId, category, type, search);
 
 		const questions = await Question.find(
 			{
-				"category._id": objectId(category),
+				"category._id": category, // stored as string
 				...(type === "public"
 					? { user: { $exists: false } }
 					: { "user._id": userId }),
