@@ -264,7 +264,9 @@ exports.listQuestions = async (userId, params) => {
 		const questions = await Question.find(
 			{
 				"category._id": objectId(category),
-				...(type === "private" ? { "user._id": userId } : {}),
+				...(type === "public"
+					? { user: { $exists: false } }
+					: { "user._id": userId }),
 				...(search ? { question: { $regex: search, $options: "i" } } : {}),
 			},
 			{
