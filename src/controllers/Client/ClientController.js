@@ -266,7 +266,7 @@ exports.listQuestions = async (userId, params) => {
 				"category._id": category, // stored as string
 				...(type === "public"
 					? { user: { $exists: false } }
-					: { "user._id": userId }),
+					: { "user._id": objectId(userId) }),
 				...(search ? { question: { $regex: search, $options: "i" } } : {}),
 			},
 			{
