@@ -259,6 +259,8 @@ exports.listQuestions = async (userId, params) => {
 			);
 		}
 
+		console.log(category, type, search);
+
 		const questions = await Question.find(
 			{
 				"category._id": objectId(category),
