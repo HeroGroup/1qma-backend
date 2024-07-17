@@ -244,9 +244,12 @@ exports.userDetails = async (id) => {
 	}
 };
 
-exports.listQuestions = async (user, params) => {
+exports.listQuestions = async (userId, params) => {
 	try {
 		const { category, type, search } = params;
+		const page = params.page || 1;
+		const limit = params.limit || 5;
+
 		if (!category) {
 			return fail("invalid category!");
 		}
@@ -260,8 +263,7 @@ exports.listQuestions = async (user, params) => {
 			"category._id": objectId(category),
 		};
 
-		const userFilter =
-			type === "private" ? { "user._id": objectId(user._id) } : {};
+		const userFilter = type === "private" ? { "user._id": userId } : {};
 
 		const searchFilter = search
 			? { question: { $regex: search, $options: "i" } }
@@ -274,7 +276,9 @@ exports.listQuestions = async (user, params) => {
 			category: 1,
 			question: 1,
 			answer: 1,
-		});
+		})
+			.skip((page - 1) * limit)
+			.limit(limit);
 
 		return success("ok", questions);
 	} catch (e) {

@@ -1,8 +1,12 @@
 const express = require("express");
 const {
-	overview,
+	scoreboard,
 	liveGames,
 	friendsRecentGames,
+	survivalScoreboard,
+	liveSurvivalGames,
+	friendsRecentSurvivalGames,
+	games,
 } = require("../../controllers/Client/GamesController");
 const router = express.Router();
 
@@ -12,10 +16,40 @@ const router = express.Router();
  *  get:
  *     tags:
  *     - Games
- *     summary: Games overview
+ *     summary: Live (ongoing) games
+ *     parameters:
+ *       - in: query
+ *         name: type
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: category
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: string
  */
 router.get("/", async (req, res) => {
-	res.json(await overview(req.session.user._id));
+	const { type, category, page, limit } = req.query;
+	res.json(await games(req.session.user._id, type, category, page, limit));
+});
+
+/**
+ * @openapi
+ * '/games/scoreboard':
+ *  get:
+ *     tags:
+ *     - Games
+ *     summary: My scoreboard
+ */
+router.get("/scoreboard", async (req, res) => {
+	res.json(await scoreboard(req.session.user._id));
 });
 
 /**
@@ -34,10 +68,18 @@ router.get("/", async (req, res) => {
  *         name: category
  *         schema:
  *           type: string
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: string
  */
 router.get("/live", async (req, res) => {
-	const { type, category } = req.query;
-	res.json(await liveGames(type, category));
+	const { type, category, page, limit } = req.query;
+	res.json(await liveGames(type, category, page, limit));
 });
 
 /**
@@ -50,6 +92,48 @@ router.get("/live", async (req, res) => {
  */
 router.get("/friendsRecent", async (req, res) => {
 	res.json(friendsRecentGames(req.session.user._id));
+});
+
+/**
+ * @openapi
+ * '/games/scoreboard/survival':
+ *  get:
+ *     tags:
+ *     - Games
+ *     summary: Survival games global scoreboard
+ */
+router.get("/scoreboard/survival", async (req, res) => {
+	res.json(await survivalScoreboard());
+});
+
+/**
+ * @openapi
+ * '/games/live/survival':
+ *  get:
+ *     tags:
+ *     - Games
+ *     summary: Live Survival games
+ *     parameters:
+ *       - in: query
+ *         name: category
+ *         schema:
+ *           type: string
+ */
+router.get("/live/survival", async (req, res) => {
+	const { category } = req.query;
+	res.json(await liveSurvivalGames(category));
+});
+
+/**
+ * @openapi
+ * '/games/friendsRecent/survival':
+ *  get:
+ *     tags:
+ *     - Games
+ *     summary: Friends Recent Survival Games
+ */
+router.get("/friendsRecent/survival", async (req, res) => {
+	res.json(await friendsRecentSurvivalGames());
 });
 
 module.exports = router;

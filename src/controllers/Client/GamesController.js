@@ -2,7 +2,28 @@ const { handleException, objectId } = require("../../helpers/utils");
 const Game = require("../../models/Game");
 const User = require("../../models/User");
 
-exports.overview = async (userId) => {
+exports.games = async (userId, type, category, page = 1, limit = 5) => {
+	try {
+		// type: all, my
+		const games = await Game.find(
+			{
+				status: "ended",
+				...(type === "all" ? {} : { "players._id": userId }),
+				...(category ? { "category.name": category } : {}),
+			},
+			{ _id: 1, code: 1, creator: 1, category: 1, players: 1, gameType: 1 }
+		)
+			.sort({ createdAt: -1 })
+			.skip((page - 1) * limit)
+			.limit(limit);
+
+		return success("ok", games);
+	} catch (e) {
+		return handleException(e);
+	}
+};
+
+exports.scoreboard = async (userId) => {
 	try {
 		// my scoreboard
 		const myGames = await Game.find({
@@ -29,7 +50,7 @@ exports.overview = async (userId) => {
 	}
 };
 
-exports.liveGames = async (type, category) => {
+exports.liveGames = async (type, category, page = 1, limit = 5) => {
 	try {
 		// find games that players are going to be random
 		const games = await Game.find(
@@ -42,7 +63,8 @@ exports.liveGames = async (type, category) => {
 			{ _id: 1, code: 1, creator: 1, category: 1, players: 1, gameType: 1 }
 		)
 			.sort({ createdAt: -1 })
-			.limit(5);
+			.skip((page - 1) * limit)
+			.limit(limit);
 
 		return success("ok", games);
 	} catch (e) {
@@ -80,6 +102,12 @@ exports.friendsRecentGames = async (userId) => {
 		return handleException(e);
 	}
 };
+
+exports.survivalScoreboard = async () => {};
+
+exports.liveSurvivalGames = async (category) => {};
+
+exports.friendsRecentSurvivalGames = async () => {};
 
 /*
 try {

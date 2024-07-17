@@ -257,9 +257,17 @@ router.post("/invite", sameUser, async (req, res) => {
  *         name: search
  *         schema:
  *           type: string
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: string
  */
 router.get("/questions", hasCompletedSignup, async (req, res) => {
-	res.json(await listQuestions(req.session.user, req.query));
+	res.json(await listQuestions(req.session.user._id, req.query));
 });
 
 /**

@@ -708,7 +708,6 @@ exports.rateAnswers = async (params) => {
 		const playersCount = game.players.length;
 		if (ratesCount === playersCount * playersCount) {
 			// everyone has answered, emit next question
-			console.log("next step");
 			io.to(gameId).emit("next step", {});
 		}
 
