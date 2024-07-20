@@ -35,6 +35,7 @@ const { hasCompletedSignup } = require("./src/middlewares/hasCompletedSignup");
 const { isLoggedIn } = require("./src/middlewares/isLoggedIn");
 const { passportInit } = require("./src/services/auth/passport");
 const { exitGame } = require("./src/controllers/Client/GameController.js");
+const { getRandomInt } = require("./src/helpers/utils.js");
 async function main() {
 	const whiteList = [
 		"https://api.staging.1qma.games",
@@ -155,6 +156,7 @@ async function main() {
 	});
 
 	io.on("connection", (socket) => {
+		socket.join(getRandomInt(1, 1000));
 		let userId = "";
 		const sessionId = socket.request?.sessionID;
 		if (sessionId) {
