@@ -71,6 +71,13 @@ exports.joinUserToGameRoom = async (socketId, room) => {
 	}
 };
 
+exports.leaveRoom = async (socketId, room) => {
+	const socket = await this.getSocketClient(socketId);
+	if (socket) {
+		socket.leave(room);
+	}
+};
+
 exports.objectId = (input) => {
 	return mongoose.Types.ObjectId.createFromHexString(input);
 };

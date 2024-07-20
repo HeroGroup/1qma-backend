@@ -14,6 +14,7 @@ const {
 	rateQuestions,
 	getAnswers,
 	showResult,
+	exitGame,
 } = require("../../controllers/Client/GameController");
 const { sameUser } = require("../../middlewares/sameUser");
 const { isPlayerInGame } = require("../../middlewares/isPlayerInGame");
@@ -353,6 +354,34 @@ router.post("/rateQuestions", sameUser, isPlayerInGame, async (req, res) => {
  */
 router.get("/:gameId/result", isPlayerInGame, async (req, res) => {
 	res.json(await showResult(req.params.gameId));
+});
+
+/**
+ * @openapi
+ * '/game/leave':
+ *  post:
+ *     tags:
+ *     - Game
+ *     summary: leave the game
+ *     requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *           schema:
+ *            type: object
+ *            required:
+ *              - id
+ *              - gameId
+ *            properties:
+ *              id:
+ *                type: string
+ *                default: 65445678098765456
+ *              gameId:
+ *                type: string
+ *                default: 65445678098765456
+ */
+router.post("/leave", isPlayerInGame, async (req, res) => {
+	res.json(await exitGame(req.body, req.session.socketId));
 });
 
 module.exports = router;

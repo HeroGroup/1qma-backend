@@ -42,6 +42,7 @@ async function main() {
 		"https://admin.staging.1qma.games",
 		"http://localhost:4200", // local client
 		"http://localhost:4400", // local admin
+		"https://admin.socket.io", // socket io admin UI
 	];
 
 	const corsOptions = {

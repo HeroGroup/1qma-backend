@@ -4,6 +4,7 @@ const {
 	joinUserToGameRoom,
 	getSocketClient,
 	objectId,
+	leaveRoom,
 } = require("../../helpers/utils");
 const { validateEmail } = require("../../helpers/validator");
 const { createModes, gameTypes } = require("../../helpers/constants");
@@ -151,6 +152,7 @@ exports.createGame = async (params, socketId) => {
 					email,
 					profilePicture,
 					socketId,
+					status: "connected",
 				},
 			],
 			questions: [
@@ -266,7 +268,9 @@ exports.joinGame = async (params, socketId) => {
 		// check player is not already in game
 		if (
 			game.players.find(
-				(element) => element._id.toString() === player._id.toString()
+				(element) =>
+					element._id.toString() === player._id.toString() &&
+					element.status !== "left"
 			)
 		) {
 			return fail("You are already in this game!");
@@ -345,6 +349,7 @@ exports.joinGame = async (params, socketId) => {
 						email,
 						profilePicture,
 						socketId,
+						status: "connected",
 					},
 					questions: {
 						user_id: player_id,
@@ -864,6 +869,71 @@ exports.showResult = async (gameId) => {
 		} else {
 			return fail("Result is not ready yet!");
 		}
+	} catch (e) {
+		return handleException(e);
+	}
+};
+
+exports.exitGame = async (params, socketId) => {
+	try {
+		const { id, gameId } = params;
+		if (!id) {
+			return fail("invalid user id!");
+		}
+
+		if (!gameId) {
+			return fail("invalid game id!");
+		}
+		let game = await Game.findById(id);
+		if (!game) {
+			return fail("invalid game!");
+		}
+
+		const player = await User.findById(id);
+		if (!player) {
+			return fail("invalid player!");
+		}
+
+		// check if more than 30% of players have left, end (cancel) the game
+		const totalPlayers = game.players.length;
+		const leftPlayers =
+			game.players.find((plyr) => plyr.status === "left").length + 1; // plus this user who is leaving
+
+		if (leftPlayers / totalPlayers > 0.3) {
+			// cancel game
+			game = await Game.findOneAndUpdate(
+				{ _id: objectId(gameId) },
+				{ "players.$[player].status": "left", status: "canceled" },
+				{ arrayFilters: [{ "player._id": player_id }], new: true }
+			);
+
+			io.to(gameId).emit("game canceled", {});
+		} else {
+			// remove player from game
+			const {
+				_id: player_id,
+				firstName,
+				lastName,
+				email,
+				profilePicture,
+			} = player;
+
+			leaveRoom(socketId, gameId);
+			io.to(gameId).emit("player left", {
+				_id: player_id,
+				firstName,
+				lastName,
+				email,
+				profilePicture,
+			});
+
+			game = await Game.findOneAndUpdate(
+				{ _id: objectId(gameId) },
+				{ "players.$[player].status": "left" },
+				{ arrayFilters: [{ "player._id": player_id }], new: true }
+			);
+		}
+		return success("ok");
 	} catch (e) {
 		return handleException(e);
 	}
