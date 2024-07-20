@@ -894,6 +894,14 @@ exports.exitGame = async (params, socketId) => {
 			return fail("invalid player!");
 		}
 
+		const {
+			_id: player_id,
+			firstName,
+			lastName,
+			email,
+			profilePicture,
+		} = player;
+
 		// check if more than 30% of players have left, end (cancel) the game
 		const totalPlayers = game.players.length;
 		const leftPlayers = game.players.filter((plyr) => plyr.status === "left"); // plus this user who is leaving
@@ -909,14 +917,6 @@ exports.exitGame = async (params, socketId) => {
 			io.to(gameId).emit("cancel game", {});
 		} else {
 			// remove player from game
-			const {
-				_id: player_id,
-				firstName,
-				lastName,
-				email,
-				profilePicture,
-			} = player;
-
 			leaveRoom(socketId, gameId);
 			io.to(gameId).emit("player left", {
 				_id: player_id,
