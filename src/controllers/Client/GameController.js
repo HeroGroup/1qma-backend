@@ -422,7 +422,7 @@ exports.findFriendGames = async (email, page, limit) => {
 			{
 				"player._id": friend._id,
 				status: "created",
-				createMode: { $in: ["0", "1"] }, // players are random
+				"createMode.id": { $in: ["0", "1"] }, // players are random
 			},
 			{ _id: 1, code: 1, category: 1, creator: 1, players: 1, gameType: 1 }
 		);
