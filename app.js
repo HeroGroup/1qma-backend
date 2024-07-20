@@ -168,11 +168,9 @@ async function main() {
 		}
 
 		socket.on("disconnecting", async () => {
-			// const rooms = Object.keys(socket.rooms); // array contains at least the socket ID
 			for (const room of socket.rooms) {
-				console.log("disconnecting", room);
 				if (room !== socket.id) {
-					await exitGame({ id: userId, gameId: room }, socket.id);
+					console.log(await exitGame({ id: userId, gameId: room }, socket.id));
 				}
 			}
 		});
