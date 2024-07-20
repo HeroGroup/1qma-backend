@@ -884,7 +884,7 @@ exports.exitGame = async (params, socketId) => {
 		if (!gameId) {
 			return fail("invalid game id!");
 		}
-		let game = await Game.findById(id);
+		let game = await Game.findById(gameId);
 		if (!game) {
 			return fail("invalid game!");
 		}

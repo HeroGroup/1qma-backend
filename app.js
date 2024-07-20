@@ -34,6 +34,7 @@ const { isAdmin } = require("./src/middlewares/isAdmin");
 const { hasCompletedSignup } = require("./src/middlewares/hasCompletedSignup");
 const { isLoggedIn } = require("./src/middlewares/isLoggedIn");
 const { passportInit } = require("./src/services/auth/passport");
+const { exitGame } = require("./src/controllers/Client/GameController.js");
 async function main() {
 	const whiteList = [
 		"https://api.staging.1qma.games",
@@ -154,15 +155,25 @@ async function main() {
 	});
 
 	io.on("connection", (socket) => {
+		let userId = "";
 		const sessionId = socket.request?.sessionID;
 		if (sessionId) {
 			sess.store.get(sessionId, (error, sessionData) => {
 				if (sessionData) {
+					userId = sessionData.user._id;
 					sessionData.socketId = socket.id;
 					sess.store.set(sessionId, sessionData);
 				}
 			});
 		}
+
+		socket.on("disconnecting", () => {
+			const rooms = Object.keys(socket.rooms); // array contains at least the socket ID
+			console.log(`${userId} rooms`, rooms);
+			rooms.forEach((room) => {
+				exitGame({ id: userId, gameId: room }, socket.id);
+			});
+		});
 	});
 
 	globalThis.io = io;
