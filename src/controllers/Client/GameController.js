@@ -420,10 +420,9 @@ exports.findFriendGames = async (email, page, limit) => {
 
 		const liveGames = await Game.find(
 			{
-				"player._id": friend._id,
+				"players._id": friend._id,
 				status: "created",
-				$or: [{ "createMode.id": "0" }, { "createMode.id": "1" }], // players are random
-				// "createMode.id": { $in: ["0", "1"] }, // players are random
+				"createMode.id": { $in: ["0", "1"] }, // players are random
 			},
 			{ _id: 1, code: 1, category: 1, creator: 1, players: 1, gameType: 1 }
 		);
