@@ -536,7 +536,6 @@ exports.submitAnswer = async (params) => {
 			new: true,
 		});
 
-		console.log(game.questions[questionIndex].answers, game.players.length);
 		if (game.questions[questionIndex].answers.length === game.players.length) {
 			// emit next question
 			console.log("next step");
