@@ -328,6 +328,7 @@ exports.joinGame = async (params, socketId) => {
 			email,
 			profilePicture,
 		});
+		console.log("player added");
 
 		const numberOfPlayersSetting = await Setting.findOne({
 			key: "NUMBER_OF_PLAYERS_PER_GAME",
