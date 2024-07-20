@@ -905,14 +905,10 @@ exports.exitGame = async (params, socketId) => {
 		const totalPlayers = game.players.length;
 		const leftPlayers = game.players.filter((plyr) => plyr.status === "left"); // plus this user who is leaving
 
+		let canceled = false;
 		if ((leftPlayers?.length || 0) + 1 / totalPlayers > 0.3) {
 			// cancel game
-			game = await Game.findOneAndUpdate(
-				{ _id: objectId(gameId) },
-				{ "players.$[player].status": "left", status: "canceled" },
-				{ arrayFilters: [{ "player._id": player_id }], new: true }
-			);
-
+			canceled = true;
 			io.to(gameId).emit("cancel game", {});
 		} else {
 			// remove player from game
@@ -924,13 +920,17 @@ exports.exitGame = async (params, socketId) => {
 				email,
 				profilePicture,
 			});
-
-			game = await Game.findOneAndUpdate(
-				{ _id: objectId(gameId) },
-				{ "players.$[player].status": "left" },
-				{ arrayFilters: [{ "player._id": player_id }], new: true }
-			);
 		}
+
+		game = await Game.findOneAndUpdate(
+			{ _id: objectId(gameId) },
+			{
+				"players.$[player].status": "left",
+				...(canceled ? { status: "canceled", canceledAt: moment() } : {}),
+			},
+			{ arrayFilters: [{ "player._id": player_id }], new: true }
+		);
+
 		return success("ok");
 	} catch (e) {
 		return handleException(e);

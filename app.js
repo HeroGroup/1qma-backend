@@ -170,7 +170,7 @@ async function main() {
 		socket.on("disconnecting", async () => {
 			for (const room of socket.rooms) {
 				if (room !== socket.id) {
-					console.log(await exitGame({ id: userId, gameId: room }, socket.id));
+					await exitGame({ id: userId, gameId: room }, socket.id);
 				}
 			}
 		});

@@ -26,6 +26,7 @@ const gameSchema = new Schema({
 	createdAt: Date,
 	startedAt: Date,
 	endedAt: Date,
+	canceledAt: Date,
 	result: Object,
 });
 
