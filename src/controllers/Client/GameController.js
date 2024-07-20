@@ -943,11 +943,30 @@ const calculateResult = async (gameId) => {
 
 	// update statistics
 	for (const item of scoreboard) {
+		const plyr = User.findById(item._id);
+		const playerHighScore = plyr.games?.highScore || 0;
+
 		await User.findOneAndUpdate(
 			{ _id: item._id },
-			{ $inc: { "statistics.totalScore": item.totalScore } }
+			{
+				$inc: { "statistics.totalScore": item.totalScore, "games.played": 1 },
+				"games.highScore":
+					item.totalScore > playerHighScore ? item.totalScore : playerHighScore,
+			}
 		);
 	}
+
+	// update winner statistics
+	await User.findOneAndUpdate(
+		{ _id: scoreboard[0]._id },
+		{ $inc: { "games.won": 1 } }
+	);
+
+	// update creator statistics
+	await User.findOneAndUpdate(
+		{ _id: game.creator._id },
+		{ $inc: { "games.created": 1 } }
+	);
 
 	const result = { scoreboard, details };
 	await Game.findOneAndUpdate(
