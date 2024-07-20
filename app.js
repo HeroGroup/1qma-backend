@@ -169,7 +169,7 @@ async function main() {
 
 		socket.on("disconnecting", () => {
 			const rooms = Object.keys(socket.rooms); // array contains at least the socket ID
-			console.log(`${userId} rooms`, rooms);
+			console.log(`${userId}, ${socket.id} rooms`, rooms);
 			rooms.forEach((room) => {
 				exitGame({ id: userId, gameId: room }, socket.id);
 			});
