@@ -910,6 +910,7 @@ exports.exitGame = async (params, socketId) => {
 		if ((leftPlayers?.length || 0) + 1 / totalPlayers > 0.3) {
 			// cancel game
 			canceled = true;
+			console.log("cancel game");
 			io.to(gameId).emit("cancel game", {});
 		} else {
 			// remove player from game
@@ -921,6 +922,7 @@ exports.exitGame = async (params, socketId) => {
 				email,
 				profilePicture,
 			});
+			console.log("player left");
 		}
 
 		game = await Game.findOneAndUpdate(
