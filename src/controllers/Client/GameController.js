@@ -896,10 +896,9 @@ exports.exitGame = async (params, socketId) => {
 
 		// check if more than 30% of players have left, end (cancel) the game
 		const totalPlayers = game.players.length;
-		const leftPlayers =
-			game.players.find((plyr) => plyr.status === "left").length + 1; // plus this user who is leaving
+		const leftPlayers = game.players.filter((plyr) => plyr.status === "left"); // plus this user who is leaving
 
-		if (leftPlayers / totalPlayers > 0.3) {
+		if ((leftPlayers?.length || 0) + 1 / totalPlayers > 0.3) {
 			// cancel game
 			game = await Game.findOneAndUpdate(
 				{ _id: objectId(gameId) },
@@ -907,7 +906,7 @@ exports.exitGame = async (params, socketId) => {
 				{ arrayFilters: [{ "player._id": player_id }], new: true }
 			);
 
-			io.to(gameId).emit("game canceled", {});
+			io.to(gameId).emit("cancel game", {});
 		} else {
 			// remove player from game
 			const {

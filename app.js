@@ -167,11 +167,11 @@ async function main() {
 			});
 		}
 
-		socket.on("disconnecting", () => {
+		socket.on("disconnecting", async () => {
 			const rooms = Object.keys(socket.rooms); // array contains at least the socket ID
-			rooms.forEach((room) => {
-				exitGame({ id: userId, gameId: room }, socket.id);
-			});
+			for (const room of rooms) {
+				await exitGame({ id: userId, gameId: room }, socket.id);
+			}
 		});
 	});
 
