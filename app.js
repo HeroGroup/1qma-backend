@@ -167,9 +167,13 @@ async function main() {
 			});
 		}
 
+		console.log(`${userId}, ${socket.id} connected!`);
+		const rooms = Object.keys(socket.rooms); // array contains at least the socket ID
+		console.log(`${userId}, ${socket.id} rooms`, rooms);
+
 		socket.on("disconnecting", () => {
+			console.log(`${userId}, ${socket.id} is disconnecting!`);
 			const rooms = Object.keys(socket.rooms); // array contains at least the socket ID
-			console.log(`${userId}, ${socket.id} rooms`, rooms);
 			rooms.forEach((room) => {
 				exitGame({ id: userId, gameId: room }, socket.id);
 			});
