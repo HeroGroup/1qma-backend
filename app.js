@@ -106,7 +106,9 @@ async function main() {
 		store: redisStore,
 		resave: false,
 		saveUninitialized: true,
-		cookie: {},
+		cookie: {
+			magAge: 30 * 24 * 60 * 60 * 1000,
+		},
 	};
 
 	if (app.get("env") === "production") {
