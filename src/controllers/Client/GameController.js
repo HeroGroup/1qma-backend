@@ -420,21 +420,23 @@ exports.findFriendGames = async (email, page, limit) => {
 
 		const liveGames = await Game.find(
 			{
-				"creator._id": friend._id,
+				"player._id": friend._id,
 				status: "created",
+				createMode: { $in: ["0", "1"] }, // players are random
 			},
 			{ _id: 1, code: 1, category: 1, creator: 1, players: 1, gameType: 1 }
 		);
+
 		const endedGames = await Game.find({
-			"creator._id": friend._id,
+			"players._id": friend._id,
 			status: "ended",
 		})
 			.skip(((page || 1) - 1) * (limit || 5))
 			.limit(limit || 5);
 
 		const endedGamesMapped = endedGames.map((item) => {
-			const creatorRankIndex = item.result.scoreboard.findIndex((elm) => {
-				return elm._id.toString() === item.creator._id.toString();
+			const friendRankIndex = item.result.scoreboard.findIndex((elm) => {
+				return elm._id.toString() === friend._id.toString();
 			});
 			return {
 				_id: item._id,
@@ -443,8 +445,8 @@ exports.findFriendGames = async (email, page, limit) => {
 				players: item.players,
 				gameType: item.gameType,
 				endedAt: item.endedAt,
-				rank: creatorRankIndex + 1,
-				score: item.result.scoreboard[creatorRankIndex].totalScore,
+				rank: friendRankIndex + 1,
+				score: item.result.scoreboard[friendRankIndex]?.totalScore || 0,
 			};
 		});
 

@@ -17,6 +17,7 @@ const {
 	educations,
 	homePages,
 } = require("../../helpers/constants");
+const Game = require("../../models/Game");
 
 exports.init = async () => {
 	try {
@@ -238,7 +239,32 @@ exports.userDetails = async (id) => {
 			return fail("invalid user!");
 		}
 
-		return success("User retrieved successfully!", user);
+		const latestGames = await Game.find({
+			"players._id": user._id,
+			status: "ended",
+		})
+			.sort({ endedAt: -1 })
+			.limit(5);
+
+		const latestGamesMapped = latestGames.map((item) => {
+			const userRankIndex = item.result.scoreboard.findIndex((elm) => {
+				return elm._id.toString() === user._id.toString();
+			});
+			return {
+				_id: item._id,
+				category: item.category,
+				creator: item.item,
+				players: item.players,
+				gameType: item.gameType,
+				endedAt: item.endedAt,
+				rank: userRankIndex + 1,
+				score: item.result.scoreboard[userRankIndex]?.totalScore || 0,
+			};
+		});
+		return success("User retrieved successfully!", {
+			user,
+			latestGames: latestGamesMapped,
+		});
 	} catch (e) {
 		return handleException(e);
 	}
