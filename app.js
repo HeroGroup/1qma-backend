@@ -155,6 +155,7 @@ async function main() {
 	});
 
 	io.on("connection", (socket) => {
+		console.log("connection", socket.rooms);
 		let userId = "";
 		const sessionId = socket.request?.sessionID;
 		if (sessionId) {
@@ -168,9 +169,12 @@ async function main() {
 		}
 
 		socket.on("disconnecting", async () => {
-			const rooms = Object.keys(socket.rooms); // array contains at least the socket ID
-			for (const room of rooms) {
-				await exitGame({ id: userId, gameId: room }, socket.id);
+			console.log("disconnecting", socket.rooms);
+			// const rooms = Object.keys(socket.rooms); // array contains at least the socket ID
+			for (const room of socket.rooms) {
+				if (room !== socket.id) {
+					await exitGame({ id: userId, gameId: room }, socket.id);
+				}
 			}
 		});
 	});

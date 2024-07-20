@@ -875,7 +875,6 @@ exports.showResult = async (gameId) => {
 
 exports.exitGame = async (params, socketId) => {
 	try {
-		console.log(params, socketId);
 		const { id, gameId } = params;
 		if (!id) {
 			return fail("invalid user id!");
