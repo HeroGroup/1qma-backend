@@ -163,7 +163,8 @@ router.get("/searchUsers", async (req, res) => {
  *         required: true
  */
 router.get("/find/:email/games", async (req, res) => {
-	res.json(await findFriendGames(req.params.email));
+	const { page, limit } = req.query;
+	res.json(await findFriendGames(req.params.email, page, limit));
 });
 
 /**

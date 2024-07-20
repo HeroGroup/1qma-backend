@@ -12,6 +12,17 @@ const Game = require("../../models/Game");
 const Setting = require("../../models/Setting");
 const User = require("../../models/User");
 
+const gameCustomProjection = (game) => {
+	return {
+		gameId: game._id,
+		gameCreator: game.creator,
+		gameCode: game.code,
+		gameCategory: game.category,
+		gameType: game.gameType,
+		gameLink: `${env.frontAppUrl}/game/join?code=${game.code}`,
+	};
+};
+
 exports.init = async () => {
 	try {
 		const numberOfPlayers = await Setting.findOne({
@@ -97,6 +108,8 @@ exports.createGame = async (params, socketId) => {
 
 		if (players) {
 			// send invites to players
+		} else {
+			// find players who match game criteria and send proper notification
 		}
 
 		const creator = await User.findById(id);
@@ -365,17 +378,6 @@ exports.joinGame = async (params, socketId) => {
 	}
 };
 
-const gameCustomProjection = (game) => {
-	return {
-		gameId: game._id,
-		gameCreator: game.creator,
-		gameCode: game.code,
-		gameCategory: game.category,
-		gameType: game.gameType,
-		gameLink: `https://staging.1qma.games/game/join?code=${game.code}`,
-	};
-};
-
 exports.searchUsers = async (text) => {
 	try {
 		if (!text || text.length < 3) {
@@ -397,7 +399,7 @@ exports.searchUsers = async (text) => {
 	}
 };
 
-exports.findFriendGames = async (email) => {
+exports.findFriendGames = async (email, page, limit) => {
 	try {
 		if (!validateEmail(email)) {
 			return fail("invalid email address!");
@@ -423,15 +425,30 @@ exports.findFriendGames = async (email) => {
 			},
 			{ _id: 1, code: 1, category: 1, creator: 1, players: 1, gameType: 1 }
 		);
-		const endedGames = await Game.find(
-			{
-				"creator._id": friend._id,
-				status: "ended",
-			},
-			{ _id: 1, category: 1, creator: 1, players: 1, gameType: 1, createdAt: 1 }
-		);
+		const endedGames = await Game.find({
+			"creator._id": friend._id,
+			status: "ended",
+		})
+			.skip(((page || 1) - 1) * (limit || 5))
+			.limit(limit || 5);
 
-		return success("ok", { friend, liveGames, endedGames });
+		const endedGamesMapped = endedGames.map((item) => {
+			const creatorRankIndex = item.result.scoreboard.findIndex((elm) => {
+				return elm._id.toString() === item.creator._id.toString();
+			});
+			return {
+				_id: item._id,
+				category: item.category,
+				creator: item.item,
+				players: item.players,
+				gameType: item.gameType,
+				endedAt: item.endedAt,
+				rank: creatorRankIndex + 1,
+				score: item.result.scoreboard[creatorRankIndex].totalScore,
+			};
+		});
+
+		return success("ok", { friend, liveGames, endedGames: endedGamesMapped });
 	} catch (e) {
 		return handleException(e);
 	}
