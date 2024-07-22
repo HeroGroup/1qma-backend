@@ -15,6 +15,7 @@ const {
 	getAnswers,
 	showResult,
 	exitGame,
+	invitePlayer,
 } = require("../../controllers/Client/GameController");
 const { sameUser } = require("../../middlewares/sameUser");
 const { isPlayerInGame } = require("../../middlewares/isPlayerInGame");
@@ -166,6 +167,38 @@ router.get("/searchUsers", async (req, res) => {
 router.get("/find/:email/games", async (req, res) => {
 	const { page, limit } = req.query;
 	res.json(await findFriendGames(req.params.email, page, limit));
+});
+
+/**
+ * @openapi
+ * '/game/invitePlayer':
+ *  post:
+ *     tags:
+ *     - Game
+ *     summary: invite players to game
+ *     requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *           schema:
+ *            type: object
+ *            required:
+ *              - id
+ *              - gameId
+ *              - email
+ *            properties:
+ *              id:
+ *                type: string
+ *                default: 65445678098765456
+ *              gameId:
+ *                type: string
+ *                default: 65445678098765456
+ *              email:
+ *                type: string
+ *                default: email@server.com
+ */
+router.post("/invitePlayer", async (req, res) => {
+	res.json(await invitePlayer(req.body));
 });
 
 /**

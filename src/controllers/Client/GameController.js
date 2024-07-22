@@ -462,6 +462,48 @@ exports.findFriendGames = async (email, page, limit) => {
 	}
 };
 
+exports.invitePlayer = async (params) => {
+	try {
+		const { id, gameId, email } = params;
+
+		if (!id) {
+			return fail("invalid user id!");
+		}
+
+		if (!gameId) {
+			return fail("invalid game id!");
+		}
+
+		if (!validateEmail(email)) {
+			return fail("invalid email address!");
+		}
+
+		const player = await User.findById(id);
+		if (!player) {
+			return fail("invalid player");
+		}
+
+		let game = await Game.findById(gameId);
+		if (!game) {
+			return fail("invalid game");
+		}
+
+		if (game.creator._id.toString() !== player._id.toString()) {
+			return fail(
+				"You are not allowed to invite players to game. Only game creator is permitted to perform this action."
+			);
+		}
+
+		if (game.status !== "created") {
+			return fail("You are not allowed to invite in this step!");
+		}
+
+		return success(`Invitation was sent to ${email} successfully!`);
+	} catch (e) {
+		return handleException(e);
+	}
+};
+
 exports.submitAnswer = async (params) => {
 	try {
 		const { id, gameId, questionId, answer } = params;
@@ -492,7 +534,7 @@ exports.submitAnswer = async (params) => {
 			return fail("invalid game");
 		}
 
-		if (!game.status === "started") {
+		if (game.status !== "started") {
 			return fail("game is not started yet!");
 		}
 
@@ -537,10 +579,18 @@ exports.submitAnswer = async (params) => {
 			new: true,
 		});
 
-		if (game.questions[questionIndex].answers.length === game.players.length) {
+		const numberOfSubmitted = game.questions[questionIndex].answers.length;
+		const numberOfPlayers = game.players.length;
+
+		if (numberOfSubmitted === numberOfPlayers) {
 			// emit next question
 			console.log("next step");
 			io.to(gameId).emit("next step", {});
+		} else {
+			io.to(gameId).emit("submit answer", {
+				numberOfSubmitted,
+				numberOfPlayers,
+			});
 		}
 
 		return success("Thank you for the answer.");
@@ -571,7 +621,7 @@ exports.getQuestion = async (userId, gameId, step) => {
 			return fail("invalid game");
 		}
 
-		if (!game.status === "started") {
+		if (game.status !== "started") {
 			return fail("game is not started yet!");
 		}
 
@@ -733,6 +783,11 @@ exports.rateAnswers = async (params) => {
 		if (ratesCount === playersCount * playersCount) {
 			// everyone has answered, emit next question
 			io.to(gameId).emit("next step", {});
+		} else {
+			io.to(gameId).emit("submit answer", {
+				numberOfSubmitted: ratesCount,
+				numberOfPlayers: playersCount,
+			});
 		}
 
 		return success("Thank you for the rates", ratesCount);
@@ -842,6 +897,11 @@ exports.rateQuestions = async (params) => {
 			// everyone has answered, calculate and emit result!
 			calculateResult(gameId);
 			io.to(gameId).emit("end game", {});
+		} else {
+			io.to(gameId).emit("submit answer", {
+				numberOfSubmitted: ratesCount,
+				numberOfPlayers: playersCount,
+			});
 		}
 
 		return success("Thank you for the rates", ratesCount);
