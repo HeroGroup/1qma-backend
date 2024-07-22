@@ -174,6 +174,10 @@ async function main() {
 				}
 			}
 		});
+
+		socket.on("disconnect", (reason) => {
+			console.log("disconnect reason", reason);
+		});
 	});
 
 	globalThis.io = io;
