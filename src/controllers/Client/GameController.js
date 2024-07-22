@@ -5,6 +5,7 @@ const {
 	getSocketClient,
 	objectId,
 	leaveRoom,
+	generateQR,
 } = require("../../helpers/utils");
 const { validateEmail } = require("../../helpers/validator");
 const { createModes, gameTypes } = require("../../helpers/constants");
@@ -13,14 +14,17 @@ const Game = require("../../models/Game");
 const Setting = require("../../models/Setting");
 const User = require("../../models/User");
 
-const gameCustomProjection = (game) => {
+const gameCustomProjection = async (game) => {
+	const gameLink = `${env.frontAppUrl}/game/join?code=${game.code}`;
+
 	return {
 		gameId: game._id,
 		gameCreator: game.creator,
 		gameCode: game.code,
 		gameCategory: game.category,
 		gameType: game.gameType,
-		gameLink: `${env.frontAppUrl}/game/join?code=${game.code}`,
+		gameLink,
+		gameQRCode: await generateQR(gameLink),
 	};
 };
 
@@ -188,7 +192,7 @@ exports.createGame = async (params, socketId) => {
 		const rooms = socket.rooms || {};
 
 		return success("Game was created successfully!", {
-			game: gameCustomProjection(game),
+			game: await gameCustomProjection(game),
 			newBalance: playerUser.assets,
 		});
 	} catch (e) {
@@ -376,7 +380,7 @@ exports.joinGame = async (params, socketId) => {
 		}
 
 		return success("You have successfully joined the game!", {
-			game: gameCustomProjection(game),
+			game: await gameCustomProjection(game),
 			newBalance: playerUser.assets,
 		});
 	} catch (e) {

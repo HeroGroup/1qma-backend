@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const { unlink } = require("node:fs");
+const QRCode = require("qrcode");
 const SALT_ROUNDS = parseInt(env.saltRounds);
 
 exports.handleException = (e) => {
@@ -80,4 +81,12 @@ exports.leaveRoom = async (socketId, room) => {
 
 exports.objectId = (input) => {
 	return mongoose.Types.ObjectId.createFromHexString(input);
+};
+
+exports.generateQR = async (text) => {
+	try {
+		return await QRCode.toDataURL(text);
+	} catch (err) {
+		console.error(err);
+	}
 };
