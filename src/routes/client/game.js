@@ -386,7 +386,7 @@ router.post("/rateQuestions", sameUser, isPlayerInGame, async (req, res) => {
  *         required: true
  */
 router.get("/:gameId/result", isPlayerInGame, async (req, res) => {
-	res.json(await showResult(req.params.gameId));
+	res.json(await showResult(req.params.gameId, req.session.user._id));
 });
 
 /**

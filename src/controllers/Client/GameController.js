@@ -914,7 +914,7 @@ exports.rateQuestions = async (params) => {
 	}
 };
 
-exports.showResult = async (gameId) => {
+exports.showResult = async (gameId, userId) => {
 	try {
 		if (!gameId) {
 			return fail("invalid game id!");
@@ -928,8 +928,42 @@ exports.showResult = async (gameId) => {
 		}
 
 		if (game.result) {
-			const { creator, category, gameType, endedAt, result } = game;
-			return success("ok", { creator, category, gameType, endedAt, result });
+			const { creator, category, gameType, startedAt, endedAt, result } = game;
+
+			let statistics = {};
+			if (userId) {
+				// check if user is in game
+				const playerIndex = game.players.findIndex((element) => {
+					return element._id.toString() === userId.toString();
+				});
+				if (playerIndex > -1) {
+					// send latest user statistics as well
+					const user = await User.findById(userId);
+					const gameScoreboard = game.result.scoreboard;
+
+					const playerIndexInScoreboard = gameScoreboard.findIndex((elm) => {
+						return elm._id.toString() === userId.toString();
+					});
+					const playerScoreboard = gameScoreboard[playerIndexInScoreboard];
+
+					statistics = {
+						...user.statistics,
+						score: playerScoreboard?.totalScore,
+						xp: playerScoreboard?.totalXp,
+						reward: playerScoreboard?.reward,
+					};
+				}
+			}
+
+			return success("ok", {
+				creator,
+				category,
+				gameType,
+				startedAt,
+				endedAt,
+				result,
+				statistics,
+			});
 		} else {
 			return fail("Result is not ready yet!");
 		}
@@ -1048,6 +1082,8 @@ const calculateResult = async (gameId) => {
 				answersRates,
 				questionRate,
 				totalScore: answersRates.reduce((acc, cur) => acc + cur) + questionRate,
+				totalXp: 0,
+				reward: { bronze: 0 },
 			};
 		})
 		.sort((a, b) => a.totalScore - b.totalScore)
@@ -1083,6 +1119,7 @@ const calculateResult = async (gameId) => {
 		const plyr = User.findById(item._id);
 		const playerHighScore = plyr.games?.highScore || 0;
 
+		// TODO: check if user has reached next level
 		await User.findOneAndUpdate(
 			{ _id: item._id },
 			{
