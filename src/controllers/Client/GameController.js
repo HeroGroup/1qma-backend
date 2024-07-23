@@ -2,7 +2,6 @@ const {
 	handleException,
 	createGameCode,
 	joinUserToGameRoom,
-	getSocketClient,
 	objectId,
 	leaveRoom,
 	generateQR,
