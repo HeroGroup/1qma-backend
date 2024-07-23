@@ -26,9 +26,7 @@ const gameCustomProjection = async (game) => {
 		gameType: game.gameType,
 		gameLink,
 		gameQRCode: await generateQR(gameLink),
-		gamePlayers: game.players.filter((plyr) => {
-			plyr.status === "connected";
-		}),
+		gamePlayers: game.players.filter((plyr) => plyr.status === "connected"),
 	};
 };
 
@@ -201,9 +199,6 @@ exports.createGame = async (params, socketId) => {
 		);
 
 		joinUserToGameRoom(socketId, game._id.toString());
-
-		const socket = getSocketClient(socketId);
-		const rooms = socket.rooms || {};
 
 		return success("Game was created successfully!", {
 			game: await gameCustomProjection(game),
@@ -1156,38 +1151,49 @@ const calculateResult = async (gameId) => {
 		return success("ok", game.result);
 	}
 
+	const numberOfPlayers = game.players.filter(
+		(p) => p.status !== "left"
+	).length;
+
 	const scoreboard = game.players
 		.filter((plyr) => plyr.status !== "left")
 		.map((player) => {
 			const questions = game.questions;
-			const ownQuestionIndex = questions.findIndex((element) => {
-				return element.user_id.toString() === player._id.toString();
-			});
+			// const ownQuestionIndex = questions.findIndex((element) => {
+			// 	return element.user_id.toString() === player._id.toString();
+			// });
 
 			const answersRates = [];
+			const answersRatesRaw = [];
 			for (let i = 0; i < questions.length; i++) {
 				const question = questions[i];
+				const _questionRate =
+					question.rates.find(
+						(r) => user_id.toString() === player._id.toString()
+					)?.rate || 1 / 100 + 1; // 1 => 1.01, 5 => 1.05
+
 				const answer = question.answers.find(
 					(elm) => elm.user_id.toString() === player._id.toString()
 				);
-				const sumRates = answer.rates.reduce((n, { rate }) => n + rate, 0);
-				answersRates.push(sumRates);
+				const sumRates =
+					answer?.rates.reduce((n, { rate }) => n + rate, 0) || numberOfPlayers;
+				answersRatesRaw.push(sumRates);
+				answersRates.push(sumRates * _questionRate);
 			}
 
-			const questionRate = questions[ownQuestionIndex].rates.reduce(
-				(n, { rate }) => n + rate,
-				0
-			);
+			// const questionRate = questions[ownQuestionIndex].rates.reduce(
+			// 	(n, { rate }) => n + rate,
+			// 	0
+			// );
 
-			const totalScore =
-				answersRates.reduce((acc, cur) => acc + cur) + questionRate;
+			const totalScore = answersRates.reduce((acc, cur) => acc + cur); // + questionRate;
 
 			return {
 				_id: player._id,
 				firstName: player.firstName,
 				lastName: player.lastName,
 				profilePicture: player.profilePicture,
-				answersRates,
+				answersRates: answersRatesRaw,
 				questionRate,
 				totalScore,
 				totalXp: totalScore * 15,
