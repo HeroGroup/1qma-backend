@@ -25,6 +25,9 @@ const gameCustomProjection = async (game) => {
 		gameType: game.gameType,
 		gameLink,
 		gameQRCode: await generateQR(gameLink),
+		gamePlayers: game.players.filter((plyr) => {
+			plyr === "connected";
+		}),
 	};
 };
 
