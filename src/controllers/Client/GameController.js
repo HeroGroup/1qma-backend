@@ -1039,21 +1039,50 @@ exports.exitGame = async (params, socketId) => {
 
 		// TODO: shift rates properly
 
-		game = await Game.findOneAndUpdate(
+		// update player and game status and remove player question
+		await Game.findOneAndUpdate(
 			{ _id: objectId(gameId) },
 			{
 				"players.$[player].status": "left",
 				...(canceled ? { status: "canceled", canceledAt: moment() } : {}),
 				$pull: {
-					"questions.$[].answers.$[].rates": {
-						$elemMatch: { user_id: player_id },
-					},
-					"questions.$[].answers": { $elemMatch: { user_id: player_id } },
-					"questions.$[].rates": { $elemMatch: { user_id: player_id } },
 					questions: { $elemMatch: { user_id: player_id } },
 				},
 			},
 			{ arrayFilters: [{ "player._id": player_id }], new: true }
+		);
+
+		// remove player question rates
+		await Game.findOneAndUpdate(
+			{ _id: objectId(gameId) },
+			{
+				$pull: {
+					"questions.$[].rates": { $elemMatch: { user_id: player_id } },
+				},
+			}
+		);
+
+		// remove player answers
+		await Game.findOneAndUpdate(
+			{ _id: objectId(gameId) },
+			{
+				$pull: {
+					"questions.$[].answers": { $elemMatch: { user_id: player_id } },
+				},
+			}
+		);
+
+		// remove player answers rates
+		await Game.findOneAndUpdate(
+			{ _id: objectId(gameId) },
+			{
+				$pull: {
+					"questions.$[].answers.$[].rates": {
+						$elemMatch: { user_id: player_id },
+					},
+				},
+			},
+			{ new: true }
 		);
 
 		return success("ok");
