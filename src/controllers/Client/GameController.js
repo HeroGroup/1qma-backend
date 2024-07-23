@@ -584,13 +584,16 @@ exports.submitAnswer = async (params) => {
 		});
 
 		const numberOfSubmitted = game.questions[questionIndex].answers.length;
-		const numberOfPlayers = game.players.length;
+		const numberOfPlayers = game.players.filter(
+			(plyr) => plyr.status === "connected"
+		).length;
 
-		if (numberOfSubmitted === numberOfPlayers) {
+		if (numberOfSubmitted >= numberOfPlayers) {
 			// emit next question
 			console.log("next step");
 			io.to(gameId).emit("next step", {});
 		} else {
+			console.log("submit answer");
 			io.to(gameId).emit("submit answer", {
 				numberOfSubmitted,
 				numberOfPlayers,
@@ -783,11 +786,15 @@ exports.rateAnswers = async (params) => {
 		}
 
 		// check if all users has rated, go to the next step
-		const playersCount = game.players.length;
-		if (ratesCount === playersCount * playersCount) {
+		const playersCount = game.players.filter(
+			(plyr) => plyr.status === "connected"
+		).length;
+		if (ratesCount >= playersCount * playersCount) {
 			// everyone has answered, emit next question
+			console.log("next step");
 			io.to(gameId).emit("next step", {});
 		} else {
+			console.log("submit answer");
 			io.to(gameId).emit("submit answer", {
 				numberOfSubmitted: ratesCount,
 				numberOfPlayers: playersCount,
@@ -896,12 +903,16 @@ exports.rateQuestions = async (params) => {
 		}
 
 		// check if all users has rated, end the game
-		const playersCount = game.players.length;
+		const playersCount = game.players.filter(
+			(plyr) => plyr.status === "connected"
+		).length;
 		if (ratesCount === playersCount * playersCount) {
 			// everyone has answered, calculate and emit result!
 			calculateResult(gameId);
+			console.log("end game");
 			io.to(gameId).emit("end game", {});
 		} else {
+			console.log("submit answer");
 			io.to(gameId).emit("submit answer", {
 				numberOfSubmitted: ratesCount,
 				numberOfPlayers: playersCount,
@@ -1038,6 +1049,87 @@ exports.exitGame = async (params, socketId) => {
 	}
 };
 
+exports.playerDisconnected = async (params) => {
+	try {
+		const { id, gameId } = params;
+		if (!id) {
+			return fail("invalid user id!");
+		}
+
+		if (!gameId) {
+			return fail("invalid game id!");
+		}
+		let game = await Game.findById(gameId);
+		if (!game) {
+			return fail("invalid game!");
+		}
+
+		const player = await User.findById(id);
+		if (!player) {
+			return fail("invalid player!");
+		}
+
+		const {
+			_id: player_id,
+			firstName,
+			lastName,
+			email,
+			profilePicture,
+		} = player;
+
+		// emit player disconnected
+		io.to(gameId).emit("player disconnected", {
+			_id: player_id,
+			firstName,
+			lastName,
+			email,
+			profilePicture,
+		});
+		console.log("player disconnected");
+
+		game = await Game.findOneAndUpdate(
+			{ _id: objectId(gameId) },
+			{
+				"players.$[player].status": "disconnected",
+			},
+			{ arrayFilters: [{ "player._id": player_id }], new: true }
+		);
+	} catch (e) {
+		return handleException(e);
+	}
+};
+
+exports.reconnectPlayer = async (userId, socketId) => {
+	try {
+		const userGamesFilter = {
+			"players._id": objectId(userId),
+			status: { $in: ["created", "started"] },
+		};
+
+		const games = await Game.find(userGamesFilter);
+		if (games.length > 0) {
+			// update user status in games
+			await Game.updateMany(
+				userGamesFilter,
+				{
+					"players.$[player].status": "connected",
+					"players.$[player].socketId": socketId,
+				},
+				{ arrayFilters: [{ "player._id": objectId(userId) }] }
+			);
+
+			// join user to still existing game rooms
+			for (const game of games) {
+				joinUserToGameRoom(socketId, game._id.toString());
+			}
+		}
+
+		return success("ok");
+	} catch (e) {
+		return handleException(e);
+	}
+};
+
 const calculateResult = async (gameId) => {
 	console.time("calculate-game-result");
 	if (!gameId) {
@@ -1053,6 +1145,7 @@ const calculateResult = async (gameId) => {
 	}
 
 	const scoreboard = game.players
+		.filter((plyr) => plyr.status !== "left")
 		.map((player) => {
 			const questions = game.questions;
 			const ownQuestionIndex = questions.findIndex((element) => {
@@ -1074,6 +1167,9 @@ const calculateResult = async (gameId) => {
 				0
 			);
 
+			const totalScore =
+				answersRates.reduce((acc, cur) => acc + cur) + questionRate;
+
 			return {
 				_id: player._id,
 				firstName: player.firstName,
@@ -1081,8 +1177,8 @@ const calculateResult = async (gameId) => {
 				profilePicture: player.profilePicture,
 				answersRates,
 				questionRate,
-				totalScore: answersRates.reduce((acc, cur) => acc + cur) + questionRate,
-				totalXp: 0,
+				totalScore,
+				totalXp: totalScore * 15,
 				reward: { bronze: 0 },
 			};
 		})
@@ -1123,7 +1219,11 @@ const calculateResult = async (gameId) => {
 		await User.findOneAndUpdate(
 			{ _id: item._id },
 			{
-				$inc: { "statistics.totalScore": item.totalScore, "games.played": 1 },
+				$inc: {
+					"statistics.totalScore": item.totalScore,
+					"statistics.totalXp": item.totalXp,
+					"games.played": 1,
+				},
 				"games.highScore":
 					item.totalScore > playerHighScore ? item.totalScore : playerHighScore,
 			}

@@ -34,7 +34,11 @@ const { isAdmin } = require("./src/middlewares/isAdmin");
 const { hasCompletedSignup } = require("./src/middlewares/hasCompletedSignup");
 const { isLoggedIn } = require("./src/middlewares/isLoggedIn");
 const { passportInit } = require("./src/services/auth/passport");
-const { exitGame } = require("./src/controllers/Client/GameController.js");
+const {
+	playerDisconnected,
+	reconnectPlayer,
+} = require("./src/controllers/Client/GameController");
+
 async function main() {
 	const whiteList = [
 		"https://api.staging.1qma.games",
@@ -154,7 +158,7 @@ async function main() {
 		console.log(err.code, err.message, err.context);
 	});
 
-	io.on("connection", (socket) => {
+	io.on("connection", async (socket) => {
 		let userId = "";
 		const sessionId = socket.request?.sessionID;
 		if (sessionId) {
@@ -167,16 +171,14 @@ async function main() {
 			});
 		}
 
+		await reconnectPlayer(userId, socket.id);
+
 		socket.on("disconnecting", async () => {
 			for (const room of socket.rooms) {
 				if (room !== socket.id) {
-					await exitGame({ id: userId, gameId: room }, socket.id);
+					await playerDisconnected({ id: userId, gameId: room });
 				}
 			}
-		});
-
-		socket.on("disconnect", (reason) => {
-			console.log("disconnect reason", reason);
 		});
 	});
 
