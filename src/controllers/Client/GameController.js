@@ -332,7 +332,6 @@ exports.joinGame = async (params, socketId) => {
 			email,
 			profilePicture,
 		});
-		console.log("player added");
 
 		const numberOfPlayersSetting = await Setting.findOne({
 			key: "NUMBER_OF_PLAYERS_PER_GAME",
@@ -590,10 +589,8 @@ exports.submitAnswer = async (params) => {
 
 		if (numberOfSubmitted >= numberOfPlayers) {
 			// emit next question
-			console.log("next step");
 			io.to(gameId).emit("next step", {});
 		} else {
-			console.log("submit answer");
 			io.to(gameId).emit("submit answer", {
 				numberOfSubmitted,
 				numberOfPlayers,
@@ -791,10 +788,8 @@ exports.rateAnswers = async (params) => {
 		).length;
 		if (ratesCount >= playersCount * playersCount) {
 			// everyone has answered, emit next question
-			console.log("next step");
 			io.to(gameId).emit("next step", {});
 		} else {
-			console.log("submit answer");
 			io.to(gameId).emit("submit answer", {
 				numberOfSubmitted: ratesCount,
 				numberOfPlayers: playersCount,
@@ -909,10 +904,8 @@ exports.rateQuestions = async (params) => {
 		if (ratesCount === playersCount * playersCount) {
 			// everyone has answered, calculate and emit result!
 			calculateResult(gameId);
-			console.log("end game");
 			io.to(gameId).emit("end game", {});
 		} else {
-			console.log("submit answer");
 			io.to(gameId).emit("submit answer", {
 				numberOfSubmitted: ratesCount,
 				numberOfPlayers: playersCount,
@@ -1019,7 +1012,6 @@ exports.exitGame = async (params, socketId) => {
 		if ((leftPlayers?.length || 0) + 1 / totalPlayers > 0.3) {
 			// cancel game
 			canceled = true;
-			console.log("cancel game");
 			io.to(gameId).emit("cancel game", {});
 		} else {
 			// remove player from game
@@ -1031,7 +1023,6 @@ exports.exitGame = async (params, socketId) => {
 				email,
 				profilePicture,
 			});
-			console.log("player left");
 		}
 
 		game = await Game.findOneAndUpdate(
@@ -1085,7 +1076,6 @@ exports.playerDisconnected = async (params) => {
 			email,
 			profilePicture,
 		});
-		console.log("player disconnected");
 
 		game = await Game.findOneAndUpdate(
 			{ _id: objectId(gameId) },
