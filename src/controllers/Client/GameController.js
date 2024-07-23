@@ -26,7 +26,7 @@ const gameCustomProjection = async (game) => {
 		gameLink,
 		gameQRCode: await generateQR(gameLink),
 		gamePlayers: game.players.filter((plyr) => {
-			plyr === "connected";
+			plyr.status === "connected";
 		}),
 	};
 };
@@ -45,6 +45,14 @@ exports.init = async () => {
 			key: "GAME_STEP_DURATION_SECONDS",
 		});
 
+		const waitingTimeSecondsSetting = await Setting.findOne({
+			key: "WAITING_TIME_SECONDS",
+		});
+
+		const numberOfRetriesSetting = await Setting.findOne({
+			key: "NUMBER_OF_FIND_PLAYERS_RETRIES",
+		});
+
 		const categories = await Category.find();
 
 		return success("initialize game parameters", {
@@ -53,6 +61,8 @@ exports.init = async () => {
 			numberOfPlayers: numberOfPlayers?.value || 5,
 			gamePrice: { coin: "bronze", count: createGamePrice?.value || 2 },
 			eachStepDurationSeconds: eachStepDurationSetting?.value || 120,
+			waitingTimeSeconds: waitingTimeSecondsSetting?.value || 120,
+			numberOfRetries: numberOfRetriesSetting?.value || 2,
 			categories,
 		});
 	} catch (e) {
