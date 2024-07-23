@@ -1169,7 +1169,7 @@ const calculateResult = async (gameId) => {
 				const question = questions[i];
 				const _questionRate =
 					question.rates.find(
-						(r) => user_id.toString() === player._id.toString()
+						(r) => r.user_id.toString() === player._id.toString()
 					)?.rate || 1 / 100 + 1; // 1 => 1.01, 5 => 1.05
 
 				const answer = question.answers.find(
