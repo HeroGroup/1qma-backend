@@ -791,7 +791,7 @@ exports.rateAnswers = async (params) => {
 			io.to(gameId).emit("next step", {});
 		} else {
 			io.to(gameId).emit("submit answer", {
-				numberOfSubmitted: ratesCount,
+				numberOfSubmitted: ratesCount / playersCount,
 				numberOfPlayers: playersCount,
 			});
 		}
@@ -907,7 +907,7 @@ exports.rateQuestions = async (params) => {
 			io.to(gameId).emit("end game", {});
 		} else {
 			io.to(gameId).emit("submit answer", {
-				numberOfSubmitted: ratesCount,
+				numberOfSubmitted: ratesCount / playersCount,
 				numberOfPlayers: playersCount,
 			});
 		}
