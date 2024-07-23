@@ -1067,10 +1067,10 @@ exports.exitGame = async (params, socketId) => {
 				"players.$[player].status": "left",
 				...(canceled ? { status: "canceled", canceledAt: moment() } : {}),
 				$pull: {
-					questions: { $elemMatch: { user_id: player_id } },
+					questions: { user_id: player_id },
 				},
 			},
-			{ arrayFilters: [{ "player._id": player_id }], new: true }
+			{ arrayFilters: [{ "player._id": player_id }] }
 		);
 
 		// remove player question rates
@@ -1078,7 +1078,7 @@ exports.exitGame = async (params, socketId) => {
 			{ _id: objectId(gameId) },
 			{
 				$pull: {
-					"questions.$[].rates": { $elemMatch: { user_id: player_id } },
+					"questions.$[].rates": { user_id: player_id },
 				},
 			}
 		);
@@ -1088,7 +1088,7 @@ exports.exitGame = async (params, socketId) => {
 			{ _id: objectId(gameId) },
 			{
 				$pull: {
-					"questions.$[].answers": { $elemMatch: { user_id: player_id } },
+					"questions.$[].answers": { user_id: player_id },
 				},
 			}
 		);
@@ -1099,11 +1099,10 @@ exports.exitGame = async (params, socketId) => {
 			{
 				$pull: {
 					"questions.$[].answers.$[].rates": {
-						$elemMatch: { user_id: player_id },
+						user_id: player_id,
 					},
 				},
-			},
-			{ new: true }
+			}
 		);
 
 		return success("ok");
