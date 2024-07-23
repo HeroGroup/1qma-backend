@@ -1000,6 +1000,10 @@ exports.exitGame = async (params, socketId) => {
 			return fail("invalid game!");
 		}
 
+		if (!["created", "started"].includes(game.status)) {
+			return fail("You can not leave in this step!");
+		}
+
 		const player = await User.findById(id);
 		if (!player) {
 			return fail("invalid player!");
