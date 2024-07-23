@@ -937,7 +937,7 @@ exports.showResult = async (gameId, userId) => {
 			return fail("invalid game!");
 		}
 		if (game.status !== "ended") {
-			return success("game is not ended yet!", gameProjection(game));
+			return success("game is not ended yet!", gameCustomProjection(game));
 		}
 
 		if (game.result) {
