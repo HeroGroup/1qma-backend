@@ -360,3 +360,11 @@ exports.addQuestion = async (params) => {
 		return handleException(e);
 	}
 };
+
+/*
+try {
+	//
+} catch (e) {
+	return handleException(e);
+}
+*/

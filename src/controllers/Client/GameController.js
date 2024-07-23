@@ -6,6 +6,7 @@ const {
 	objectId,
 	leaveRoom,
 	generateQR,
+	xpNeededForNextLevel,
 } = require("../../helpers/utils");
 const { validateEmail } = require("../../helpers/validator");
 const { createModes, gameTypes } = require("../../helpers/constants");
@@ -1038,11 +1039,19 @@ exports.exitGame = async (params, socketId) => {
 			});
 		}
 
+		// TODO: shift rates properly
+
 		game = await Game.findOneAndUpdate(
 			{ _id: objectId(gameId) },
 			{
 				"players.$[player].status": "left",
 				...(canceled ? { status: "canceled", canceledAt: moment() } : {}),
+				$pull: {
+					questions: { user_id: player_id },
+					"questions.$[].rates": { user_id: player_id },
+					"questions.$[].answers": { user_id: player_id },
+					"questions.$[].answers.$[].rates": { user_id: player_id },
+				},
 			},
 			{ arrayFilters: [{ "player._id": player_id }], new: true }
 		);
@@ -1217,8 +1226,17 @@ const calculateResult = async (gameId) => {
 	for (const item of scoreboard) {
 		const plyr = User.findById(item._id);
 		const playerHighScore = plyr.games?.highScore || 0;
+		const currentXp = plyr.statistics.totalXP + item.totalXp; // 450 + 150 = 600
+		let level = plyr.statistics.level; // 0
+		let xpNeededForNextLevel = xpNeededForNextLevel(level); // 500
+		if (currentXp >= xpNeededForNextLevel) {
+			// update level and xpNeededForNextLevel
+			level++; // 1
+			xpNeededForNextLevel = xpNeededForNextLevel(level); // 1000
 
-		// TODO: check if user has reached next level
+			// TODO: send notification for updated level
+		}
+
 		await User.findOneAndUpdate(
 			{ _id: item._id },
 			{
@@ -1227,6 +1245,8 @@ const calculateResult = async (gameId) => {
 					"statistics.totalXp": item.totalXp,
 					"games.played": 1,
 				},
+				"statistics.level": level,
+				"statistics.xpNeededForNextLevel": xpNeededForNextLevel,
 				"games.highScore":
 					item.totalScore > playerHighScore ? item.totalScore : playerHighScore,
 			}

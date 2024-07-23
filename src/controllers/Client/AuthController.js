@@ -5,6 +5,7 @@ const {
 	createHashedPasswordFromPlainText,
 	createReferCode,
 	checkSame,
+	xpNeededForNextLevel,
 } = require("../../helpers/utils");
 const AccountType = require("../../models/AccountType");
 const Category = require("../../models/Category");
@@ -491,8 +492,8 @@ exports.chooseAccountType = async (params) => {
 				},
 			},
 			statistics: {
-				level: 1,
-				xpNeededForNextLevel: 2000,
+				level: 0,
+				xpNeededForNextLevel: xpNeededForNextLevel(0),
 				totalXP: 0,
 				totalScore: 0,
 			},
@@ -948,3 +949,11 @@ exports.logout = async (id) => {
 		return handleException(e);
 	}
 };
+
+/*
+try {
+	//
+} catch (e) {
+	return handleException(e);
+}
+*/
