@@ -1042,9 +1042,9 @@ exports.exitGame = async (params, socketId) => {
 				"players.$[player].status": "left",
 				...(canceled ? { status: "canceled", canceledAt: moment() } : {}),
 				$pull: {
-					"questions.$[].answers.$[].rates": { user_id: player_id },
-					"questions.$[].answers": { user_id: player_id },
-					"questions.$[].rates": { user_id: player_id },
+					"questions.$[].answers.$[].rates.$[]": { user_id: player_id },
+					"questions.$[].answers.$[]": { user_id: player_id },
+					"questions.$[].rates.$[]": { user_id: player_id },
 					questions: { user_id: player_id },
 				},
 			},
@@ -1159,9 +1159,9 @@ const calculateResult = async (gameId) => {
 		.filter((plyr) => plyr.status !== "left")
 		.map((player) => {
 			const questions = game.questions;
-			// const ownQuestionIndex = questions.findIndex((element) => {
-			// 	return element.user_id.toString() === player._id.toString();
-			// });
+			const ownQuestionIndex = questions.findIndex((element) => {
+				return element.user_id.toString() === player._id.toString();
+			});
 
 			const answersRates = [];
 			const answersRatesRaw = [];
@@ -1181,10 +1181,10 @@ const calculateResult = async (gameId) => {
 				answersRates.push(sumRates * _questionRate);
 			}
 
-			// const questionRate = questions[ownQuestionIndex].rates.reduce(
-			// 	(n, { rate }) => n + rate,
-			// 	0
-			// );
+			const questionRate = questions[ownQuestionIndex].rates.reduce(
+				(n, { rate }) => n + rate,
+				0
+			);
 
 			const totalScore = answersRates.reduce((acc, cur) => acc + cur); // + questionRate;
 
