@@ -7,6 +7,7 @@ const gameSchema = new Schema({
 	createMode: Object,
 	gameType: Object,
 	category: Object,
+	inviteList: Array,
 	players: Array,
 	questions: [
 		{

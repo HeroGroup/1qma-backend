@@ -159,6 +159,7 @@ exports.createGame = async (params, socketId) => {
 			createMode: createModes.find((element) => element.id === createMode),
 			gameType: gameTypes.find((element) => element.id === gameType),
 			category: dbCategory,
+			inviteList: players || [],
 			players: [
 				{
 					_id: creator_id,
@@ -508,6 +509,22 @@ exports.invitePlayer = async (params) => {
 		if (game.status !== "created") {
 			return fail("You are not allowed to invite in this step!");
 		}
+
+		// check this email is not in neither inviteList nor players
+		if (
+			game.inviteList.findIndex((il) => il === email) >= 0 ||
+			game.players.findIndex((p) => p.email === email && p.status != "left") >=
+				0
+		) {
+			return fail(
+				"This email address is already in either invite list or players."
+			);
+		}
+
+		await Game.findOneAndUpdate(
+			{ _id: objectId(gameId) },
+			{ $push: { inviteList: email } }
+		);
 
 		return success(`Invitation was sent to ${email} successfully!`);
 	} catch (e) {
