@@ -655,10 +655,14 @@ exports.getQuestion = async (userId, gameId, step) => {
 		}
 
 		if (parseInt(step) > game.players.length) {
-			return fail("questions are finished!", {
-				step,
-				nop: game.players.length,
-			});
+			return fail(
+				"questions are finished!",
+				{
+					step,
+					nop: game.players.length,
+				},
+				-2 // status
+			);
 		}
 
 		const questionObject = game.questions[step - 1];
