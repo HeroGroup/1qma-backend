@@ -1234,9 +1234,9 @@ const calculateResult = async (gameId) => {
 
 	// update statistics
 	for (const item of scoreboard) {
-		const plyr = User.findById(item._id);
+		const plyr = await User.findById(item._id);
 		const playerHighScore = plyr.games?.highScore || 0;
-		const currentXp = plyr.statistics.totalXP + item.totalXp; // 450 + 150 = 600
+		const currentXp = plyr.statistics?.totalXP || 0 + item.totalXp; // 450 + 150 = 600
 		let level = plyr.statistics.level; // 0
 		let xpNeededForNextLevel = xpNeededForNextLevel(level); // 500
 		if (currentXp >= xpNeededForNextLevel) {
