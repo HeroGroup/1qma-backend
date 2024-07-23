@@ -1045,10 +1045,12 @@ exports.exitGame = async (params, socketId) => {
 				"players.$[player].status": "left",
 				...(canceled ? { status: "canceled", canceledAt: moment() } : {}),
 				$pull: {
-					"questions.$[].answers.$[].rates.$[]": { user_id: player_id },
-					"questions.$[].answers.$[]": { user_id: player_id },
-					"questions.$[].rates.$[]": { user_id: player_id },
-					"questions.$[]": { user_id: player_id },
+					"questions.$[].answers.$[].rates": {
+						$elemMatch: { user_id: player_id },
+					},
+					"questions.$[].answers": { $elemMatch: { user_id: player_id } },
+					"questions.$[].rates": { $elemMatch: { user_id: player_id } },
+					questions: { $elemMatch: { user_id: player_id } },
 				},
 			},
 			{ arrayFilters: [{ "player._id": player_id }], new: true }
