@@ -11,8 +11,36 @@ const { validateEmail } = require("../../helpers/validator");
 const { createModes, gameTypes } = require("../../helpers/constants");
 const Category = require("../../models/Category");
 const Game = require("../../models/Game");
+const Question = require("../../models/Question");
 const Setting = require("../../models/Setting");
 const User = require("../../models/User");
+
+const createOrGetQuestion = async (
+	questionId,
+	user,
+	category,
+	question,
+	answer
+) => {
+	try {
+		if (questionId) {
+			return objectId(questionId);
+		} else {
+			// create question first
+			const questionObject = new Question({
+				category,
+				question,
+				answer,
+				user,
+			});
+			await questionObject.save();
+
+			return questionObject._id;
+		}
+	} catch (e) {
+		return handleException(e);
+	}
+};
 
 const gameCustomProjection = async (game) => {
 	const gameLink = `${env.frontAppUrl}/game/join?code=${game.code}`;
@@ -70,7 +98,8 @@ exports.init = async () => {
 
 exports.createGame = async (params, socketId) => {
 	try {
-		const { id, gameType, createMode, category, question, answer } = params;
+		const { id, gameType, createMode, category, questionId, question, answer } =
+			params;
 
 		let { players } = params;
 
@@ -123,9 +152,9 @@ exports.createGame = async (params, socketId) => {
 		}
 
 		if (players) {
-			// send invites to players
+			// TODO: send invites to players
 		} else {
-			// find players who match game criteria and send proper notification
+			// TODO: find players who match game criteria and send proper notification
 		}
 
 		const creator = await User.findById(id);
@@ -153,6 +182,15 @@ exports.createGame = async (params, socketId) => {
 			email,
 			profilePicture,
 		} = creator;
+
+		const question_id = await createOrGetQuestion(
+			questionId,
+			creator,
+			dbCategory,
+			question,
+			answer
+		);
+
 		const game = new Game({
 			code: `G-${createGameCode()}`,
 			creator: { _id: creator_id, firstName, lastName, email, profilePicture },
@@ -173,6 +211,7 @@ exports.createGame = async (params, socketId) => {
 			],
 			questions: [
 				{
+					_id: question_id,
 					user_id: creator_id,
 					question,
 					answers: [
@@ -258,7 +297,7 @@ exports.attemptjoin = async (user, code) => {
 
 exports.joinGame = async (params, socketId) => {
 	try {
-		const { id, gameId, question, answer } = params;
+		const { id, gameId, questionId, question, answer } = params;
 
 		if (!id) {
 			return fail("Invalid player id!");
@@ -351,6 +390,14 @@ exports.joinGame = async (params, socketId) => {
 			isStarted = true;
 		}
 
+		const question_id = await createOrGetQuestion(
+			questionId,
+			player,
+			game.category,
+			question,
+			answer
+		);
+
 		game = await Game.findOneAndUpdate(
 			{ _id: game.id },
 			{
@@ -365,6 +412,7 @@ exports.joinGame = async (params, socketId) => {
 						status: "connected",
 					},
 					questions: {
+						_id: question_id,
 						user_id: player_id,
 						question,
 						answers: [
@@ -1147,6 +1195,7 @@ exports.playerDisconnected = async (params) => {
 			email,
 			profilePicture,
 		});
+		console.log(`${email} disconnected from ${gameId}`);
 
 		game = await Game.findOneAndUpdate(
 			{ _id: objectId(gameId) },
@@ -1294,7 +1343,15 @@ const calculateResult = async (gameId) => {
 			level++; // 1
 			_xpNeededForNextLevel = xpNeededForNextLevel(level); // 1000
 
-			// TODO: send notification for updated level
+			// send notification for updated level
+			const playerSocketId = players.find(
+				(elm) => elm._id === item._id
+			)?.socketId;
+			io.to(playerSocketId).emit("notification:modal", {
+				title: "Level Up!",
+				message: `Congratulations! You have reached level ${level}!`,
+				icon: "",
+			});
 		}
 
 		await User.findOneAndUpdate(
