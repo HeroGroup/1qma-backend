@@ -29,7 +29,7 @@ exports.scoreboard = async (userId, page = 1, limit = 5) => {
 	try {
 		// my scoreboard
 		const myGames = await Game.find({
-			"result.scoreboard._id": userId,
+			"result.scoreboard._id": objectId(userId),
 		})
 			.skip((page - 1) * limit)
 			.limit(limit);
