@@ -49,7 +49,9 @@ router.get("/", async (req, res) => {
  *     summary: My scoreboard
  */
 router.get("/scoreboard", async (req, res) => {
-	res.json(await scoreboard(req.session.user._id));
+	res.json(
+		await scoreboard(req.session.user._id, req.query.page, req.query.limit)
+	);
 });
 
 /**

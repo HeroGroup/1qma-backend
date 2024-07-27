@@ -25,18 +25,20 @@ exports.games = async (userId, type, category, page = 1, limit = 5) => {
 	}
 };
 
-exports.scoreboard = async (userId) => {
+exports.scoreboard = async (userId, page = 1, limit = 5) => {
 	try {
 		// my scoreboard
 		const myGames = await Game.find({
-			"result.scoreboard._id": userId,
 			result: { $exists: true },
-		});
+			"result.scoreboard._id": userId,
+		})
+			.skip((page - 1) * limit)
+			.limit(limit);
 
 		const scoreboard = myGames.map((myGame) => {
-			const myRankIndex = myGame.result.scoreboard.findIndex((elm) => {
-				return elm._id.toString() === userId.toString();
-			});
+			const myRankIndex = myGame.result.scoreboard.findIndex(
+				(elm) => elm._id === userId
+			);
 			return {
 				endedAt: myGame.endedAt,
 				gameType: myGame.gameType,
