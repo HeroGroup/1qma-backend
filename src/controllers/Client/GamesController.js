@@ -38,7 +38,7 @@ exports.scoreboard = async (userId, page = 1, limit = 5) => {
 
 		const scoreboard = myGames.map((myGame) => {
 			const myRankIndex = myGame.result.scoreboard.findIndex(
-				(elm) => elm._id === userId
+				(elm) => elm._id === objectId(userId)
 			);
 			return {
 				endedAt: myGame.endedAt,
