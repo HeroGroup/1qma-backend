@@ -29,11 +29,12 @@ exports.scoreboard = async (userId, page = 1, limit = 5) => {
 	try {
 		// my scoreboard
 		const myGames = await Game.find({
-			result: { $exists: true },
 			"result.scoreboard._id": userId,
 		})
 			.skip((page - 1) * limit)
 			.limit(limit);
+
+		console.log(userId, myGames.length);
 
 		const scoreboard = myGames.map((myGame) => {
 			const myRankIndex = myGame.result.scoreboard.findIndex(
