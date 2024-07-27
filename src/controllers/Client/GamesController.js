@@ -29,7 +29,7 @@ exports.scoreboard = async (userId) => {
 	try {
 		// my scoreboard
 		const myGames = await Game.find({
-			"result.scoreboard._id": objectId(userId),
+			"result.scoreboard._id": userId,
 			result: { $exists: true },
 		});
 
@@ -42,7 +42,7 @@ exports.scoreboard = async (userId) => {
 				gameType: myGame.gameType,
 				category: myGame.category,
 				rank: myRankIndex + 1,
-				result: myGame.result.scoreboard[myRank],
+				result: myGame.result.scoreboard[myRankIndex],
 			};
 		});
 

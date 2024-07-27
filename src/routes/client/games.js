@@ -16,7 +16,7 @@ const router = express.Router();
  *  get:
  *     tags:
  *     - Games
- *     summary: Live (ongoing) games
+ *     summary: All Games, My Games
  *     parameters:
  *       - in: query
  *         name: type
