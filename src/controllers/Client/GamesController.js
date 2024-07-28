@@ -36,6 +36,7 @@ exports.scoreboard = async (userId, page = 1, limit = 5) => {
 
 		const scoreboard = myGames.map((myGame) => {
 			const myRankIndex = myGame.result.scoreboard.findIndex((elm) => {
+				console.log(elm._id, objectId(userId));
 				return elm._id === objectId(userId);
 			});
 
