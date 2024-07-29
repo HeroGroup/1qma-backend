@@ -53,6 +53,7 @@ const gameCustomProjection = async (game) => {
 		gameType: game.gameType,
 		gameLink,
 		gameQRCode: await generateQR(gameLink),
+		gameInviteList: game.inviteList,
 		gamePlayers: game.players.filter((plyr) => plyr.status === "connected"),
 	};
 };
