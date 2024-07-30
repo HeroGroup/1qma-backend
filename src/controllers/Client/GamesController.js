@@ -111,11 +111,11 @@ exports.survivalScoreboard = async () => {
 	try {
 		const users = await User.find(
 			{
-				"statistics.survival.totalScore": { $gt: 0 },
+				"statistics.survival.adjustedScore": { $gt: 0 },
 			},
 			{ firstName: 1, lastName: 1, profilePicture: 1, statistics: 1 }
 		)
-			.sort({ "statistics.survival.totalScore": -1 })
+			.sort({ "statistics.survival.adjustedScore": -1 })
 			.limit(100);
 
 		return success("ok", users);
