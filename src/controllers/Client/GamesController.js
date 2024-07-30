@@ -61,7 +61,7 @@ exports.liveGames = async (type, category, page = 1, limit = 5) => {
 		const games = await Game.find(
 			{
 				status: "created",
-				...(type === "all" ? {} : { "gameType.id": type }),
+				...(type ? { "gameType.id": type } : {}),
 				$or: [{ createMode: "0" }, { createMode: "1" }],
 				...(category ? { "category.name": category } : {}),
 			},
