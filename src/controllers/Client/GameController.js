@@ -1440,7 +1440,9 @@ const implementSurvivalResult = async (
 		(numberOfSurvivalGamesPlayed + 1);
 
 	let won = false;
-	let updateCheckpoint = fale;
+	let updateCheckpoint = false;
+	let newTotalScore = totalScore + itemTotalScore;
+
 	if (checkpoint === 0 || newAvgRank >= avgRank) {
 		// starter or win condition, update total score anyway
 		won = true;
@@ -1448,7 +1450,7 @@ const implementSurvivalResult = async (
 		// update checkpoint if applicable
 		const _scoreNeededForNextCheckpoint =
 			scoreNeededForNextCheckpoint(checkpoint);
-		if (totalScore + itemTotalScore > _scoreNeededForNextCheckpoint) {
+		if (newTotalScore > _scoreNeededForNextCheckpoint) {
 			updateCheckpoint = true;
 		}
 	} else if (checkpoint > 0 && newAvgRank < avgRank) {
@@ -1462,9 +1464,17 @@ const implementSurvivalResult = async (
 			"statistics.survival.avgRank": newAvgRank,
 			"statistics.survival.avgQuestionScore": newAvgQuestionScore,
 			"statistics.survival.avgScore": newAvgScore,
+			...(won
+				? {
+						"statistics.survival.adjustedScore":
+							(1.2 - newAvgRank / 25) * newTotalScore,
+				  }
+				: {}),
 			$inc: {
 				"games.survivalGamesPlayed": 1,
-				...(won ? { "statistics.survival.totalScore": itemTotalScore } : {}),
+				...(won
+					? { "statistics.survival.totalScore": itemTotalScore }
+					: { "statistics.survival.loses": 1 }),
 				...(updateCheckpoint ? { "statistics.survival.checkpoint": 1 } : {}),
 			},
 		}

@@ -2,7 +2,6 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const { unlink } = require("node:fs");
 const QRCode = require("qrcode");
-const SALT_ROUNDS = parseInt(env.saltRounds);
 
 exports.handleException = (e) => {
 	if (!(e instanceof Error)) {
@@ -19,6 +18,7 @@ exports.getRandomInt = (min, max) => {
 };
 
 exports.createHashedPasswordFromPlainText = (input) => {
+	const SALT_ROUNDS = parseInt(env.saltRounds);
 	const salt = bcrypt.genSaltSync(SALT_ROUNDS);
 	return bcrypt.hashSync(input, salt);
 };
