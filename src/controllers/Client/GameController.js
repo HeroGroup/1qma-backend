@@ -1014,6 +1014,7 @@ exports.showResult = async (gameId, userId) => {
 			const { creator, category, gameType, startedAt, endedAt, result } = game;
 
 			let statistics = {};
+			let nextCheckpoint = scoreNeededForNextCheckpoint(0);
 			if (userId) {
 				// check if user is in game
 				const playerIndex = game.players.findIndex((element) => {
@@ -1035,6 +1036,10 @@ exports.showResult = async (gameId, userId) => {
 						xp: playerScoreboard?.totalXp,
 						reward: playerScoreboard?.reward,
 					};
+
+					nextCheckpoint = scoreNeededForNextCheckpoint(
+						user.statistics.survival.checkpoint
+					);
 				}
 			}
 
@@ -1046,6 +1051,7 @@ exports.showResult = async (gameId, userId) => {
 				endedAt,
 				result,
 				statistics,
+				nextCheckpoint,
 			});
 		} else {
 			return fail("Result is not ready yet!");
@@ -1244,6 +1250,7 @@ exports.reconnectPlayer = async (userId, socketId) => {
 
 const calculateResult = async (gameId) => {
 	console.time("calculate-game-result");
+
 	if (!gameId) {
 		return fail("invalid game id!");
 	}
@@ -1338,6 +1345,7 @@ const calculateResult = async (gameId) => {
 	// update users statistics
 	for (const item of scoreboard) {
 		const plyr = await User.findById(item._id);
+		item["avgRank"] = plyr.statistics?.survival?.avgRank || 0;
 		const playerHighScore = plyr.games?.highScore || 0;
 		const currentXp = plyr.statistics?.totalXP || 0 + item.totalXp; // 450 + 150 = 600
 		let level = plyr.statistics?.level || 0; // 0
@@ -1412,6 +1420,7 @@ const calculateResult = async (gameId) => {
 	);
 
 	console.timeEnd("calculate-game-result");
+
 	return success("ok", result);
 };
 
@@ -1443,7 +1452,7 @@ const implementSurvivalResult = async (
 	let updateCheckpoint = false;
 	let newTotalScore = totalScore + itemTotalScore;
 
-	if (checkpoint === 0 || newAvgRank >= avgRank) {
+	if (checkpoint === 0 || rank >= avgRank) {
 		// starter or win condition, update total score anyway
 		won = true;
 
@@ -1453,7 +1462,7 @@ const implementSurvivalResult = async (
 		if (newTotalScore > _scoreNeededForNextCheckpoint) {
 			updateCheckpoint = true;
 		}
-	} else if (checkpoint > 0 && newAvgRank < avgRank) {
+	} else if (checkpoint > 0 && rank < avgRank) {
 		// lose condition
 		// let user decide
 	}

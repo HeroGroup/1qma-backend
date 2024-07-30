@@ -14,6 +14,7 @@ const {
 	invite,
 	addQuestion,
 	listQuestions,
+	bookmarkQuestion,
 } = require("../../controllers/Client/ClientController");
 
 /**
@@ -303,6 +304,34 @@ router.get("/questions", hasCompletedSignup, async (req, res) => {
  */
 router.post("/questions/add", sameUser, async (req, res) => {
 	res.json(await addQuestion(req.body));
+});
+
+/**
+ * @openapi
+ * '/client/questions/bookmark':
+ *  post:
+ *     tags:
+ *     - Client
+ *     summary: Bookmark a question
+ *     requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *           schema:
+ *            type: object
+ *            required:
+ *              - id
+ *              - questionId
+ *            properties:
+ *              id:
+ *                type: string
+ *                default: 63738495886737657388948
+ *              questionId:
+ *                type: string
+ *                default: 63738495886737657388948
+ */
+router.post("/questions/bookmark", sameUser, async (req, res) => {
+	res.json(await bookmarkQuestion(req.body));
 });
 
 module.exports = router;

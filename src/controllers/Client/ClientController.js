@@ -285,12 +285,19 @@ exports.listQuestions = async (userId, params) => {
 			);
 		}
 
+		let typeQuery = {};
+		if (type === "public") {
+			typeQuery = { user: { $exists: false } };
+		} else if (type === "private") {
+			typeQuery = { "user._id": objectId(userId) };
+		} else if (type === "bookmark") {
+			typeQuery = { bookmarks: objectId(userId) };
+		}
+
 		const questions = await Question.find(
 			{
 				"category._id": category, // stored as string
-				...(type === "public"
-					? { user: { $exists: false } }
-					: { "user._id": objectId(userId) }),
+				...typeQuery,
 				...(search ? { question: { $regex: search, $options: "i" } } : {}),
 			},
 			{
@@ -356,6 +363,42 @@ exports.addQuestion = async (params) => {
 			"Question was successfully added to your library!",
 			newQuestion
 		);
+	} catch (e) {
+		return handleException(e);
+	}
+};
+
+exports.bookmarkQuestion = async (params) => {
+	try {
+		const { id, questionId } = params;
+		if (!id) {
+			return fail("invalid user id!");
+		}
+
+		if (!questionId) {
+			return fail("invalid question id!");
+		}
+
+		const user = await User.findById(id);
+		if (!user) {
+			return fail("invalid user!");
+		}
+
+		const question = await Question.findById(questionId);
+		if (!question) {
+			return fail("invalid question!");
+		}
+
+		await Question.findOneAndUpdate(
+			{ _id: objectId(questionId) },
+			{
+				$push: {
+					bookmarks: objectId(id),
+				},
+			}
+		);
+
+		return success("Question bookmarked successfully!");
 	} catch (e) {
 		return handleException(e);
 	}
