@@ -6,6 +6,7 @@ const {
 	leaveRoom,
 	generateQR,
 	xpNeededForNextLevel,
+	scoreNeededForNextCheckpoint,
 } = require("../../helpers/utils");
 const { validateEmail } = require("../../helpers/validator");
 const { createModes, gameTypes } = require("../../helpers/constants");
@@ -88,8 +89,8 @@ exports.init = async () => {
 			numberOfPlayers: numberOfPlayers?.value || 5,
 			gamePrice: { coin: "bronze", count: createGamePrice?.value || 2 },
 			eachStepDurationSeconds: eachStepDurationSetting?.value || 120,
-			waitingTimeSeconds: waitingTimeSecondsSetting?.value || 120,
-			numberOfRetries: numberOfRetriesSetting?.value || 2,
+			waitingTimeSeconds: waitingTimeSecondsSetting?.value || 120, // in wating room
+			numberOfRetries: numberOfRetriesSetting?.value || 2, // in wating room
 			categories,
 		});
 	} catch (e) {
@@ -561,9 +562,9 @@ exports.invitePlayer = async (params) => {
 
 		// check this email is not in neither inviteList nor players
 		if (
-			game.inviteList.findIndex((il) => il === email) >= 0 ||
+			// game.inviteList.findIndex((il) => il === email) >= 0 ||
 			game.players.findIndex((p) => p.email === email && p.status != "left") >=
-				0
+			0
 		) {
 			return fail(
 				"This email address is already in either invite list or players."
@@ -1331,8 +1332,10 @@ const calculateResult = async (gameId) => {
 			answers,
 		};
 	});
+	const gameType = game.type;
 
-	// update statistics
+	let rank = 1;
+	// update users statistics
 	for (const item of scoreboard) {
 		const plyr = await User.findById(item._id);
 		const playerHighScore = plyr.games?.highScore || 0;
@@ -1355,20 +1358,39 @@ const calculateResult = async (gameId) => {
 			});
 		}
 
+		const $inc = {
+			"statistics.totalXp": item.totalXp,
+			...(gameType === "normal"
+				? {
+						"statistics.normal.totalScore": item.totalScore,
+						"games.played": 1,
+				  }
+				: {}),
+		};
+
 		await User.findOneAndUpdate(
 			{ _id: item._id },
 			{
-				$inc: {
-					"statistics.totalScore": item.totalScore,
-					"statistics.totalXp": item.totalXp,
-					"games.played": 1,
-				},
 				"statistics.level": level,
 				"statistics.xpNeededForNextLevel": _xpNeededForNextLevel,
 				"games.highScore":
 					item.totalScore > playerHighScore ? item.totalScore : playerHighScore,
+				$inc,
 			}
 		);
+
+		if (gameType === "survival") {
+			await implementSurvivalResult(
+				item._id,
+				plyr.statistics.survival,
+				plyr.games.survivalGamesPlayed,
+				rank,
+				item.questionRate,
+				item.totalScore
+			);
+		}
+
+		rank++;
 	}
 
 	// update winner statistics
@@ -1391,6 +1413,62 @@ const calculateResult = async (gameId) => {
 
 	console.timeEnd("calculate-game-result");
 	return success("ok", result);
+};
+
+const implementSurvivalResult = async (
+	_id,
+	survivalStatistics,
+	survivalGamesPlayed,
+	rank,
+	questionRate,
+	itemTotalScore
+) => {
+	const { checkpoint, avgRank, avgQuestionScore, avgScore, totalScore } =
+		survivalStatistics;
+	const numberOfSurvivalGamesPlayed = survivalGamesPlayed;
+
+	const newAvgRank =
+		(avgRank * numberOfSurvivalGamesPlayed + rank) /
+		(numberOfSurvivalGamesPlayed + 1);
+
+	const newAvgQuestionScore =
+		(avgQuestionScore * numberOfSurvivalGamesPlayed + questionRate) /
+		(numberOfSurvivalGamesPlayed + 1);
+
+	const newAvgScore =
+		(avgScore * numberOfSurvivalGamesPlayed + itemTotalScore) /
+		(numberOfSurvivalGamesPlayed + 1);
+
+	let won = false;
+	let updateCheckpoint = fale;
+	if (checkpoint === 0 || newAvgRank >= avgRank) {
+		// starter or win condition, update total score anyway
+		won = true;
+
+		// update checkpoint if applicable
+		const _scoreNeededForNextCheckpoint =
+			scoreNeededForNextCheckpoint(checkpoint);
+		if (totalScore + itemTotalScore > _scoreNeededForNextCheckpoint) {
+			updateCheckpoint = true;
+		}
+	} else if (checkpoint > 0 && newAvgRank < avgRank) {
+		// lose condition
+		// let user decide
+	}
+
+	await User.findOneAndUpdate(
+		{ _id },
+		{
+			"statistics.survival.avgRank": newAvgRank,
+			"statistics.survival.avgQuestionScore": newAvgQuestionScore,
+			"statistics.survival.avgScore": newAvgScore,
+			$inc: {
+				"games.survivalGamesPlayed": 1,
+				...(won ? { "statistics.survival.totalScore": itemTotalScore } : {}),
+				...(updateCheckpoint ? { "statistics.survival.checkpoint": 1 } : {}),
+			},
+		}
+	);
 };
 
 /*

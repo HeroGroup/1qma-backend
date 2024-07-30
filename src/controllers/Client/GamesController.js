@@ -107,11 +107,58 @@ exports.friendsRecentGames = async (userId) => {
 	}
 };
 
-exports.survivalScoreboard = async () => {};
+exports.survivalScoreboard = async () => {
+	try {
+		const users = await User.find(
+			{
+				"statistics.survival.totalScore": { $gt: 0 },
+			},
+			{ firstName: 1, lastName: 1, profilePicture: 1, statistics: 1 }
+		)
+			.sort({ "statistics.survival.totalScore": -1 })
+			.limit(100);
 
-exports.liveSurvivalGames = async (category) => {};
+		return success("ok", users);
+	} catch (e) {
+		return handleException(e);
+	}
+};
 
-exports.friendsRecentSurvivalGames = async () => {};
+exports.liveSurvivalGames = async (category, page, limit) => {
+	return await this.liveGames("survival", category, page, limit);
+};
+
+exports.friendsRecentSurvivalGames = async (userId) => {
+	try {
+		const friends = await User.find(
+			{
+				"referer._id": userId,
+				hasCompletedSignup: true,
+			},
+			{ _id: 1 }
+		);
+
+		const friendsIds = [];
+		for (const friend of friends) {
+			friendsIds.push(friend._id);
+		}
+
+		const games = await Game.find(
+			{
+				status: "ended",
+				"creator._id": { $in: friendsIds },
+				"players._id": objectId(userId),
+			},
+			{ _id: 1, code: 1, creator: 1, category: 1, players: 1, gameType: 1 }
+		)
+			.sort({ createdAt: -1 })
+			.limit(5);
+
+		return success("ok", games);
+	} catch (e) {
+		return handleException(e);
+	}
+};
 
 /*
 try {

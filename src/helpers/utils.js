@@ -82,7 +82,12 @@ exports.leaveRoom = async (socketId, room) => {
 };
 
 exports.objectId = (input) => {
-	return mongoose.Types.ObjectId.createFromHexString(input);
+	if (typeof input === "string") {
+		return mongoose.Types.ObjectId.createFromHexString(input);
+	} else {
+		// "object"
+		return input;
+	}
 };
 
 exports.generateQR = async (text) => {
@@ -109,4 +114,20 @@ exports.xpNeededForNextLevel = (level) => {
 	}
 
 	return 500 + level * increment;
+};
+
+exports.scoreNeededForNextCheckpoint = (checkpoint) => {
+	switch (checkpoint) {
+		case 0:
+			return 50;
+		case 1:
+			return 100;
+		case 2:
+			return 200;
+		case 3:
+			return 300;
+
+		default:
+			break;
+	}
 };

@@ -122,8 +122,8 @@ router.get("/scoreboard/survival", async (req, res) => {
  *           type: string
  */
 router.get("/live/survival", async (req, res) => {
-	const { category } = req.query;
-	res.json(await liveSurvivalGames(category));
+	const { category, page, limit } = req.query;
+	res.json(await liveSurvivalGames(category, page, limit));
 });
 
 /**
@@ -135,7 +135,7 @@ router.get("/live/survival", async (req, res) => {
  *     summary: Friends Recent Survival Games
  */
 router.get("/friendsRecent/survival", async (req, res) => {
-	res.json(await friendsRecentSurvivalGames());
+	res.json(await friendsRecentSurvivalGames(req.session.user._id));
 });
 
 module.exports = router;

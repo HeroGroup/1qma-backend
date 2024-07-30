@@ -495,9 +495,27 @@ exports.chooseAccountType = async (params) => {
 				level: 0,
 				xpNeededForNextLevel: xpNeededForNextLevel(0),
 				totalXP: 0,
-				totalScore: 0,
+				normal: {
+					totalScore: 0,
+				},
+				survival: {
+					checkpoint: 0, // starter
+					avgRank: 0,
+					avgQuestionScore: 0,
+					avgScore: 0,
+					loses: 0,
+					rebuysCount: 0,
+					totalScore: 0,
+					adjustedScore: 0,
+				},
 			},
-			games: { played: 0, created: 0, won: 0, highScore: 0 },
+			games: {
+				played: 0,
+				created: 0,
+				won: 0,
+				highScore: 0,
+				survivalGamesPlayed: 0,
+			},
 			isActive: true,
 		},
 		{ new: true }
