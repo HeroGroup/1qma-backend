@@ -62,7 +62,7 @@ exports.liveGames = async (type, category, page = 1, limit = 5) => {
 			{
 				status: "created",
 				...(type ? { "gameType.id": type } : {}),
-				$or: [{ createMode: "0" }, { createMode: "1" }],
+				"createMode.id": { $in: ["0", "1"] },
 				...(category ? { "category.name": category } : {}),
 			},
 			{ _id: 1, code: 1, creator: 1, category: 1, players: 1, gameType: 1 }
