@@ -12,7 +12,11 @@ exports.gameTypes = [
 	{ id: "survival", text: "Survival" },
 ];
 
-exports.languages = [{ _id: "0", code: "en", title: "English" }];
+exports.languages = [
+	{ _id: "0", code: "en", title: "English" },
+	{ _id: "1", code: "de", title: "Deutsch" },
+	{ _id: "2", code: "fa", title: "فارسی" },
+];
 
 exports.genders = [
 	{ _id: "0", title: "Male" },
