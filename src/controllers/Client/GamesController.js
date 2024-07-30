@@ -32,7 +32,8 @@ exports.scoreboard = async (userId, page = 1, limit = 5) => {
 			"result.scoreboard._id": objectId(userId),
 		})
 			.skip((page - 1) * limit)
-			.limit(limit);
+			.limit(limit)
+			.sort({ endedAt: -1 });
 
 		const scoreboard = myGames.map((myGame) => {
 			const myRankIndex = myGame.result.scoreboard.findIndex((elm) => {
