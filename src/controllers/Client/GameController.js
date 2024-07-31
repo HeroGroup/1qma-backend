@@ -28,11 +28,25 @@ const createOrGetQuestion = async (
 			return objectId(questionId);
 		} else {
 			// create question first
+			const { _id, firstName, lastName, email, profilePicture } = user;
 			const questionObject = new Question({
 				category,
 				question,
 				answer,
-				user,
+				user: {
+					_id,
+					firstName,
+					lastName,
+					email,
+					profilePicture,
+				},
+				likes: 0,
+				dislikes: 0,
+				score: 0,
+				plays: 0,
+				answers: 0,
+				rates: 0,
+				avgRate: 0,
 				createdAt: moment(),
 			});
 			await questionObject.save();

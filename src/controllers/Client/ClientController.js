@@ -352,6 +352,13 @@ exports.addQuestion = async (params) => {
 			answer,
 			category,
 			user,
+			likes: 0,
+			dislikes: 0,
+			score: 0,
+			plays: 0,
+			answers: 0,
+			rates: 0,
+			avgRate: 0,
 			createdAt: moment(),
 		});
 		await newQuestion.save();
