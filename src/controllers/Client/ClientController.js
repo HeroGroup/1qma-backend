@@ -302,11 +302,7 @@ exports.listQuestions = async (userId, params) => {
 
 		const total = await Question.countDocuments(query);
 
-		const questions = await Question.find(query, {
-			_id: 1,
-			user: -1,
-			bookmarks: -1,
-		})
+		const questions = await Question.find(query)
 			.skip((page - 1) * limit)
 			.limit(limit);
 

@@ -4,7 +4,6 @@ const {
 	liveGames,
 	friendsRecentGames,
 	survivalScoreboard,
-	liveSurvivalGames,
 	friendsRecentSurvivalGames,
 	games,
 } = require("../../controllers/Client/GamesController");
@@ -121,9 +120,10 @@ router.get("/scoreboard/survival", async (req, res) => {
  *         schema:
  *           type: string
  */
-router.get("/live/survival", async (req, res) => {
+router.get("/live/:type", async (req, res) => {
+	const { type } = req.params;
 	const { category, page, limit } = req.query;
-	res.json(await liveSurvivalGames(category, page, limit));
+	res.json(await liveGames(type, category, page, limit));
 });
 
 /**

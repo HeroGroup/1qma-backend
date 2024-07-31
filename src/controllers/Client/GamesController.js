@@ -125,10 +125,6 @@ exports.survivalScoreboard = async () => {
 	}
 };
 
-exports.liveSurvivalGames = async (category, page, limit) => {
-	return await this.liveGames("survival", category, page, limit);
-};
-
 exports.friendsRecentSurvivalGames = async (userId) => {
 	try {
 		const friends = await User.find(
