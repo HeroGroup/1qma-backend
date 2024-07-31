@@ -33,6 +33,7 @@ const createOrGetQuestion = async (
 				question,
 				answer,
 				user,
+				createdAt: moment(),
 			});
 			await questionObject.save();
 
@@ -1316,7 +1317,7 @@ const calculateResult = async (gameId) => {
 		.reverse();
 
 	const players = game.players;
-	const details = game.questions.map((questionObj) => {
+	const details = game.questions.map(async (questionObj) => {
 		const questioner = players.find(
 			(elm) => elm._id.toString() === questionObj.user_id.toString()
 		);
@@ -1331,6 +1332,8 @@ const calculateResult = async (gameId) => {
 				rate: answerObj.rates.reduce((n, { rate }) => n + rate, 0),
 			};
 		});
+
+		await updateQuestionStatistics(questionObj);
 
 		return {
 			questioner,
@@ -1490,6 +1493,37 @@ const implementSurvivalResult = async (
 	);
 };
 
+const updateQuestionStatistics = async (obj) => {
+	// update score, plays, answers, rates, avgRate
+	const questionId = objectId(obj._id);
+	const question = await Question.findById(questionId);
+	if (!question) {
+		return;
+	}
+
+	const oldRates = question.rates;
+	const oldAvgRate = question.avgRate;
+	const currentRates = obj.rates?.length || 0;
+	const currentAnswers = obj.answers?.length || 0;
+	const questionScore = obj.rates.reduce((n, { rate }) => n + rate, 0);
+	const newAvgRate =
+		(oldRates * oldAvgRate + questionScore) / (oldRates + currentRates);
+
+	await Question.findOneAndUpdate(
+		{
+			_id: questionId,
+		},
+		{
+			$inc: {
+				score: questionScore,
+				plays: 1,
+				answers: currentAnswers,
+				rates: currentRates,
+			},
+			avgRate: newAvgRate,
+		}
+	);
+};
 /*
 try {
 	//

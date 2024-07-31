@@ -7,6 +7,14 @@ const questionSchema = new Schema({
 	answer: String,
 	user: Object,
 	bookmarks: Array,
+	likes: Number,
+	dislikes: Number,
+	score: Number,
+	plays: Number,
+	answers: Number,
+	rates: Number,
+	avgRate: Number,
+	createdAt: Date,
 });
 
 module.exports = mongoose.model("Question", questionSchema);

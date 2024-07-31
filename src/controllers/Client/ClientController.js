@@ -294,23 +294,23 @@ exports.listQuestions = async (userId, params) => {
 			typeQuery = { bookmarks: objectId(userId) };
 		}
 
-		const questions = await Question.find(
-			{
-				"category._id": category, // stored as string
-				...typeQuery,
-				...(search ? { question: { $regex: search, $options: "i" } } : {}),
-			},
-			{
-				_id: 1,
-				category: 1,
-				question: 1,
-				answer: 1,
-			}
-		)
+		const query = {
+			"category._id": category, // stored as string
+			...typeQuery,
+			...(search ? { question: { $regex: search, $options: "i" } } : {}),
+		};
+
+		const total = await Question.countDocuments(query);
+
+		const questions = await Question.find(query, {
+			_id: 1,
+			user: -1,
+			bookmarks: -1,
+		})
 			.skip((page - 1) * limit)
 			.limit(limit);
 
-		return success("ok", questions);
+		return success("ok", { total, questions });
 	} catch (e) {
 		return handleException(e);
 	}
@@ -356,6 +356,7 @@ exports.addQuestion = async (params) => {
 			answer,
 			category,
 			user,
+			createdAt: moment(),
 		});
 		await newQuestion.save();
 
