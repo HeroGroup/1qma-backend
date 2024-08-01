@@ -19,10 +19,11 @@ const {
 } = require("../../helpers/constants");
 const Game = require("../../models/Game");
 
-exports.init = async () => {
+exports.init = async (userId) => {
 	try {
 		const accountTypes = await AccountType.find();
 		const categories = await Category.find();
+		const user = await User.findById(userId);
 
 		return success("initialize parameters", {
 			languages,
@@ -31,6 +32,7 @@ exports.init = async () => {
 			accountTypes,
 			categories,
 			homePages,
+			user,
 		});
 	} catch (e) {
 		return handleException(e);

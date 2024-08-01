@@ -26,11 +26,7 @@ const {
  *     summary: Parameters needed to be initialized
  */
 router.get("/init", async (req, res) => {
-	const initResult = await init();
-	if (initResult.status === 1) {
-		initResult.data.user = req.session.user;
-	}
-	res.json(initResult);
+	res.json(await init(req.session.user._id));
 });
 
 /**
