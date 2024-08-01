@@ -15,6 +15,9 @@ const {
 	addQuestion,
 	listQuestions,
 	bookmarkQuestion,
+	likeQuestion,
+	topQuestions,
+	questionPerformance,
 } = require("../../controllers/Client/ClientController");
 
 /**
@@ -329,5 +332,111 @@ router.post("/questions/add", sameUser, async (req, res) => {
 router.post("/questions/bookmark", sameUser, async (req, res) => {
 	res.json(await bookmarkQuestion(req.body));
 });
+
+/**
+ * @openapi
+ * '/client/questions/like':
+ *  post:
+ *     tags:
+ *     - Client
+ *     summary: like a question
+ *     requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *           schema:
+ *            type: object
+ *            required:
+ *              - id
+ *              - questionId
+ *            properties:
+ *              id:
+ *                type: string
+ *                default: 63738495886737657388948
+ *              questionId:
+ *                type: string
+ *                default: 63738495886737657388948
+ */
+router.post("/questions/like", async (req, res) => {
+	res.json(await likeQuestion({ ...req.body, status: 1 }));
+});
+
+/**
+ * @openapi
+ * '/client/questions/dislike':
+ *  post:
+ *     tags:
+ *     - Client
+ *     summary: dislike a question
+ *     requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *           schema:
+ *            type: object
+ *            required:
+ *              - id
+ *              - questionId
+ *            properties:
+ *              id:
+ *                type: string
+ *                default: 63738495886737657388948
+ *              questionId:
+ *                type: string
+ *                default: 63738495886737657388948
+ */
+router.post("/questions/dislike", async (req, res) => {
+	res.json(await likeQuestion({ ...req.body, status: -1 }));
+});
+
+/**
+ * @openapi
+ * '/client/topQuestions':
+ *  get:
+ *     tags:
+ *     - Client
+ *     summary: fetch top questions (?type=public or ?type=private)
+ *     parameters:
+ *       - in: query
+ *         name: category
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: type
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: string
+ */
+router.get("/topQuestions", hasCompletedSignup, async (req, res) => {
+	res.json(await topQuestions(req.session.user._id, req.query));
+});
+
+/**
+ * @openapi
+ * '/client/questions/{id}/performance':
+ *  get:
+ *     tags:
+ *     - Client
+ *     summary: Question performance in games
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ */
+router.get(
+	"/questions/:id/performance",
+	hasCompletedSignup,
+	async (req, res) => {
+		res.json(await questionPerformance(req.params.id, req.query));
+	}
+);
 
 module.exports = router;

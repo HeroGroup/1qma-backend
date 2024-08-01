@@ -40,8 +40,6 @@ const createOrGetQuestion = async (
 					email,
 					profilePicture,
 				},
-				likes: 0,
-				dislikes: 0,
 				score: 0,
 				plays: 0,
 				answers: 0,

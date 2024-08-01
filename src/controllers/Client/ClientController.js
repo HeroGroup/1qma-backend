@@ -297,7 +297,7 @@ exports.listQuestions = async (userId, params) => {
 		}
 
 		const query = {
-			"category._id": objectId(category), // stored as string
+			"category._id": objectId(category),
 			...typeQuery,
 			...(search ? { question: { $regex: search, $options: "i" } } : {}),
 		};
@@ -354,8 +354,6 @@ exports.addQuestion = async (params) => {
 			answer,
 			category,
 			user,
-			likes: 0,
-			dislikes: 0,
 			score: 0,
 			plays: 0,
 			answers: 0,
@@ -408,6 +406,191 @@ exports.bookmarkQuestion = async (params) => {
 	} catch (e) {
 		return handleException(e);
 	}
+};
+
+exports.likeQuestion = async (params) => {
+	try {
+		const { id, questionId, status } = params;
+		if (!id) {
+			return fail("invalid user id!");
+		}
+
+		if (!questionId) {
+			return fail("invalid question id!");
+		}
+
+		if (!status) {
+			return fail("invalid status!");
+		}
+
+		const user = await User.findById(id);
+		if (!user) {
+			return fail("invalid user!");
+		}
+
+		const question = await Question.findById(questionId);
+		if (!question) {
+			return fail("invalid question!");
+		}
+
+		const liked = question.likes.includes(objectId(id));
+		const disliked = question.dislikes.includes(objectId(id));
+
+		if (status === 1) {
+			if (liked) {
+				// already liked
+				removeLike(questionId, id);
+			} else if (disliked) {
+				// already disliked
+				removeDislike(questionId, id);
+				like(questionId, id);
+			} else {
+				// neither liked, nor disliked yet
+				like(questionId, id);
+			}
+		} else {
+			// status === -1
+			if (liked) {
+				// already liked
+				removeLike(questionId, id);
+				dislike(questionId, id);
+			} else if (disliked) {
+				// already disliked
+				removeDislike(questionId, id);
+			} else {
+				// neither liked, nor disliked yet
+				dislike(questionId, id);
+			}
+		}
+
+		return success("Success!");
+	} catch (e) {
+		return handleException(e);
+	}
+};
+
+exports.topQuestions = async (userId, params) => {
+	try {
+		const { category, type } = params;
+		const page = params.page || 1;
+		const limit = params.limit || 5;
+
+		if (!type) {
+			return fail("invalid type! Type should be public or private.");
+		}
+
+		const questions = await Question.find({
+			...(category ? { "category._id": objectId(category) } : {}),
+			...(type === "private" ? { "user._id": objectId(userId) } : {}),
+		})
+			.sort({ score: -1 })
+			.skip((page - 1) * limit)
+			.limit(limit);
+
+		const res = questions.map((question) => {
+			const liked = question.likes.includes(objectId(userId));
+			const disliked = question.dislikes.includes(objectId(userId));
+
+			return {
+				category: question.category,
+				question: question.question,
+				answer: question.answer,
+				user: question.user,
+				likes: question.likes.length,
+				dislikes: question.dislikes.length,
+				liked,
+				disliked,
+				score: question.score,
+				plays: question.plays,
+				answers: question.answers,
+				rates: question.rates,
+				avgRate: question.avgRate,
+				createdAt: question.createdAt,
+			};
+		});
+
+		return success("ok", res);
+	} catch (e) {
+		return handleException(e);
+	}
+};
+
+exports.questionPerformance = async (questionId, params) => {
+	try {
+		if (!questionId) {
+			return fail("Invalid question id!");
+		}
+		const page = params.page || 1;
+		const limit = params.limit || 5;
+
+		const games = await Game.find(
+			{ "questions._id": objectId(questionId) },
+			{
+				_id: 1,
+				endedAt: 1,
+				questions: 1,
+			}
+		)
+			.sort({ endedAt: -1 })
+			.skip((page - 1) * limit)
+			.limit(limit);
+
+		const res = games.map((game) => {
+			return {
+				_id: game.id,
+				endedAt: game.endedAt,
+				question: game.questions.find((q) => q._id === objectId(questionId)),
+			};
+		});
+
+		return success("ok", res);
+	} catch (e) {
+		return handleException(e);
+	}
+};
+
+const like = async (questionId, userId) => {
+	await Question.findOneAndUpdate(
+		{ _id: objectId(questionId) },
+		{
+			$push: {
+				likes: objectId(userId),
+			},
+		}
+	);
+};
+
+const dislike = async (questionId, userId) => {
+	await Question.findOneAndUpdate(
+		{ _id: objectId(questionId) },
+		{
+			$push: {
+				dislikes: objectId(userId),
+			},
+		}
+	);
+};
+
+const removeLike = async (questionId, userId) => {
+	await Question.findOneAndUpdate(
+		{ _id: objectId(questionId) },
+		{
+			$pull: {
+				likes: objectId(userId),
+			},
+		}
+	);
+};
+
+const removeDislike = async (questionId, userId) => {
+	await Question.findOneAndUpdate(
+		{ _id: objectId(questionId) },
+		{
+			$pull: {
+				dislikes: objectId(userId),
+			},
+		}
+	);
 };
 
 /*
