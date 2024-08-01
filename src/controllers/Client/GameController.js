@@ -1385,10 +1385,10 @@ const calculateResult = async (gameId) => {
 
 		const $inc = {
 			"statistics.totalXp": item.totalXp,
+			"games.played": 1,
 			...(gameType.id === "normal"
 				? {
 						"statistics.normal.totalScore": item.totalScore,
-						"games.played": 1,
 				  }
 				: {}),
 		};
