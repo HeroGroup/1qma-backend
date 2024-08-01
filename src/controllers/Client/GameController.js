@@ -1347,7 +1347,7 @@ const calculateResult = async (gameId) => {
 			};
 		});
 
-		await updateQuestionStatistics(questionObj);
+		updateQuestionStatistics(questionObj);
 
 		return {
 			questioner,
@@ -1405,7 +1405,7 @@ const calculateResult = async (gameId) => {
 		);
 
 		if (gameType === "survival") {
-			await implementSurvivalResult(
+			implementSurvivalResult(
 				item._id,
 				plyr.statistics.survival,
 				plyr.games.survivalGamesPlayed,

@@ -295,7 +295,7 @@ exports.listQuestions = async (userId, params) => {
 		}
 
 		const query = {
-			"category._id": category, // stored as string
+			"category._id": objectId(category), // stored as string
 			...typeQuery,
 			...(search ? { question: { $regex: search, $options: "i" } } : {}),
 		};
