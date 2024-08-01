@@ -1356,7 +1356,7 @@ const calculateResult = async (gameId) => {
 			answers,
 		};
 	});
-	const gameType = game.type;
+	const gameType = game.gameType;
 
 	let rank = 1;
 	// update users statistics
@@ -1385,7 +1385,7 @@ const calculateResult = async (gameId) => {
 
 		const $inc = {
 			"statistics.totalXp": item.totalXp,
-			...(gameType === "normal"
+			...(gameType.id === "normal"
 				? {
 						"statistics.normal.totalScore": item.totalScore,
 						"games.played": 1,
@@ -1404,7 +1404,7 @@ const calculateResult = async (gameId) => {
 			}
 		);
 
-		if (gameType === "survival") {
+		if (gameType.id === "survival") {
 			await implementSurvivalResult(
 				item._id,
 				plyr.statistics.survival,
