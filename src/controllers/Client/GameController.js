@@ -1331,7 +1331,7 @@ const calculateResult = async (gameId) => {
 		.reverse();
 
 	const players = game.players;
-	const details = game.questions.map(async (questionObj) => {
+	const details = game.questions.map((questionObj) => {
 		const questioner = players.find(
 			(elm) => elm._id.toString() === questionObj.user_id.toString()
 		);
@@ -1405,7 +1405,7 @@ const calculateResult = async (gameId) => {
 		);
 
 		if (gameType === "survival") {
-			implementSurvivalResult(
+			await implementSurvivalResult(
 				item._id,
 				plyr.statistics.survival,
 				plyr.games.survivalGamesPlayed,
