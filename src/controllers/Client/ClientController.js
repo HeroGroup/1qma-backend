@@ -393,16 +393,56 @@ exports.bookmarkQuestion = async (params) => {
 			return fail("invalid question!");
 		}
 
+		if (!question.bookmarks.includes(objectId(id))) {
+			await Question.findOneAndUpdate(
+				{ _id: objectId(questionId) },
+				{
+					$push: {
+						bookmarks: objectId(id),
+					},
+				}
+			);
+
+			return success("Question bookmarked successfully!");
+		}
+
+		return fail("Question already bookmarked!");
+	} catch (e) {
+		return handleException(e);
+	}
+};
+
+exports.removeBookmarkQuestion = async (params) => {
+	try {
+		const { id, questionId } = params;
+		if (!id) {
+			return fail("invalid user id!");
+		}
+
+		if (!questionId) {
+			return fail("invalid question id!");
+		}
+
+		const user = await User.findById(id);
+		if (!user) {
+			return fail("invalid user!");
+		}
+
+		// const question = await Question.findById(questionId);
+		// if (!question) {
+		// 	return fail("invalid question!");
+		// }
+
 		await Question.findOneAndUpdate(
 			{ _id: objectId(questionId) },
 			{
-				$push: {
+				$pull: {
 					bookmarks: objectId(id),
 				},
 			}
 		);
 
-		return success("Question bookmarked successfully!");
+		return success("Question bookmark removed successfully!");
 	} catch (e) {
 		return handleException(e);
 	}
@@ -492,6 +532,7 @@ exports.topQuestions = async (userId, params) => {
 			const disliked = question.dislikes.includes(objectId(userId));
 
 			return {
+				_id: question._id,
 				category: question.category,
 				question: question.question,
 				answer: question.answer,
@@ -524,10 +565,11 @@ exports.questionPerformance = async (questionId, params) => {
 		const limit = params.limit || 5;
 
 		const games = await Game.find(
-			{ "questions._id": objectId(questionId) },
+			{ status: "ended", "questions._id": objectId(questionId) },
 			{
 				_id: 1,
 				endedAt: 1,
+				players: 1,
 				questions: 1,
 			}
 		)
@@ -536,10 +578,77 @@ exports.questionPerformance = async (questionId, params) => {
 			.limit(limit);
 
 		const res = games.map((game) => {
+			const question = game.questions.find(
+				(q) => q._id.toString() === questionId
+			);
+			const answers = question.answers.map((a) => {
+				return {
+					player: game.players.find(
+						(p) => p._id.toString() === a.user_id.toString()
+					),
+					answer: a.answer,
+					rate: a.rates.reduce((n, { rate }) => n + rate, 0),
+				};
+			});
 			return {
 				_id: game.id,
 				endedAt: game.endedAt,
-				question: game.questions.find((q) => q._id === objectId(questionId)),
+				question: {
+					question: question.question,
+					rate: question.rates.reduce((n, { rate }) => n + rate, 0),
+					answers,
+				},
+			};
+		});
+
+		return success("ok", res);
+	} catch (e) {
+		return handleException(e);
+	}
+};
+
+exports.questionsFromFriendsLatestGames = async (userId, params) => {
+	try {
+		const page = params.page || 1;
+		const limit = params.limit || 5;
+
+		const friends = await User.find(
+			{
+				"referer._id": objectId(userId),
+				hasCompletedSignup: true,
+			},
+			{ _id: 1 }
+		);
+
+		const friendsIds = [];
+		const friendsIdsString = [];
+		for (const friend of friends) {
+			friendsIds.push(friend._id);
+			friendsIdsString.push(friend._id.toString());
+		}
+
+		const games = await Game.find({
+			status: "ended",
+			"players._id": { $in: friendsIds },
+		})
+			.sort({ endedAt: -1 })
+			.skip((page - 1) * limit)
+			.limit(limit);
+
+		const res = games.map((game) => {
+			const question = game.questions.find(({ user_id }) =>
+				friendsIdsString.includes(user_id.toString())
+			);
+
+			const answer = question?.answers.find(({ user_id }) =>
+				friendsIdsString.includes(user_id.toString())
+			);
+			return {
+				gameId: game._id,
+				category: game.category.name,
+				gameType: game.gameType.text,
+				question: question?.question,
+				answer: answer?.answer,
 			};
 		});
 

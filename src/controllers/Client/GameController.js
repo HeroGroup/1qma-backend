@@ -1114,6 +1114,7 @@ exports.exitGame = async (params, socketId) => {
 		if ((leftPlayers?.length || 0) + 1 / totalPlayers > 0.3) {
 			// cancel game
 			canceled = true;
+			await refundPlayers(game, player_id);
 			io.to(gameId).emit("cancel game", {});
 		} else {
 			// remove player from game
@@ -1534,6 +1535,47 @@ const updateQuestionStatistics = async (obj) => {
 			},
 			avgRate: newAvgRate,
 		}
+	);
+};
+
+const refundPlayers = async (game, player_id) => {
+	// refund join game price to players rather than who is leaving
+	// and everyone who are connected rather than game creator
+	const connectedJoinedPlayers = game.players.filter(
+		(plyr) =>
+			plyr.status === "connected" &&
+			plyr._id !== player_id &&
+			plyr._id !== game.creator._id
+	);
+
+	const connectedJoinedPlayersIds = [];
+	for (const i of connectedJoinedPlayers) {
+		connectedJoinedPlayersIds.push(i._id);
+	}
+
+	const joinGamePriceSetting = await Setting.findOne({
+		key: "JOIN_GAME_PRICE_BRONZE",
+	});
+	const joinGamePrice = joinGamePriceSetting?.value || 2;
+
+	await User.updateMany(
+		{ _id: { $in: connectedJoinedPlayersIds } },
+		{ $inc: { "assets.coins.bronze": joinGamePrice } }
+	);
+
+	// if creator is still connected, refung create game price
+	const creator = game.players.find(
+		(plyr) => plyr.status === "connected" && plyr._id === game.creator._id
+	);
+
+	const createGamePriceSetting = await Setting.findOne({
+		key: "CREATE_GAME_PRICE_BRONZE",
+	});
+	const createGamePrice = createGamePriceSetting?.value || 2;
+
+	await User.findOneAndUpdate(
+		{ _id: creator._id },
+		{ $inc: { "assets.coins.bronze": createGamePrice } }
 	);
 };
 /*

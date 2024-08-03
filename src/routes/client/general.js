@@ -15,9 +15,11 @@ const {
 	addQuestion,
 	listQuestions,
 	bookmarkQuestion,
+	removeBookmarkQuestion,
 	likeQuestion,
 	topQuestions,
 	questionPerformance,
+	questionsFromFriendsLatestGames,
 } = require("../../controllers/Client/ClientController");
 
 /**
@@ -335,6 +337,34 @@ router.post("/questions/bookmark", sameUser, async (req, res) => {
 
 /**
  * @openapi
+ * '/client/questions/removeBookmark':
+ *  post:
+ *     tags:
+ *     - Client
+ *     summary: Remove Bookmark a question
+ *     requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *           schema:
+ *            type: object
+ *            required:
+ *              - id
+ *              - questionId
+ *            properties:
+ *              id:
+ *                type: string
+ *                default: 63738495886737657388948
+ *              questionId:
+ *                type: string
+ *                default: 63738495886737657388948
+ */
+router.post("/questions/removeBookmark", sameUser, async (req, res) => {
+	res.json(await removeBookmarkQuestion(req.body));
+});
+
+/**
+ * @openapi
  * '/client/questions/like':
  *  post:
  *     tags:
@@ -357,7 +387,7 @@ router.post("/questions/bookmark", sameUser, async (req, res) => {
  *                type: string
  *                default: 63738495886737657388948
  */
-router.post("/questions/like", async (req, res) => {
+router.post("/questions/like", sameUser, async (req, res) => {
 	res.json(await likeQuestion({ ...req.body, status: 1 }));
 });
 
@@ -385,7 +415,7 @@ router.post("/questions/like", async (req, res) => {
  *                type: string
  *                default: 63738495886737657388948
  */
-router.post("/questions/dislike", async (req, res) => {
+router.post("/questions/dislike", sameUser, async (req, res) => {
 	res.json(await likeQuestion({ ...req.body, status: -1 }));
 });
 
@@ -436,6 +466,33 @@ router.get(
 	hasCompletedSignup,
 	async (req, res) => {
 		res.json(await questionPerformance(req.params.id, req.query));
+	}
+);
+
+/**
+ * @openapi
+ * '/client/questionsFromFriendsLatestGames':
+ *  get:
+ *     tags:
+ *     - Client
+ *     summary: fetch questions from friends latest games
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: string
+ */
+router.get(
+	"/questionsFromFriendsLatestGames",
+	hasCompletedSignup,
+	async (req, res) => {
+		res.json(
+			await questionsFromFriendsLatestGames(req.session.user._id, req.query)
+		);
 	}
 );
 

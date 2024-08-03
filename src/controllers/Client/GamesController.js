@@ -81,7 +81,7 @@ exports.friendsRecentGames = async (userId) => {
 	try {
 		const friends = await User.find(
 			{
-				"referer._id": userId,
+				"referer._id": objectId(userId),
 				hasCompletedSignup: true,
 			},
 			{ _id: 1 }
@@ -129,7 +129,7 @@ exports.friendsRecentSurvivalGames = async (userId) => {
 	try {
 		const friends = await User.find(
 			{
-				"referer._id": userId,
+				"referer._id": objectId(userId),
 				hasCompletedSignup: true,
 			},
 			{ _id: 1 }
