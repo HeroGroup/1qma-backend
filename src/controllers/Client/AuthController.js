@@ -504,7 +504,7 @@ exports.chooseAccountType = async (params) => {
 					avgQuestionScore: 0,
 					avgScore: 0,
 					loses: 0,
-					rebuysCount: 0,
+					rebuys: 0,
 					totalScore: 0,
 					adjustedScore: 0,
 				},

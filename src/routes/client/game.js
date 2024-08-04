@@ -16,6 +16,8 @@ const {
 	showResult,
 	exitGame,
 	invitePlayer,
+	keepMyScore,
+	backToCheckpoint,
 } = require("../../controllers/Client/GameController");
 const { sameUser } = require("../../middlewares/sameUser");
 const { isPlayerInGame } = require("../../middlewares/isPlayerInGame");
@@ -415,6 +417,62 @@ router.get("/:gameId/result", isPlayerInGame, async (req, res) => {
  */
 router.post("/leave", isPlayerInGame, async (req, res) => {
 	res.json(await exitGame(req.body, req.session.socketId));
+});
+
+/**
+ * @openapi
+ * '/game/keepMyScore':
+ *  post:
+ *     tags:
+ *     - Game
+ *     summary: keep the score of lost player
+ *     requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *           schema:
+ *            type: object
+ *            required:
+ *              - id
+ *              - gameId
+ *            properties:
+ *              id:
+ *                type: string
+ *                default: 65445678098765456
+ *              gameId:
+ *                type: string
+ *                default: 65445678098765456
+ */
+router.post("/keepMyScore", isPlayerInGame, async (req, res) => {
+	res.json(await keepMyScore());
+});
+
+/**
+ * @openapi
+ * '/game/backToCheckpoint':
+ *  post:
+ *     tags:
+ *     - Game
+ *     summary: Lost player decides to go back to previous checkpoint
+ *     requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *           schema:
+ *            type: object
+ *            required:
+ *              - id
+ *              - gameId
+ *            properties:
+ *              id:
+ *                type: string
+ *                default: 65445678098765456
+ *              gameId:
+ *                type: string
+ *                default: 65445678098765456
+ */
+router.post("/backToCheckpoint", isPlayerInGame, async (req, res) => {
+	res.json(await backToCheckpoint());
 });
 
 module.exports = router;

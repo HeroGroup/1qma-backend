@@ -1262,6 +1262,67 @@ exports.reconnectPlayer = async (userId, socketId) => {
 	}
 };
 
+exports.keepMyScore = async (params) => {
+	try {
+		// increase total score and adjusted score
+		const { id, gameId } = params;
+		if (!gameId) {
+			return fail("invalid game id!");
+		}
+
+		const game = await Game.findById(gameId);
+		if (!game) {
+			return fail("invalid game");
+		}
+
+		if (game.gameType.id !== "survival") {
+			return fail("invalid operation!");
+		}
+
+		const keepScorePriceSetting = await Setting.findOne({
+			key: "KEEP_SCORE_PRICE_BRONZE",
+		});
+		const keepScorePrice = keepScorePriceSetting?.value || 5;
+
+		const user = await User.findById(id);
+
+		const avgRank = 0;
+		const userTotalScore = 0;
+		const score = 0;
+		const newTotalScore = userTotalScore + score;
+		const userCheckpoint = 0;
+		let updateCheckpoint = false;
+		// update checkpoint if applicable
+		const _scoreNeededForNextCheckpoint =
+			scoreNeededForNextCheckpoint(userCheckpoint);
+		if (newTotalScore > _scoreNeededForNextCheckpoint) {
+			updateCheckpoint = true;
+		}
+
+		await User.findOneAndUpdate(
+			{ _id: objectId(id) },
+			{
+				"statistics.survival.adjustedScore":
+					(1.2 - avgRank / 25) * newTotalScore,
+				$inc: {
+					"assets.coins.bronze": -keepScorePrice,
+					"statistics.survival.totalScore": score,
+					"statistics.survival.rebuys": 1,
+					...(updateCheckpoint ? { "statistics.survival.checkpoint": 1 } : {}),
+				},
+			}
+		);
+		return success("ok");
+	} catch (e) {
+		return handleException(e);
+	}
+};
+
+exports.backToCheckpoint = async () => {
+	// do nothing
+	return success("ok");
+};
+
 const calculateResult = async (gameId) => {
 	console.time("calculate-game-result");
 
@@ -1361,12 +1422,12 @@ const calculateResult = async (gameId) => {
 	// update users statistics
 	for (const item of scoreboard) {
 		const plyr = await User.findById(item._id);
-		item["avgRank"] = plyr.statistics?.survival?.avgRank || 0;
-		const playerHighScore = plyr.games?.highScore || 0;
-		const currentXp = plyr.statistics?.totalXP || 0 + item.totalXP; // 450 + 150 = 600
-		let level = plyr.statistics?.level || 0; // 0
+		item["avgRank"] = plyr.statistics.survival?.avgRank || 0;
+		const playerHighScore = plyr.games.highScore || 0;
+		const currentXp = plyr.statistics.totalXP || 0 + item.totalXP; // 450 + 150 = 600
+		let level = plyr.statistics.level || 0; // 0
 		let _xpNeededForNextLevel = xpNeededForNextLevel(level); // 500
-		if (currentXp >= _xpNeededForNextLevel) {
+		if (parseInt(currentXp) >= parseInt(_xpNeededForNextLevel)) {
 			// update level and xpNeededForNextLevel
 			level++; // 1
 			_xpNeededForNextLevel = xpNeededForNextLevel(level); // 1000
@@ -1468,7 +1529,7 @@ const implementSurvivalResult = async (
 	let updateCheckpoint = false;
 	let newTotalScore = totalScore + itemTotalScore;
 
-	if (checkpoint === 0 || rank >= avgRank) {
+	if (checkpoint === 0 || rank <= avgRank) {
 		// starter or win condition, update total score anyway
 		won = true;
 
@@ -1478,9 +1539,9 @@ const implementSurvivalResult = async (
 		if (newTotalScore > _scoreNeededForNextCheckpoint) {
 			updateCheckpoint = true;
 		}
-	} else if (checkpoint > 0 && rank < avgRank) {
+	} else if (checkpoint > 0 && rank > avgRank) {
 		// lose condition
-		// let user decide
+		// let user decide in later APIs
 	}
 
 	await User.findOneAndUpdate(
@@ -1578,6 +1639,7 @@ const refundPlayers = async (game, player_id) => {
 		{ $inc: { "assets.coins.bronze": createGamePrice } }
 	);
 };
+
 /*
 try {
 	//
