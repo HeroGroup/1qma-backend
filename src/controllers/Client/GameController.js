@@ -1286,11 +1286,10 @@ exports.keepMyScore = async (params) => {
 
 		const user = await User.findById(id);
 
-		const avgRank = 0;
-		const userTotalScore = 0;
-		const score = 0;
+		const { avgRank, userTotalScore, userCheckpoint } =
+			user.statistics.survival;
+		const score = game.result.scoreboard.find((s) => s._id === user._id);
 		const newTotalScore = userTotalScore + score;
-		const userCheckpoint = 0;
 		let updateCheckpoint = false;
 		// update checkpoint if applicable
 		const _scoreNeededForNextCheckpoint =
