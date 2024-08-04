@@ -278,9 +278,9 @@ exports.listQuestions = async (userId, params) => {
 		const page = params.page || 1;
 		const limit = params.limit || 5;
 
-		if (!category) {
-			return fail("invalid category!");
-		}
+		// if (!category) {
+		// 	return fail("invalid category!");
+		// }
 		if (!type) {
 			return fail(
 				"invalid type! Type should be public, private, or bookmarked."
@@ -297,7 +297,7 @@ exports.listQuestions = async (userId, params) => {
 		}
 
 		const query = {
-			"category._id": objectId(category),
+			...(category ? { "category._id": objectId(category) } : {}),
 			...typeQuery,
 			...(search ? { question: { $regex: search, $options: "i" } } : {}),
 		};
