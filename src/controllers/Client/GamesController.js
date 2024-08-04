@@ -8,10 +8,10 @@ exports.games = async (userId, type, category, page = 1, limit = 5) => {
 		const games = await Game.find(
 			{
 				status: "ended",
-				...(type === "all"
-					? {}
-					: { players: { _id: userId, status: "connected" } }),
-				...(category ? { "category.name": category } : {}),
+				...(type === "private"
+					? { "result.scoreboard._id": objectId(userId) }
+					: {}),
+				...(category ? { "category.id": category } : {}),
 			},
 			{ _id: 1, code: 1, creator: 1, category: 1, players: 1, gameType: 1 }
 		)
