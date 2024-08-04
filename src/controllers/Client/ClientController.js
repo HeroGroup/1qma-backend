@@ -653,7 +653,7 @@ exports.questionsFromFriendsLatestGames = async (userId, params) => {
 
 		const games = await Game.find({
 			status: "ended",
-			"players._id": { $in: friendsIds },
+			"result.scoreboard._id": { $in: friendsIds },
 		})
 			.sort({ endedAt: -1 })
 			.skip((page - 1) * limit)

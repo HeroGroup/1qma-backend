@@ -98,7 +98,7 @@ exports.friendsRecentGames = async (userId) => {
 		const games = await Game.find(
 			{
 				status: "ended",
-				"players._id": { $in: friendsIds },
+				"result.scoreboard._id": { $in: friendsIds },
 			},
 			{ _id: 1, code: 1, creator: 1, category: 1, players: 1, gameType: 1 }
 		)
@@ -147,7 +147,7 @@ exports.friendsRecentSurvivalGames = async (userId) => {
 			{
 				status: "ended",
 				"creator._id": { $in: friendsIds },
-				"players._id": objectId(userId),
+				"result.scoreboard._id": objectId(userId),
 			},
 			{ _id: 1, code: 1, creator: 1, category: 1, players: 1, gameType: 1 }
 		)
