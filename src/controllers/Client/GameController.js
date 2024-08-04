@@ -108,7 +108,10 @@ exports.init = async () => {
 			eachStepDurationSeconds: eachStepDurationSetting?.value || 120,
 			waitingTimeSeconds: waitingTimeSecondsSetting?.value || 120, // in wating room
 			numberOfRetries: numberOfRetriesSetting?.value || 2, // in wating room
-			keepScorePrice: keepScorePriceSetting?.value || 5,
+			keepScorePrice: {
+				coin: "bronze",
+				count: keepScorePriceSetting?.value || 5,
+			},
 			categories,
 		});
 	} catch (e) {
