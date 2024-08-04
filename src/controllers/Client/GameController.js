@@ -1046,7 +1046,7 @@ exports.showResult = async (gameId, userId) => {
 					statistics = {
 						...user.statistics,
 						score: playerScoreboard?.totalScore,
-						xp: playerScoreboard?.totalXp,
+						xp: playerScoreboard?.totalXP,
 						reward: playerScoreboard?.reward,
 					};
 
@@ -1322,7 +1322,7 @@ const calculateResult = async (gameId) => {
 				answersRates: answersRatesRaw,
 				questionRate,
 				totalScore,
-				totalXp: totalScore * 15,
+				totalXP: totalScore * 15,
 				reward: { bronze: 0 },
 			};
 		})
@@ -1363,7 +1363,7 @@ const calculateResult = async (gameId) => {
 		const plyr = await User.findById(item._id);
 		item["avgRank"] = plyr.statistics?.survival?.avgRank || 0;
 		const playerHighScore = plyr.games?.highScore || 0;
-		const currentXp = plyr.statistics?.totalXP || 0 + item.totalXp; // 450 + 150 = 600
+		const currentXp = plyr.statistics?.totalXP || 0 + item.totalXP; // 450 + 150 = 600
 		let level = plyr.statistics?.level || 0; // 0
 		let _xpNeededForNextLevel = xpNeededForNextLevel(level); // 500
 		if (currentXp >= _xpNeededForNextLevel) {
@@ -1383,7 +1383,7 @@ const calculateResult = async (gameId) => {
 		}
 
 		const $inc = {
-			"statistics.totalXp": item.totalXp,
+			"statistics.totalXP": item.totalXP,
 			"games.played": 1,
 			...(gameType.id === "normal"
 				? {
