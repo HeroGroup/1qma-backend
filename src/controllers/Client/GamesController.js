@@ -43,6 +43,7 @@ exports.scoreboard = async (userId, page = 1, limit = 5) => {
 			});
 
 			return {
+				gameId: myGame._id,
 				endedAt: myGame.endedAt,
 				gameType: myGame.gameType,
 				category: myGame.category,
