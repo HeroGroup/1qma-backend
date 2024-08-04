@@ -94,6 +94,10 @@ exports.init = async () => {
 			key: "NUMBER_OF_FIND_PLAYERS_RETRIES",
 		});
 
+		const keepScorePriceSetting = await Setting.findOne({
+			key: "KEEP_SCORE_PRICE_BRONZE",
+		});
+
 		const categories = await Category.find();
 
 		return success("initialize game parameters", {
@@ -104,6 +108,7 @@ exports.init = async () => {
 			eachStepDurationSeconds: eachStepDurationSetting?.value || 120,
 			waitingTimeSeconds: waitingTimeSecondsSetting?.value || 120, // in wating room
 			numberOfRetries: numberOfRetriesSetting?.value || 2, // in wating room
+			keepScorePrice: keepScorePriceSetting?.value || 5,
 			categories,
 		});
 	} catch (e) {
