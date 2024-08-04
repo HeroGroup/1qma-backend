@@ -308,6 +308,29 @@ exports.listQuestions = async (userId, params) => {
 			.skip((page - 1) * limit)
 			.limit(limit);
 
+		const res = questions.map((question) => {
+			const liked = question.likes.includes(objectId(userId));
+			const disliked = question.dislikes.includes(objectId(userId));
+
+			return {
+				_id: question._id,
+				category: question.category,
+				question: question.question,
+				answer: question.answer,
+				user: question.user,
+				likes: question.likes.length,
+				dislikes: question.dislikes.length,
+				liked,
+				disliked,
+				score: question.score,
+				plays: question.plays,
+				answers: question.answers,
+				rates: question.rates,
+				avgRate: question.avgRate,
+				createdAt: question.createdAt,
+			};
+		});
+
 		return success("ok", { total, questions });
 	} catch (e) {
 		return handleException(e);
