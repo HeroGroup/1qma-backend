@@ -281,6 +281,7 @@ exports.listQuestions = async (userId, params) => {
 		// if (!category) {
 		// 	return fail("invalid category!");
 		// }
+
 		if (!type) {
 			return fail(
 				"invalid type! Type should be public, private, or bookmarked."
@@ -331,7 +332,7 @@ exports.listQuestions = async (userId, params) => {
 			};
 		});
 
-		return success("ok", { total, questions });
+		return success("ok", { total, questions: res });
 	} catch (e) {
 		return handleException(e);
 	}
