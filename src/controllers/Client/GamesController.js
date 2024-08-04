@@ -4,7 +4,7 @@ const User = require("../../models/User");
 
 exports.games = async (userId, type, category, page = 1, limit = 5) => {
 	try {
-		if (type !== "private" || type !== "") {
+		if (!["", "private"].includes(type)) {
 			return fail("invalid type!");
 		}
 		const games = await Game.find(
