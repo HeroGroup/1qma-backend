@@ -287,7 +287,7 @@ exports.listQuestions = async (userId, params) => {
 			);
 		}
 
-		let typeQuery = {};
+		let typeQuery = { showNothing: true };
 		if (type === "public") {
 			typeQuery = { user: { $exists: false } };
 		} else if (type === "private") {
