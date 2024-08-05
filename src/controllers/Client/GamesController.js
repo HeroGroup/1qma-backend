@@ -68,7 +68,15 @@ exports.liveGames = async (type, category, page = 1, limit = 5) => {
 				"createMode.id": { $in: ["0", "1"] },
 				...(category ? { "category.name": category } : {}),
 			},
-			{ _id: 1, code: 1, creator: 1, category: 1, players: 1, gameType: 1 }
+			{
+				_id: 1,
+				code: 1,
+				creator: 1,
+				category: 1,
+				players: 1,
+				gameType: 1,
+				createdAt: 1,
+			}
 		)
 			.sort({ createdAt: -1 })
 			.skip((page - 1) * limit)
@@ -145,6 +153,7 @@ exports.friendsRecentSurvivalGames = async (userId) => {
 
 		const games = await Game.find(
 			{
+				"gameType.id": "survival",
 				status: "ended",
 				"creator._id": { $in: friendsIds },
 				"result.scoreboard._id": objectId(userId),
