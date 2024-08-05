@@ -92,7 +92,7 @@ router.get("/live", async (req, res) => {
  *     summary: Friends Recent Games
  */
 router.get("/friendsRecent", async (req, res) => {
-	res.json(friendsRecentGames(req.session.user._id));
+	res.json(await friendsRecentGames(req.session.user._id));
 });
 
 /**
