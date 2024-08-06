@@ -312,6 +312,7 @@ exports.listQuestions = async (userId, params) => {
 		const res = questions.map((question) => {
 			const liked = question.likes.includes(objectId(userId));
 			const disliked = question.dislikes.includes(objectId(userId));
+			const bookmarked = question.bookmarks.includes(objectId(userId));
 
 			return {
 				_id: question._id,
@@ -323,6 +324,7 @@ exports.listQuestions = async (userId, params) => {
 				dislikes: question.dislikes.length,
 				liked,
 				disliked,
+				bookmarked,
 				score: question.score,
 				plays: question.plays,
 				answers: question.answers,
