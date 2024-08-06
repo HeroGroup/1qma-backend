@@ -21,6 +21,7 @@ const {
 } = require("../../controllers/Client/GameController");
 const { sameUser } = require("../../middlewares/sameUser");
 const { isPlayerInGame } = require("../../middlewares/isPlayerInGame");
+const { hasCompletedSignup } = require("../../middlewares/hasCompletedSignup");
 
 /**
  * @openapi
@@ -387,7 +388,7 @@ router.post("/rateQuestions", sameUser, isPlayerInGame, async (req, res) => {
  *           type: string
  *         required: true
  */
-router.get("/:gameId/result", isPlayerInGame, async (req, res) => {
+router.get("/:gameId/result", hasCompletedSignup, async (req, res) => {
 	res.json(await showResult(req.params.gameId, req.session.user._id));
 });
 
