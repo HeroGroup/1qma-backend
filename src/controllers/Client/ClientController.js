@@ -249,8 +249,8 @@ exports.userDetails = async (id) => {
 			.limit(5);
 
 		const latestGamesMapped = latestGames.map((item) => {
-			const userRankIndex = item.result?.scoreboard.findIndex((elm) => {
-				return elm._id.toString() === user._id.toString();
+			const userRankIndex = item.result?.scoreboard?.findIndex((elm) => {
+				return elm._id.toString() === id;
 			});
 			return {
 				_id: item._id,
