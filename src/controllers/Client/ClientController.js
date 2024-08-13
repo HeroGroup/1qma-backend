@@ -242,13 +242,14 @@ exports.userDetails = async (id) => {
 		}
 
 		const latestGames = await Game.find({
-			"result.scoreboard._id": user._id,
+			"result.scoreboard._id": objectId(id),
+			endedAt: { $exists: true },
 		})
 			.sort({ endedAt: -1 })
 			.limit(5);
 
 		const latestGamesMapped = latestGames.map((item) => {
-			const userRankIndex = item.result.scoreboard.findIndex((elm) => {
+			const userRankIndex = item.result?.scoreboard.findIndex((elm) => {
 				return elm._id.toString() === user._id.toString();
 			});
 			return {
@@ -259,7 +260,7 @@ exports.userDetails = async (id) => {
 				gameType: item.gameType,
 				endedAt: item.endedAt,
 				rank: userRankIndex + 1,
-				score: item.result.scoreboard[userRankIndex]?.totalScore || 0,
+				score: item.result?.scoreboard[userRankIndex]?.totalScore || 0,
 			};
 		});
 		return success("User retrieved successfully!", {
