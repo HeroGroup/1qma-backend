@@ -1433,10 +1433,12 @@ const calculateResult = async (gameId) => {
 		const playerHighScore = plyr.games.highScore || 0;
 		const currentXp = plyr.statistics.totalXP || 0 + item.totalXP; // 450 + 150 = 600
 		let level = plyr.statistics.level || 0; // 0
-		let _xpNeededForNextLevel = xpNeededForNextLevel(level); // 500
+		let currentLevelXP = plyr.statistics.currentLevelXP || 0;
+		let _xpNeededForNextLevel = plyr.statistics.xpNeededForNextLevel; // xpNeededForNextLevel(level); // 500
 		if (parseInt(currentXp) >= parseInt(_xpNeededForNextLevel)) {
 			// update level and xpNeededForNextLevel
 			level++; // 1
+			currentLevelXP = _xpNeededForNextLevel;
 			_xpNeededForNextLevel = xpNeededForNextLevel(level); // 1000
 
 			// send notification for updated level
@@ -1464,6 +1466,7 @@ const calculateResult = async (gameId) => {
 			{ _id: item._id },
 			{
 				"statistics.level": level,
+				"statistics.currentLevelXP": currentLevelXP,
 				"statistics.xpNeededForNextLevel": _xpNeededForNextLevel,
 				"games.highScore":
 					item.totalScore > playerHighScore ? item.totalScore : playerHighScore,

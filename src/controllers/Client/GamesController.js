@@ -5,6 +5,7 @@ const User = require("../../models/User");
 exports.games = async (userId, type, category, page = 1, limit = 5) => {
 	try {
 		if (!["", "private"].includes(type)) {
+			// empty means public
 			return fail("invalid type!");
 		}
 		const games = await Game.find(
@@ -15,7 +16,16 @@ exports.games = async (userId, type, category, page = 1, limit = 5) => {
 					: {}),
 				...(category ? { "category._id": objectId(category) } : {}),
 			},
-			{ _id: 1, code: 1, creator: 1, category: 1, players: 1, gameType: 1 }
+			{
+				_id: 1,
+				code: 1,
+				creator: 1,
+				category: 1,
+				players: 1,
+				gameType: 1,
+				endedAt: 1,
+				result: 1,
+			}
 		)
 			.sort({ createdAt: -1 })
 			.skip((page - 1) * limit)

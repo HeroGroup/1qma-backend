@@ -671,10 +671,11 @@ exports.questionsFromFriendsLatestGames = async (userId, params) => {
 			);
 			return {
 				gameId: game._id,
-				category: game.category.name,
-				gameType: game.gameType.text,
+				category: game.category,
+				gameType: game.gameType,
 				question: question?.question,
 				answer: answer?.answer,
+				endedAt: game.endedAt,
 			};
 		});
 

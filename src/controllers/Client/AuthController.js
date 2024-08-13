@@ -493,6 +493,7 @@ exports.chooseAccountType = async (params) => {
 			},
 			statistics: {
 				level: 0,
+				currentLevelXP: 0,
 				xpNeededForNextLevel: xpNeededForNextLevel(0),
 				totalXP: 0,
 				normal: {
