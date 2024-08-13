@@ -118,7 +118,15 @@ exports.friendsRecentGames = async (userId) => {
 				status: "ended",
 				"result.scoreboard._id": { $in: friendsIds },
 			},
-			{ _id: 1, code: 1, creator: 1, category: 1, players: 1, gameType: 1 }
+			{
+				_id: 1,
+				code: 1,
+				creator: 1,
+				category: 1,
+				players: 1,
+				gameType: 1,
+				result: 1,
+			}
 		)
 			.sort({ createdAt: -1 })
 			.limit(5);
@@ -168,9 +176,17 @@ exports.friendsRecentSurvivalGames = async (userId) => {
 				"creator._id": { $in: friendsIds },
 				"result.scoreboard._id": objectId(userId),
 			},
-			{ _id: 1, code: 1, creator: 1, category: 1, players: 1, gameType: 1 }
+			{
+				_id: 1,
+				code: 1,
+				creator: 1,
+				category: 1,
+				players: 1,
+				gameType: 1,
+				endedAt: 1,
+			}
 		)
-			.sort({ createdAt: -1 })
+			.sort({ endedAt: -1 })
 			.limit(5);
 
 		return success("ok", games);

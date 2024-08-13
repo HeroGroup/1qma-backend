@@ -242,8 +242,7 @@ exports.userDetails = async (id) => {
 		}
 
 		const latestGames = await Game.find({
-			"players._id": user._id,
-			status: "ended",
+			"result.scoreboard._id": user._id,
 		})
 			.sort({ endedAt: -1 })
 			.limit(5);
@@ -589,6 +588,8 @@ exports.questionPerformance = async (questionId, params) => {
 		}
 		const page = params.page || 1;
 		const limit = params.limit || 5;
+
+		// const question = await Question.findById(questionId);
 
 		const games = await Game.find(
 			{ status: "ended", "questions._id": objectId(questionId) },
