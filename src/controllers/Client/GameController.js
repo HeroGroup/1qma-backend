@@ -1435,8 +1435,16 @@ const calculateResult = async (gameId) => {
 		let level = plyr.statistics.level || 0; // 0
 		let currentLevelXP = plyr.statistics.currentLevelXP || 0;
 		let _xpNeededForNextLevel = plyr.statistics.xpNeededForNextLevel; // xpNeededForNextLevel(level); // 500
+
+		console.log(
+			`${plyr.email} current xp: ${currentXp}, next level xp: ${_xpNeededForNextLevel}`
+		);
+
+		let shouldUpdateLevel = false;
+
 		if (parseInt(currentXp) >= parseInt(_xpNeededForNextLevel)) {
 			// update level and xpNeededForNextLevel
+			shouldUpdateLevel = true;
 			level++; // 1
 			currentLevelXP = _xpNeededForNextLevel;
 			_xpNeededForNextLevel = xpNeededForNextLevel(level); // 1000
@@ -1465,9 +1473,13 @@ const calculateResult = async (gameId) => {
 		await User.findOneAndUpdate(
 			{ _id: item._id },
 			{
-				"statistics.level": level,
-				"statistics.currentLevelXP": currentLevelXP,
-				"statistics.xpNeededForNextLevel": _xpNeededForNextLevel,
+				...(shouldUpdateLevel
+					? {
+							"statistics.level": level,
+							"statistics.currentLevelXP": currentLevelXP,
+							"statistics.xpNeededForNextLevel": _xpNeededForNextLevel,
+					  }
+					: {}),
 				"games.highScore":
 					item.totalScore > playerHighScore ? item.totalScore : playerHighScore,
 				$inc,
