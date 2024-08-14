@@ -76,7 +76,7 @@ exports.liveGames = async (type, category, page = 1, limit = 5) => {
 				status: "created",
 				...(type ? { "gameType.id": type } : {}),
 				"createMode.id": { $in: ["0", "1"] },
-				...(category ? { "category._id": category } : {}),
+				...(category ? { "category._id": objectId(category) } : {}),
 			},
 			{
 				_id: 1,
