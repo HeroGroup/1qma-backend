@@ -590,7 +590,7 @@ exports.questionPerformance = async (questionId, params) => {
 		const page = params.page || 1;
 		const limit = params.limit || 5;
 
-		// const question = await Question.findById(questionId);
+		const baseQuestion = await Question.findById(questionId);
 
 		const games = await Game.find(
 			{ status: "ended", "questions._id": objectId(questionId) },
@@ -626,6 +626,11 @@ exports.questionPerformance = async (questionId, params) => {
 					rate: question.rates.reduce((n, { rate }) => n + rate, 0),
 					answers,
 				},
+				likes: baseQuestion.likes.length || 0,
+				dislikes: baseQuestion.dislikes.length || 0,
+				score: baseQuestion.score || 0,
+				rates: baseQuestion.rates || 0,
+				avgRate: baseQuestion.avgRate || 0,
 			};
 		});
 
