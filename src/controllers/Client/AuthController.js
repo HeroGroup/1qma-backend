@@ -50,6 +50,19 @@ exports.init = async () => {
 	const accountTypes = await AccountType.find().sort({ order: 1 });
 	const categories = await Category.find().sort({ order: 1 });
 
+	const normalGameVideoLinkSetting = await Setting.findOne({
+		key: "NORMAL_GAME_VIDEO_LINK",
+	});
+	const normalGameExplanationSetting = await Setting.findOne({
+		key: "NORMAL_GAME_EXPLANATION",
+	});
+	const survivalGameVideoLinkSetting = await Setting.findOne({
+		key: "SURVIVAL_GAME_VIDEO_LINK",
+	});
+	const survivalGameExplanationSetting = await Setting.findOne({
+		key: "SURVIVAL_GAME_EXPLANATION",
+	});
+
 	return success("initialize parameters", {
 		languages,
 		genders,
@@ -61,8 +74,13 @@ exports.init = async () => {
 		gameExplanations: [
 			{
 				gameType: "Normal Game",
-				link: "https://youtube.com",
-				explanation: "",
+				link: normalGameVideoLinkSetting?.value || "",
+				explanation: normalGameExplanationSetting?.value || "",
+			},
+			{
+				gameType: "Survival Game",
+				link: survivalGameVideoLinkSetting?.value || "",
+				explanation: survivalGameExplanationSetting?.value || "",
 			},
 		],
 	});
