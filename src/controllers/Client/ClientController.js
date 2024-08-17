@@ -561,6 +561,7 @@ exports.topQuestions = async (userId, params) => {
 			return {
 				_id: question._id,
 				category: question.category,
+				language: question.language || env.defaultLanguage,
 				question: question.question,
 				answer: question.answer,
 				user: question.user,
@@ -616,6 +617,7 @@ exports.questionPerformance = async (questionId, params) => {
 						(p) => p._id.toString() === a.user_id.toString()
 					),
 					answer: a.answer,
+					language: a.language || env.defaultLanguage,
 					rate: a.rates.reduce((n, { rate }) => n + rate, 0),
 				};
 			});
@@ -624,6 +626,7 @@ exports.questionPerformance = async (questionId, params) => {
 				endedAt: game.endedAt,
 				question: {
 					question: question.question,
+					language: question.language || env.defaultLanguage,
 					rate: question.rates.reduce((n, { rate }) => n + rate, 0),
 					answers,
 				},
