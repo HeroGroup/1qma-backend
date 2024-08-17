@@ -221,6 +221,7 @@ exports.createGame = async (params, socketId) => {
 			gameType: gameTypes.find((element) => element.id === gameType),
 			category: dbCategory,
 			inviteList: players || [],
+			numberOfPlayers: playersShouldCount,
 			players: [
 				{
 					_id: creator_id,

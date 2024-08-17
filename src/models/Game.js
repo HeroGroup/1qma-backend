@@ -8,6 +8,7 @@ const gameSchema = new Schema({
 	gameType: Object,
 	category: Object,
 	inviteList: Array,
+	numberOfPlayers: Number,
 	players: Array,
 	questions: [
 		{
