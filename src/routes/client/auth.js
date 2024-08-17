@@ -25,6 +25,7 @@ const {
 	loginWithEmail,
 } = require("../../controllers/Client/AuthController");
 const { sameUser } = require("../../middlewares/sameUser");
+const { notLoggedIn } = require("../../middlewares/notLoggedIn");
 
 /**
  * @openapi
@@ -62,7 +63,7 @@ router.get("/register/init", async (req, res) => {
  *                type: string
  *                default: somepassword
  */
-router.post("/loginWithEmail", async (req, res) => {
+router.post("/loginWithEmail", notLoggedIn, async (req, res) => {
 	const loginWithEmailResult = await loginWithEmail(req.body);
 	if (loginWithEmailResult.status === 1) {
 		req.session.user = loginWithEmailResult.data;
@@ -95,9 +96,13 @@ router.post("/loginWithEmail", async (req, res) => {
  *                type: string
  *                default: +989177048781
  */
-router.post("/joinToWaitListWithEmailAndMobile", async (req, res) => {
-	res.json(await joinToWaitListWithEmailAndMobile(req.body));
-});
+router.post(
+	"/joinToWaitListWithEmailAndMobile",
+	notLoggedIn,
+	async (req, res) => {
+		res.json(await joinToWaitListWithEmailAndMobile(req.body));
+	}
+);
 
 /**
  * @openapi
@@ -147,7 +152,7 @@ router.post("/joinToWaitListWithMobile", async (req, res) => {
  *                type: string
  *                default: 731086912583
  */
-router.post("/registerWithReferal", async (req, res) => {
+router.post("/registerWithReferal", notLoggedIn, async (req, res) => {
 	const registerResult = await registerWithReferal(req.body);
 	if (registerResult.status === 1) {
 		req.session.user = registerResult.data;
@@ -156,7 +161,7 @@ router.post("/registerWithReferal", async (req, res) => {
 	res.json(registerResult);
 });
 
-router.get("/registerWithInvitationLink", async (req, res) => {
+router.get("/registerWithInvitationLink", notLoggedIn, async (req, res) => {
 	res.json(await registerWithInvitationLink(req.body));
 });
 
@@ -603,6 +608,7 @@ router.post("/logout", sameUser, async (req, res) => {
  */
 router.get(
 	"/google",
+	notLoggedIn,
 	(req, res, next) => {
 		req.session.reason = req.query.reason;
 		next();
@@ -646,6 +652,7 @@ router.get("/google/callback", passport.authenticate("google"), (req, res) => {
  */
 router.get(
 	"/facebook",
+	notLoggedIn,
 	(req, res, next) => {
 		req.session.reason = req.query.reason;
 		next();

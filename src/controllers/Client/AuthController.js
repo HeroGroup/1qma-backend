@@ -58,6 +58,13 @@ exports.init = async () => {
 		accountTypes,
 		nextVerificationMinutes: NEXT_VERIFICATION_MINUTES.value,
 		furthurQuestions,
+		gameExplanations: [
+			{
+				gameType: "Normal Game",
+				link: "https://youtube.com",
+				explanation: "",
+			},
+		],
 	});
 };
 
