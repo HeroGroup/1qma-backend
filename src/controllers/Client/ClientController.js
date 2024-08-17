@@ -340,7 +340,7 @@ exports.listQuestions = async (userId, params) => {
 	}
 };
 
-exports.addQuestion = async (params) => {
+exports.addQuestion = async (params, language) => {
 	try {
 		const { id, category, question, answer } = params;
 		if (!id) {
@@ -376,6 +376,7 @@ exports.addQuestion = async (params) => {
 		}
 
 		const newQuestion = new Question({
+			language,
 			question,
 			answer,
 			category,

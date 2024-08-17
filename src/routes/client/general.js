@@ -304,7 +304,12 @@ router.get("/questions", hasCompletedSignup, async (req, res) => {
  *                format: I do not know
  */
 router.post("/questions/add", sameUser, async (req, res) => {
-	res.json(await addQuestion(req.body));
+	res.json(
+		await addQuestion(
+			req.body,
+			req.session.user?.preferedLanguage.code || env.defaultLanguage
+		)
+	);
 });
 
 /**

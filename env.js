@@ -37,4 +37,5 @@ module.exports = {
 		apple: {},
 		successRedirectUrl: process.env.SOCIAL_SUCCESS_REDIRECT_URL,
 	},
+	defaultLanguage: "en",
 };

@@ -79,7 +79,13 @@ router.get("/init", async (req, res) => {
  *                default: any answer
  */
 router.post("/create", sameUser, async (req, res) => {
-	res.json(await createGame(req.body, req.session.socketId));
+	res.json(
+		await createGame(
+			req.body,
+			req.session.socketId,
+			req.session.user?.preferedLanguage.code || env.defaultLanguage
+		)
+	);
 });
 
 /**
@@ -133,7 +139,13 @@ router.get("/:idOrCode/join", async (req, res) => {
  *                default: any answer
  */
 router.post("/join", sameUser, async (req, res) => {
-	res.json(await joinGame(req.body, req.session.socketId));
+	res.json(
+		await joinGame(
+			req.body,
+			req.session.socketId,
+			req.session.user?.preferedLanguage.code || env.defaultLanguage
+		)
+	);
 });
 
 /**
@@ -261,7 +273,12 @@ router.get("/:gameId/question/:step", isPlayerInGame, async (req, res) => {
  *                default: any answer
  */
 router.post("/submitAnswer", sameUser, isPlayerInGame, async (req, res) => {
-	res.json(await submitAnswer(req.body));
+	res.json(
+		await submitAnswer(
+			req.body,
+			req.session.user?.preferedLanguage.code || env.defaultLanguage
+		)
+	);
 });
 
 /**

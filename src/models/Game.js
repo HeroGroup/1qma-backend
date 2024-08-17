@@ -14,10 +14,12 @@ const gameSchema = new Schema({
 		{
 			user_id: mongoose.ObjectId,
 			question: String,
+			language: String,
 			answers: [
 				{
 					user_id: mongoose.ObjectId,
 					answer: String,
+					language: String,
 					rates: [{ user_id: mongoose.ObjectId, rate: Number }],
 				},
 			],

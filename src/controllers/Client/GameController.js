@@ -9,7 +9,11 @@ const {
 	scoreNeededForNextCheckpoint,
 } = require("../../helpers/utils");
 const { validateEmail } = require("../../helpers/validator");
-const { createModes, gameTypes } = require("../../helpers/constants");
+const {
+	createModes,
+	gameTypes,
+	languages,
+} = require("../../helpers/constants");
 const Category = require("../../models/Category");
 const Game = require("../../models/Game");
 const Question = require("../../models/Question");
@@ -20,37 +24,48 @@ const createOrGetQuestion = async (
 	questionId,
 	user,
 	category,
+	language,
 	question,
 	answer
 ) => {
 	try {
 		if (questionId) {
-			return objectId(questionId);
-		} else {
-			// create question first
-			const { _id, firstName, lastName, email, profilePicture } = user;
-			const questionObject = new Question({
-				category,
-				question,
-				answer,
-				user: {
-					_id,
-					firstName,
-					lastName,
-					email,
-					profilePicture,
-				},
-				score: 0,
-				plays: 0,
-				answers: 0,
-				rates: 0,
-				avgRate: 0,
-				createdAt: moment(),
-			});
-			await questionObject.save();
-
-			return questionObject._id;
+			const questionObject = await Question.findById(questionId);
+			if (questionObject) {
+				return {
+					question_id: objectId(questionId),
+					question_language: questionObject.language,
+				};
+			}
 		}
+
+		// create question first
+		const { _id, firstName, lastName, email, profilePicture } = user;
+		const questionObject = new Question({
+			category,
+			language,
+			question,
+			answer,
+			user: {
+				_id,
+				firstName,
+				lastName,
+				email,
+				profilePicture,
+			},
+			score: 0,
+			plays: 0,
+			answers: 0,
+			rates: 0,
+			avgRate: 0,
+			createdAt: moment(),
+		});
+		await questionObject.save();
+
+		return {
+			question_id: questionObject._id,
+			question_language: language,
+		};
 	} catch (e) {
 		return handleException(e);
 	}
@@ -120,7 +135,7 @@ exports.init = async () => {
 	}
 };
 
-exports.createGame = async (params, socketId) => {
+exports.createGame = async (params, socketId, language) => {
 	try {
 		const { id, gameType, createMode, category, questionId, question, answer } =
 			params;
@@ -207,10 +222,11 @@ exports.createGame = async (params, socketId) => {
 			profilePicture,
 		} = creator;
 
-		const question_id = await createOrGetQuestion(
+		const { question_id, question_language } = await createOrGetQuestion(
 			questionId,
 			creator,
 			dbCategory,
+			language,
 			question,
 			answer
 		);
@@ -238,11 +254,13 @@ exports.createGame = async (params, socketId) => {
 				{
 					_id: question_id,
 					user_id: creator_id,
+					language: question_language,
 					question,
 					answers: [
 						{
 							user_id: creator_id,
 							answer,
+							language,
 							rates: [],
 						},
 					],
@@ -320,7 +338,7 @@ exports.attemptjoin = async (user, code) => {
 	}
 };
 
-exports.joinGame = async (params, socketId) => {
+exports.joinGame = async (params, socketId, language) => {
 	try {
 		const { id, gameId, questionId, question, answer } = params;
 
@@ -415,10 +433,11 @@ exports.joinGame = async (params, socketId) => {
 			isStarted = true;
 		}
 
-		const question_id = await createOrGetQuestion(
+		const { question_id, question_language } = await createOrGetQuestion(
 			questionId,
 			player,
 			game.category,
+			language,
 			question,
 			answer
 		);
@@ -440,10 +459,12 @@ exports.joinGame = async (params, socketId) => {
 						_id: question_id,
 						user_id: player_id,
 						question,
+						language: question_language,
 						answers: [
 							{
 								user_id: player_id,
 								answer,
+								language,
 								rates: [],
 							},
 						],
@@ -605,7 +626,7 @@ exports.invitePlayer = async (params) => {
 	}
 };
 
-exports.submitAnswer = async (params) => {
+exports.submitAnswer = async (params, language) => {
 	try {
 		const { id, gameId, questionId, answer } = params;
 
@@ -661,6 +682,7 @@ exports.submitAnswer = async (params) => {
 					"questions.$[i].answers": {
 						user_id: player._id,
 						answer,
+						language,
 						rates: [],
 					},
 				},
@@ -749,6 +771,7 @@ exports.getQuestion = async (userId, gameId, step) => {
 			step,
 			_id: questionObject.user_id,
 			question: questionObject.question,
+			language: questionObject.language || env.defaultLanguage,
 			myAnswer,
 		});
 	} catch (e) {
@@ -781,6 +804,7 @@ exports.getAnswers = async (gameId, questionId) => {
 				return {
 					_id: element.user_id,
 					answer: element.answer,
+					language: element.language || env.defaultLanguage,
 				};
 			}
 		);
@@ -918,6 +942,7 @@ exports.getAllQuestions = async (gameId) => {
 			return {
 				_id: element.user_id,
 				question: element.question,
+				language: element.language,
 			};
 		});
 
@@ -1412,6 +1437,7 @@ const calculateResult = async (gameId) => {
 			return {
 				answerer,
 				answer: answerObj.answer,
+				languages: answerObj.language || env.defaultLanguage,
 				rate: answerObj.rates.reduce((n, { rate }) => n + rate, 0),
 			};
 		});
@@ -1421,6 +1447,7 @@ const calculateResult = async (gameId) => {
 		return {
 			questioner,
 			question: questionObj.question,
+			language: questionObj.language || env.defaultLanguage,
 			rate: questionObj.rates.reduce((n, { rate }) => n + rate, 0),
 			answers,
 		};
