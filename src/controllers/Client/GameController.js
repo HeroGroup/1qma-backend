@@ -68,6 +68,7 @@ const gameCustomProjection = async (game) => {
 		gameLink,
 		gameQRCode: await generateQR(gameLink),
 		gameInviteList: game.inviteList,
+		gameNumberOfPlayers: game.numberOfPlayers,
 		gamePlayers: game.players.filter((plyr) => plyr.status === "connected"),
 	};
 };
@@ -1644,7 +1645,7 @@ const refundPlayers = async (game, player_id) => {
 
 	await User.updateMany(
 		{ _id: { $in: connectedJoinedPlayersIds } },
-		{ $inc: { "assets.coins.bronze": joinGamePrice } }
+		{ $inc: { "assets.coins.bronze": parseInt(joinGamePrice) } }
 	);
 
 	// if creator is still connected, refung create game price
@@ -1659,7 +1660,7 @@ const refundPlayers = async (game, player_id) => {
 
 	await User.findOneAndUpdate(
 		{ _id: creator._id },
-		{ $inc: { "assets.coins.bronze": createGamePrice } }
+		{ $inc: { "assets.coins.bronze": parseInt(createGamePrice) } }
 	);
 };
 
