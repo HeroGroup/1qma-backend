@@ -5,11 +5,12 @@ const {
 	removeFile,
 	objectId,
 } = require("../../helpers/utils");
-const User = require("../../models/User");
 const AccountType = require("../../models/AccountType");
-const { validateEmail } = require("../../helpers/validator");
 const Category = require("../../models/Category");
+const Game = require("../../models/Game");
 const Question = require("../../models/Question");
+const User = require("../../models/User");
+const { validateEmail } = require("../../helpers/validator");
 
 const {
 	languages,
@@ -17,7 +18,7 @@ const {
 	educations,
 	homePages,
 } = require("../../helpers/constants");
-const Game = require("../../models/Game");
+const { findMyFriends } = require("../../helpers/findMyFriends");
 
 exports.init = async (userId) => {
 	try {
@@ -649,20 +650,7 @@ exports.questionsFromFriendsLatestGames = async (userId, params) => {
 		const page = params.page || 1;
 		const limit = params.limit || 5;
 
-		const friends = await User.find(
-			{
-				"referer._id": objectId(userId),
-				hasCompletedSignup: true,
-			},
-			{ _id: 1 }
-		);
-
-		const friendsIds = [];
-		const friendsIdsString = [];
-		for (const friend of friends) {
-			friendsIds.push(friend._id);
-			friendsIdsString.push(friend._id.toString());
-		}
+		const { friendsIds, friendsIdsString } = await findMyFriends(userId);
 
 		const games = await Game.find({
 			status: "ended",

@@ -1,3 +1,4 @@
+const { findMyFriends } = require("../../helpers/findMyFriends");
 const { handleException, objectId } = require("../../helpers/utils");
 const Game = require("../../models/Game");
 const User = require("../../models/User");
@@ -100,18 +101,7 @@ exports.liveGames = async (type, category, page = 1, limit = 5) => {
 
 exports.friendsRecentGames = async (userId) => {
 	try {
-		const friends = await User.find(
-			{
-				"referer._id": objectId(userId),
-				hasCompletedSignup: true,
-			},
-			{ _id: 1 }
-		);
-
-		const friendsIds = [];
-		for (const friend of friends) {
-			friendsIds.push(friend._id);
-		}
+		const { friendsIds } = await findMyFriends(userId);
 
 		const games = await Game.find(
 			{
@@ -156,18 +146,7 @@ exports.survivalScoreboard = async () => {
 
 exports.friendsRecentSurvivalGames = async (userId) => {
 	try {
-		const friends = await User.find(
-			{
-				"referer._id": objectId(userId),
-				hasCompletedSignup: true,
-			},
-			{ _id: 1 }
-		);
-
-		const friendsIds = [];
-		for (const friend of friends) {
-			friendsIds.push(friend._id);
-		}
+		const { friendsIds } = await findMyFriends(userId);
 
 		const games = await Game.find(
 			{
