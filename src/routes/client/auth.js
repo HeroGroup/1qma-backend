@@ -152,14 +152,17 @@ router.post("/joinToWaitListWithMobile", async (req, res) => {
  *                type: string
  *                default: 731086912583
  */
-router.post("/registerWithReferal", notLoggedIn, async (req, res) => {
-	const registerResult = await registerWithReferal(req.body);
-	if (registerResult.status === 1) {
-		req.session.user = registerResult.data;
-	}
+router.post(
+	"/registerWithReferal",
+	/*notLoggedIn,*/ async (req, res) => {
+		const registerResult = await registerWithReferal(req.body);
+		if (registerResult.status === 1) {
+			req.session.user = registerResult.data;
+		}
 
-	res.json(registerResult);
-});
+		res.json(registerResult);
+	}
+);
 
 router.get("/registerWithInvitationLink", notLoggedIn, async (req, res) => {
 	res.json(await registerWithInvitationLink(req.body));
