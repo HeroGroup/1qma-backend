@@ -608,7 +608,6 @@ router.post("/logout", sameUser, async (req, res) => {
  */
 router.get(
 	"/google",
-	notLoggedIn,
 	(req, res, next) => {
 		req.session.reason = req.query.reason;
 		next();
@@ -652,7 +651,6 @@ router.get("/google/callback", passport.authenticate("google"), (req, res) => {
  */
 router.get(
 	"/facebook",
-	notLoggedIn,
 	(req, res, next) => {
 		req.session.reason = req.query.reason;
 		next();
