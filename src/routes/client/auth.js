@@ -632,11 +632,11 @@ router.get("/google/callback", passport.authenticate("google"), (req, res) => {
 		const frontAppUrl = env.frontAppUrl;
 
 		if (reason === "join_to_wait_list") {
-			redirect = `${frontAppUrl}/#/signup?status=-1&message=${message}`;
+			redirect = `${frontAppUrl}/signup?status=-1&message=${message}`;
 		} else if (reason === "login") {
-			redirect = `${frontAppUrl}/#/login?status=-1&message=${message}`;
+			redirect = `${frontAppUrl}/login?status=-1&message=${message}`;
 		} else {
-			redirect = `${frontAppUrl}/#/signup-refer-email?status=-1&message=${message}`;
+			redirect = `${frontAppUrl}/signup-refer-email?status=-1&message=${message}`;
 		}
 	}
 
