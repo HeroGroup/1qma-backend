@@ -53,3 +53,5 @@ exports.homePages = [
 		name: "Games",
 	},
 ];
+
+exports.shopItemTypes = ["feature", "asset", "bundle"];

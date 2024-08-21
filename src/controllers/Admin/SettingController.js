@@ -4,11 +4,7 @@ const { handleException } = require("../../helpers/utils");
 exports.getSettings = async () => {
 	try {
 		const settings = await Setting.find();
-		return {
-			status: 1,
-			message: "settings retrieved successfully!",
-			data: settings,
-		};
+		return success("settings retrieved successfully!", settings);
 	} catch (e) {
 		return handleException(e);
 	}

@@ -38,4 +38,5 @@ module.exports = {
 		successRedirectUrl: process.env.SOCIAL_SUCCESS_REDIRECT_URL,
 	},
 	defaultLanguage: process.env.DEFAULT_LANGUAGE,
+	defaultCurrency: process.env.DEFAULT_CURRENCY,
 };
