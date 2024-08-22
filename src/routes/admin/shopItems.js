@@ -56,7 +56,8 @@ router.get("/", async (req, res) => {
  *                type: number
  *                default: 3
  *              icon:
- *                type: file
+ *                type: string
+ *                format: binary
  */
 router.post("/add", imageUpload.single("icon"), async (req, res) => {
 	res.json(await addShopItem(req.body));
@@ -99,7 +100,8 @@ router.post("/add", imageUpload.single("icon"), async (req, res) => {
  *                type: number
  *                default: 3
  *              icon:
- *                type: file
+ *                type: string
+ *                format: binary
  */
 router.post("/update", imageUpload.single("icon"), async (req, res) => {
 	res.json(await updateShopItem(req.body, req.file));
