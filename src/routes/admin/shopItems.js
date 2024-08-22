@@ -33,7 +33,7 @@ router.get("/", async (req, res) => {
  *     requestBody:
  *      required: true
  *      content:
- *        application/json:
+ *        multipart/form-data:
  *           schema:
  *            type: object
  *            required:
@@ -72,7 +72,7 @@ router.post("/add", imageUpload.single("icon"), async (req, res) => {
  *     requestBody:
  *      required: true
  *      content:
- *        application/json:
+ *        multipart/form-data:
  *           schema:
  *            type: object
  *            required:
