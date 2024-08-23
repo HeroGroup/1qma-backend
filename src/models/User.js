@@ -34,6 +34,7 @@ const userSchema = new Schema({
 	accessTokens: Array,
 	statistics: Object,
 	games: Object,
+	socketId: String,
 });
 
 module.exports = mongoose.model("User", userSchema);

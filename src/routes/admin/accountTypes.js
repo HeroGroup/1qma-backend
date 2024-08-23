@@ -1,12 +1,13 @@
 const express = require("express");
 const router = express.Router();
+const imageUpload = require("../../services/imageUpload");
+
 const {
 	getAccountTypes,
 	addAccountType,
 	updateAccountType,
 	deleteAccountType,
 } = require("../../controllers/Admin/AccountTypeController");
-const imageUpload = require("../../services/imageUpload");
 
 /**
  * @openapi

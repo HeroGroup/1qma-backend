@@ -3,7 +3,6 @@ const router = express.Router();
 const imageUpload = require("../../services/imageUpload");
 const { hasCompletedSignup } = require("../../middlewares/hasCompletedSignup");
 const { sameUser } = require("../../middlewares/sameUser");
-const { findMyFriends } = require("../../helpers/findMyFriends");
 
 const {
 	init,

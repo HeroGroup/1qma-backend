@@ -9,6 +9,7 @@ const AccountType = require("../../models/AccountType");
 const Category = require("../../models/Category");
 const Game = require("../../models/Game");
 const Question = require("../../models/Question");
+const Notification = require("../../models/Notification");
 const User = require("../../models/User");
 const { validateEmail } = require("../../helpers/validator");
 
@@ -679,6 +680,48 @@ exports.questionsFromFriendsLatestGames = async (userId, params) => {
 		});
 
 		return success("ok", res);
+	} catch (e) {
+		return handleException(e);
+	}
+};
+
+exports.getNotifications = async (userId, params) => {
+	try {
+		const page = params.page || 1;
+		const limit = params.limit || 5;
+
+		const notifications = await Notification.find({ user: objectId(userId) })
+			.sort({ createdAt: -1 })
+			.skip((page - 1) * limit)
+			.limit(limit);
+
+		return success("ok", notifications);
+	} catch (e) {
+		return handleException(e);
+	}
+};
+
+exports.markNotificationAsRead = async (notificationId) => {
+	try {
+		if (!notificationId) {
+			return fail("invalid notification id!");
+		}
+
+		await Notification.findByIdAndUpdate(notificationId, { hasSeen: true });
+	} catch (e) {
+		return handleException(e);
+	}
+};
+exports.markAllNotificationsAsRead = async (userId) => {
+	try {
+		if (!userId) {
+			return fail("invalid user id!");
+		}
+
+		await Notification.updateMany(
+			{ user: objectId(userId) },
+			{ hasSeen: true }
+		);
 	} catch (e) {
 		return handleException(e);
 	}

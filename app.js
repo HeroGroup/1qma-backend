@@ -28,6 +28,7 @@ const usersRoutes = require("./src/routes/admin/users");
 const clientGeneralRoutes = require("./src/routes/client/general");
 const gameRoutes = require("./src/routes/client/game");
 const gamesRoutes = require("./src/routes/client/games");
+const notificationsRoutes = require("./src/routes/client/notifications");
 const {
 	sanitizeRequestInputs,
 } = require("./src/middlewares/sanitizeRequestInputs");
@@ -39,6 +40,7 @@ const {
 	playerDisconnected,
 	reconnectPlayer,
 } = require("./src/controllers/Client/GameController");
+const User = require("./src/models/User.js");
 
 async function main() {
 	const whiteList = [
@@ -142,6 +144,7 @@ async function main() {
 	app.use("/client", isLoggedIn, clientGeneralRoutes);
 	app.use("/game", hasCompletedSignup, gameRoutes);
 	app.use("/games", hasCompletedSignup, gamesRoutes);
+	app.use("/notifications", hasCompletedSignup, notificationsRoutes);
 	app.use("/", indexRoutes);
 	app.use(express.static("public"));
 
@@ -164,11 +167,12 @@ async function main() {
 		let userId = "";
 		const sessionId = socket.request?.sessionID;
 		if (sessionId) {
-			sess.store.get(sessionId, (error, sessionData) => {
+			sess.store.get(sessionId, async (error, sessionData) => {
 				if (sessionData) {
 					userId = sessionData.user._id;
 					sessionData.socketId = socket.id;
 					sess.store.set(sessionId, sessionData);
+					await User.findByIdAndUpdate(userId, { socketId: socket.id });
 				}
 			});
 		}

@@ -9,16 +9,13 @@ const {
 	scoreNeededForNextCheckpoint,
 } = require("../../helpers/utils");
 const { validateEmail } = require("../../helpers/validator");
-const {
-	createModes,
-	gameTypes,
-	languages,
-} = require("../../helpers/constants");
+const { createModes, gameTypes } = require("../../helpers/constants");
 const Category = require("../../models/Category");
 const Game = require("../../models/Game");
 const Question = require("../../models/Question");
 const Setting = require("../../models/Setting");
 const User = require("../../models/User");
+const Notification = require("../../models/Notification");
 
 const createOrGetQuestion = async (
 	questionId,
@@ -190,12 +187,6 @@ exports.createGame = async (params, socketId, language) => {
 			return fail("Invalid category!");
 		}
 
-		if (players) {
-			// TODO: send invites to players
-		} else {
-			// TODO: find players who match game criteria and send proper notification
-		}
-
 		const creator = await User.findById(id);
 		if (!creator) {
 			return fail("invalid creator!");
@@ -280,7 +271,39 @@ exports.createGame = async (params, socketId, language) => {
 			{ new: true }
 		);
 
-		joinUserToGameRoom(socketId, game._id.toString());
+		const gameId = game._id.toString();
+
+		joinUserToGameRoom(socketId, gameId);
+
+		if (players) {
+			// TODO: send invites to players via notification and email
+			// Notification
+			for (const playerEmail of players) {
+				let playerUser = await User.findOne({ email: playerEmail });
+				let title = "New Game!";
+				let message = `you have been invited to play this game created by ${creator.email}`;
+				let data = { type: "GAME_INVITE", gameId };
+
+				let notif = new Notification({
+					title,
+					message,
+					data,
+					createdAt: moment(),
+					hasSeen: false,
+					user: playerUser._id,
+				});
+				await notif.save();
+
+				io.to(playerUser.socketId).emit("notification", {
+					id: notif._id.toString(),
+					title,
+					message,
+					data,
+				});
+			}
+		} else {
+			// TODO: find players who match game criteria and send proper notification
+		}
 
 		return success("Game was created successfully!", {
 			game: await gameCustomProjection(game),
