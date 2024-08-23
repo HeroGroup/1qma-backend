@@ -1,6 +1,8 @@
 const { shopItemTypes } = require("../../helpers/constants");
 const { handleException, objectId } = require("../../helpers/utils");
 const ShopItem = require("../../models/ShopItem");
+const Transaction = require("../../models/Transaction");
+const User = require("../../models/User");
 
 exports.getShopItems = async (params) => {
 	try {
@@ -27,6 +29,61 @@ exports.getShopItems = async (params) => {
 		}
 
 		return success("ok", res);
+	} catch (e) {
+		return handleException(e);
+	}
+};
+
+exports.shopWithCoin = async (params) => {
+	try {
+		const { id, shopItemId } = params;
+
+		if (!id) {
+			return fail("invalid user id!");
+		}
+
+		if (!shopItemId) {
+			return fail("invalid shop item id!");
+		}
+
+		const shopItem = await ShopItem.findById(shopItemId);
+		if (!shopItem) {
+			return fail("invalid shop item!");
+		}
+
+		// control user balance
+		const user = await User.findById(id);
+		const shopItemCoinType = shopItem.coinPrice.coin;
+		const shopItemCoinPrice = shopItem.coinPrice.price;
+		const userAsset = user.assets.coins[shopItemCoinType];
+
+		if (parseInt(userAsset) < parseInt(shopItemCoinPrice)) {
+			return fail(
+				"Unfortunately you do not have enough coins for this transaction!"
+			);
+		}
+
+		const userAssets = user.assets.coins;
+		userAssets[shopItemCoinType] =
+			userAssets[shopItemCoinType] - shopItemCoinPrice;
+		await User.findByIdAndUpdate(id, { "assets.coins": userAssets });
+
+		let title = "shop ";
+		for (detail of shopItem.details) {
+			title += `${detail.count} ${detail.title} `;
+		}
+		title += "with coin credit.";
+		const transaction = new Transaction({
+			type: "buy",
+			title,
+			coinAmount: shopItem.coinPrice,
+			user: user._id,
+			createdAt: moment(),
+		});
+
+		await transaction.save();
+
+		return success("Successful payment!");
 	} catch (e) {
 		return handleException(e);
 	}
