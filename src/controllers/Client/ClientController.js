@@ -19,6 +19,7 @@ const {
 	homePages,
 } = require("../../helpers/constants");
 const { findMyFriends } = require("../../helpers/findMyFriends");
+const Transaction = require("../../models/Transaction");
 
 exports.init = async (userId) => {
 	try {
@@ -679,6 +680,25 @@ exports.questionsFromFriendsLatestGames = async (userId, params) => {
 		});
 
 		return success("ok", res);
+	} catch (e) {
+		return handleException(e);
+	}
+};
+
+exports.getTransactions = async (userId, params) => {
+	try {
+		if (!userId) {
+			return fail("invali user id");
+		}
+		const page = params.page || 1;
+		const limit = params.limit || 5;
+
+		const transactions = await Transaction.find({ user: objectId(userId) })
+			.sort({ createdAt: -1 })
+			.skip((page - 1) * limit)
+			.limit(limit);
+
+		return success("ok", transactions);
 	} catch (e) {
 		return handleException(e);
 	}

@@ -20,6 +20,7 @@ const {
 	topQuestions,
 	questionPerformance,
 	questionsFromFriendsLatestGames,
+	getTransactions,
 } = require("../../controllers/Client/ClientController");
 
 /**
@@ -500,5 +501,26 @@ router.get(
 		);
 	}
 );
+
+/**
+ * @openapi
+ * '/client/transactions':
+ *  get:
+ *     tags:
+ *     - Client
+ *     summary: fetch user transactions (financial history)
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: string
+ */
+router.get("/transactions", hasCompletedSignup, async (req, res) => {
+	res.json(await getTransactions(req.session.user._id, req.query));
+});
 
 module.exports = router;
