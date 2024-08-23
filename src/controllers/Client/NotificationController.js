@@ -43,3 +43,11 @@ exports.markAllNotificationsAsRead = async (userId) => {
 		return handleException(e);
 	}
 };
+
+/*
+try {
+	//
+} catch (e) {
+	return handleException(e);
+}
+*/

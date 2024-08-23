@@ -29,6 +29,7 @@ const clientGeneralRoutes = require("./src/routes/client/general");
 const gameRoutes = require("./src/routes/client/game");
 const gamesRoutes = require("./src/routes/client/games");
 const notificationsRoutes = require("./src/routes/client/notifications");
+const shopRoutes = require("./src/routes/client/shop");
 const {
 	sanitizeRequestInputs,
 } = require("./src/middlewares/sanitizeRequestInputs");
@@ -145,6 +146,7 @@ async function main() {
 	app.use("/game", hasCompletedSignup, gameRoutes);
 	app.use("/games", hasCompletedSignup, gamesRoutes);
 	app.use("/notifications", hasCompletedSignup, notificationsRoutes);
+	app.use("/shop", hasCompletedSignup, shopRoutes);
 	app.use("/", indexRoutes);
 	app.use(express.static("public"));
 
