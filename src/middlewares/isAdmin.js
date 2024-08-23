@@ -4,6 +4,6 @@ exports.isAdmin = async (req, res, next) => {
 	} else if (req.session.user?._id && req.session.user.userType === "admin") {
 		next();
 	} else {
-		res.sendStatus(401);
+		res.sendStatus(403);
 	}
 };
