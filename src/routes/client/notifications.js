@@ -3,7 +3,7 @@ const {
 	getNotifications,
 	markNotificationAsRead,
 	markAllNotificationsAsRead,
-} = require("../../controllers/Client/ClientController");
+} = require("../../controllers/Client/NotificationController");
 const { sameUser } = require("../../middlewares/sameUser");
 const router = express.Router();
 
