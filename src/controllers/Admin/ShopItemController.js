@@ -55,8 +55,8 @@ exports.updateShopItem = async (params, icon) => {
 
 		const iconPath = icon ? icon.path.replace("public/", "") : shopItem?.icon;
 
-		shopItem = await ShopItem.findOneAndUpdate(
-			{ _id: id },
+		shopItem = await ShopItem.findByIdAndUpdate(
+			id,
 			{ type, details, icon: iconPath, realPrice, coinPrice, isActive },
 			{ new: true }
 		);
@@ -74,7 +74,7 @@ exports.toggleActiveShopItem = async (params) => {
 			return fail("invalid shop item id!");
 		}
 
-		await ShopItem.findOneAndUpdate({ _id: id }, { isActive });
+		await ShopItem.findByIdAndUpdate(id, { isActive });
 
 		return success("Updated successfully!");
 	} catch (e) {
