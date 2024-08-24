@@ -60,7 +60,7 @@ router.get("/", async (req, res) => {
  *                format: binary
  */
 router.post("/add", imageUpload.single("icon"), async (req, res) => {
-	res.json(await addShopItem(req.body));
+	res.json(await addShopItem(req.body, req.file));
 });
 
 /**
@@ -132,7 +132,7 @@ router.post("/update", imageUpload.single("icon"), async (req, res) => {
  *                default: false
  */
 router.post("/toggleActive", async (req, res) => {
-	res.json(await toggleActiveShopItem(req.body, req.file));
+	res.json(await toggleActiveShopItem(req.body));
 });
 
 /**
