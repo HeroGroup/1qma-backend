@@ -23,6 +23,7 @@ const {
 	forgotPasswordViaMobile,
 	registerWithInvitationLink,
 	loginWithEmail,
+	answerFurtherQuestions,
 } = require("../../controllers/Client/AuthController");
 const { sameUser } = require("../../middlewares/sameUser");
 const { notLoggedIn } = require("../../middlewares/notLoggedIn");
@@ -365,6 +366,38 @@ router.post("/updateCategoryPreferences", sameUser, async (req, res) => {
 		req.session.user = chooseCategoryPreferencesResult.data;
 	}
 	res.json(chooseCategoryPreferencesResult);
+});
+
+/**
+ * @openapi
+ * '/auth/answerFurtherQuestions':
+ *  post:
+ *     tags:
+ *     - Authentication
+ *     summary: register wizard step 3
+ *     requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *           schema:
+ *            type: object
+ *            required:
+ *              - id
+ *              - answers
+ *            properties:
+ *              id:
+ *                type: string
+ *                default: 6644e9072019def5602933cb
+ *              answers:
+ *                type: array
+ *                default: [{_id: "675638942659346598643", question: "what is your hobby?", answer: "I rather watch TV"}, {_id: "6543234567890", question: "which options best suit you?", answer: ["athlete", "animal lover"]}]
+ */
+router.post("/answerFurtherQuestions", sameUser, async (req, res) => {
+	const answerFurtherQuestionsResult = await answerFurtherQuestions(req.body);
+	if (answerFurtherQuestionsResult.status === 1) {
+		req.session.user = answerFurtherQuestionsResult.data;
+	}
+	res.json(answerFurtherQuestionsResult);
 });
 
 /**

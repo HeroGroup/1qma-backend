@@ -24,6 +24,7 @@ const categoriesRoutes = require("./src/routes/admin/categories");
 const indexRoutes = require("./src/routes/index");
 const settingsRoutes = require("./src/routes/admin/settings");
 const shopItemsRoutes = require("./src/routes/admin/shopItems");
+const registerQuestionsRoutes = require("./src/routes/admin/registerQuestions");
 const usersRoutes = require("./src/routes/admin/users");
 const clientGeneralRoutes = require("./src/routes/client/general");
 const gameRoutes = require("./src/routes/client/game");
@@ -142,6 +143,7 @@ async function main() {
 	app.use("/admin/users", isAdmin, usersRoutes);
 	app.use("/admin/settings", isAdmin, settingsRoutes);
 	app.use("/admin/shopItems", isAdmin, shopItemsRoutes);
+	app.use("/admin/registerQuestions", isAdmin, registerQuestionsRoutes);
 	app.use("/client", isLoggedIn, clientGeneralRoutes);
 	app.use("/game", hasCompletedSignup, gameRoutes);
 	app.use("/games", hasCompletedSignup, gamesRoutes);

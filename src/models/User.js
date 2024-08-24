@@ -23,6 +23,7 @@ const userSchema = new Schema({
 	education: Object,
 	country: String,
 	city: String,
+	furtherQuestions: Array,
 	preferedCategories: Array,
 	accountType: Object,
 	preferedLanguage: Object,

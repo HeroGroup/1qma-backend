@@ -9,6 +9,7 @@ const {
 } = require("../../helpers/utils");
 const AccountType = require("../../models/AccountType");
 const Category = require("../../models/Category");
+const RegisterQuestion = require("../../models/RegisterQuestion");
 const Setting = require("../../models/Setting");
 const User = require("../../models/User");
 const Verification = require("../../models/Verification");
@@ -20,35 +21,9 @@ exports.init = async () => {
 		key: "NEXT_VERIFICATION_MINUTES",
 	});
 
-	const furthurQuestions = [
-		{
-			question: "Tell us more about yourself",
-			type: "text",
-		},
-		{
-			question: "What do you usually do in your free time?",
-			type: "multiple_options",
-			options: {
-				1: "sport",
-				2: "leasure",
-				3: "reading",
-				4: "watching TV",
-				5: "outing",
-			},
-		},
-		{
-			question: "Maritial Status",
-			type: "single_option",
-			options: {
-				1: "single",
-				2: "married",
-				3: "separated",
-				4: "prefer not to say",
-			},
-		},
-	];
 	const accountTypes = await AccountType.find().sort({ order: 1 });
 	const categories = await Category.find().sort({ order: 1 });
+	const furtherQuestions = await RegisterQuestion.find({ isActive: true });
 
 	const normalGameVideoLinkSetting = await Setting.findOne({
 		key: "NORMAL_GAME_VIDEO_LINK",
@@ -70,7 +45,7 @@ exports.init = async () => {
 		categories,
 		accountTypes,
 		nextVerificationMinutes: NEXT_VERIFICATION_MINUTES.value,
-		furthurQuestions,
+		furtherQuestions,
 		gameExplanations: [
 			{
 				gameType: "Normal Game",
@@ -450,104 +425,136 @@ exports.updateProfile = async (params) => {
 };
 
 exports.chooseCategoryPreferences = async (params) => {
-	const idParam = params.id;
-	const categoriesParam = params.categories;
+	try {
+		const idParam = params.id;
+		const categoriesParam = params.categories;
 
-	if (!idParam) {
-		return fail("invalid user id", params);
+		if (!idParam) {
+			return fail("invalid user id", params);
+		}
+
+		if (!categoriesParam || categoriesParam.length === 0) {
+			return fail("No categories were selected!");
+		}
+
+		const user = await User.findOneAndUpdate(
+			{ _id: idParam },
+			{
+				preferedCategories: categoriesParam,
+			},
+			{ new: true }
+		);
+
+		return success("Category preferences updated successfully!", user);
+	} catch (e) {
+		return handleException(e);
 	}
+};
 
-	if (!categoriesParam || categoriesParam.length === 0) {
-		return fail("No categories were selected!");
+exports.answerFurtherQuestions = async (params) => {
+	try {
+		const { id, answers } = params;
+
+		if (!id) {
+			return fail("invalid user id");
+		}
+
+		if (!answers || answers.length === 0) {
+			return fail("invalid questions");
+		}
+
+		const user = await User.findByIdAndUpdate(
+			id,
+			{ furtherQuestions: answers },
+			{ new: true }
+		);
+
+		return success("Answers updated successfully!", user);
+	} catch (e) {
+		return handleException(e);
 	}
-
-	const user = await User.findOneAndUpdate(
-		{ _id: idParam },
-		{
-			preferedCategories: categoriesParam,
-		},
-		{ new: true }
-	);
-
-	return success("Category preferences updated successfully!", user);
 };
 
 exports.chooseAccountType = async (params) => {
-	const { id: idParam, accountType: accountTypeParam } = params;
+	try {
+		const { id: idParam, accountType: accountTypeParam } = params;
 
-	if (!idParam) {
-		return fail("invalid user id", params);
-	}
+		if (!idParam) {
+			return fail("invalid user id", params);
+		}
 
-	if (!accountTypeParam) {
-		return fail("No account type was selected!");
-	}
+		if (!accountTypeParam) {
+			return fail("No account type was selected!");
+		}
 
-	const accountType = await AccountType.findById(accountTypeParam);
+		const accountType = await AccountType.findById(accountTypeParam);
 
-	if (!accountType) {
-		return fail("Invalid account type was selected!");
-	}
+		if (!accountType) {
+			return fail("Invalid account type was selected!");
+		}
 
-	const initialMaxNumberOfAllowedRefers = await Setting.findOne({
-		key: "MAX_NUMBER_OF_ALLOWED_REFERS",
-	});
+		const initialMaxNumberOfAllowedRefers = await Setting.findOne({
+			key: "MAX_NUMBER_OF_ALLOWED_REFERS",
+		});
 
-	const defaultNumberOfBronzeCoins = await Setting.findOne({
-		key: "DEFAULT_NUMBER_OF_BRONZE_COINS",
-	});
+		const defaultNumberOfBronzeCoins = await Setting.findOne({
+			key: "DEFAULT_NUMBER_OF_BRONZE_COINS",
+		});
 
-	const user = await User.findOneAndUpdate(
-		{ _id: idParam },
-		{
-			accountType: {
-				_id: accountType._id,
-				name: accountType.name,
-				icon: accountType.icon,
-				startDate: moment(),
-				expireDays: 30,
-			},
-			hasCompletedSignup: true,
-			maxInvites: initialMaxNumberOfAllowedRefers?.value || 0,
-			assets: {
-				coins: {
-					bronze: parseInt(defaultNumberOfBronzeCoins?.value) || 0,
-					silver: 0,
-					gold: 0,
+		const user = await User.findOneAndUpdate(
+			{ _id: idParam },
+			{
+				accountType: {
+					_id: accountType._id,
+					name: accountType.name,
+					icon: accountType.icon,
+					startDate: moment(),
+					expireDays: 30,
 				},
-			},
-			statistics: {
-				level: 0,
-				currentLevelXP: 0,
-				xpNeededForNextLevel: xpNeededForNextLevel(0),
-				totalXP: 0,
-				normal: {
-					totalScore: 0,
+				hasCompletedSignup: true,
+				maxInvites: initialMaxNumberOfAllowedRefers?.value || 0,
+				assets: {
+					coins: {
+						bronze: parseInt(defaultNumberOfBronzeCoins?.value) || 0,
+						silver: 0,
+						gold: 0,
+					},
 				},
-				survival: {
-					checkpoint: 0, // starter
-					avgRank: 0,
-					avgQuestionScore: 0,
-					avgScore: 0,
-					loses: 0,
-					rebuys: 0,
-					totalScore: 0,
-					adjustedScore: 0,
+				statistics: {
+					level: 0,
+					currentLevelXP: 0,
+					xpNeededForNextLevel: xpNeededForNextLevel(0),
+					totalXP: 0,
+					normal: {
+						totalScore: 0,
+					},
+					survival: {
+						checkpoint: 0, // starter
+						avgRank: 0,
+						avgQuestionScore: 0,
+						avgScore: 0,
+						loses: 0,
+						rebuys: 0,
+						totalScore: 0,
+						adjustedScore: 0,
+					},
 				},
+				games: {
+					played: 0,
+					created: 0,
+					won: 0,
+					highScore: 0,
+					survivalGamesPlayed: 0,
+				},
+				isActive: true,
 			},
-			games: {
-				played: 0,
-				created: 0,
-				won: 0,
-				highScore: 0,
-				survivalGamesPlayed: 0,
-			},
-			isActive: true,
-		},
-		{ new: true }
-	);
+			{ new: true }
+		);
 
-	return success("Account type updated successfully!", user);
+		return success("Account type updated successfully!", user);
+	} catch (e) {
+		return handleException(e);
+	}
 };
 
 exports.verifyEmail = async (params, updateUser = true) => {

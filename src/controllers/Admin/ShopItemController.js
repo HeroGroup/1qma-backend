@@ -1,5 +1,9 @@
 const ShopItem = require("../../models/ShopItem");
-const { handleException, removeFile } = require("../../helpers/utils");
+const {
+	handleException,
+	removeFile,
+	objectId,
+} = require("../../helpers/utils");
 
 exports.getShopItems = async () => {
 	try {
@@ -95,7 +99,7 @@ exports.deleteShopItem = async (params) => {
 			removeFile(`${__basedir}/public/${shopItem.icon}`);
 		}
 
-		await ShopItem.deleteOne({ _id: id });
+		await ShopItem.deleteOne({ _id: objectId(id) });
 
 		return success("Deleted successfully!");
 	} catch (e) {
