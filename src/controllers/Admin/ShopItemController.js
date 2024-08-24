@@ -1,5 +1,5 @@
 const ShopItem = require("../../models/ShopItem");
-const { handleException } = require("../../helpers/utils");
+const { handleException, removeFile } = require("../../helpers/utils");
 
 exports.getShopItems = async () => {
 	try {
