@@ -13,7 +13,7 @@ const { sameUser } = require("../../middlewares/sameUser");
  * '/notifications':
  *  get:
  *     tags:
- *     - Notification
+ *     - Notifications
  *     summary: fetch all user notifications
  *     parameters:
  *       - in: query
