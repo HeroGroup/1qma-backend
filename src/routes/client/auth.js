@@ -653,15 +653,15 @@ router.get(
 
 router.get("/google/callback", passport.authenticate("google"), (req, res) => {
 	let redirect = env.authServiceProviders.successRedirectUrl;
-	const reason = req.user.data;
 
 	if (req.user.status === 1) {
 		console.info("success google callback");
 		const { _id, providerId, email, emailVerified } = req.user.data;
-		redirect += `?user_id=${_id}&provider=google&provider_id=${providerId}&email=${email}&email_verified=${emailVerified}&status=1&reason=${reason}`;
+		redirect += `?user_id=${_id}&provider=google&provider_id=${providerId}&email=${email}&email_verified=${emailVerified}&status=1`;
 		req.session.user = req.user.data;
 	} else {
 		const message = req.user.message;
+		const reason = req.user.data;
 		const frontAppUrl = env.frontAppUrl;
 
 		if (reason === "join_to_wait_list") {
