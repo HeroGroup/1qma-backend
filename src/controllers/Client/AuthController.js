@@ -80,7 +80,7 @@ exports.loginWithEmail = async (params) => {
 
 		if (user && user.loginProvider && user.providerId) {
 			return fail(
-				`This email is associated with your ${user.loginProvider} account! Please use login with${user.loginProvider}.`
+				`This email is associated with your ${user.loginProvider} account! Please use login with ${user.loginProvider} button.`
 			);
 		}
 
@@ -698,7 +698,7 @@ exports.forgotPasswordViaEmail = async (params) => {
 
 	if (user.loginProvider && user.providerId) {
 		return fail(
-			`This email is associated with your ${user.loginProvider} account! Please use login with${user.loginProvider}.`
+			`This email is associated with your ${user.loginProvider} account! Please use login with ${user.loginProvider} button.`
 		);
 	}
 
@@ -720,7 +720,7 @@ exports.forgotPasswordViaMobile = async (params) => {
 
 	if (user.loginProvider && user.providerId) {
 		return fail(
-			`This email is associated with your ${user.loginProvider} account! Please use login with${user.loginProvider}.`
+			`This email is associated with your ${user.loginProvider} account! Please use login with ${user.loginProvider} button.`
 		);
 	}
 
@@ -750,7 +750,7 @@ exports.updatePasswordThroughEmail = async (params) => {
 
 	if (user.loginProvider && user.providerId) {
 		return fail(
-			`This email is associated with your ${user.loginProvider} account! Please use login with${user.loginProvider}.`
+			`This email is associated with your ${user.loginProvider} account! Please use login with ${user.loginProvider} button.`
 		);
 	}
 
@@ -792,7 +792,7 @@ exports.updatePasswordThroughMobile = async (params) => {
 
 	if (user.loginProvider && user.providerId) {
 		return fail(
-			`This email is associated with your ${user.loginProvider} account! Please use login with${user.loginProvider}.`
+			`This email is associated with your ${user.loginProvider} account! Please use login with ${user.loginProvider} button.`
 		);
 	}
 
