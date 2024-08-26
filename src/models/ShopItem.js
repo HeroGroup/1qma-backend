@@ -3,6 +3,7 @@ const { Schema } = mongoose;
 
 const shopItemSchema = new Schema({
 	type: String, // shopItemTypes: feature, asset, bundle
+	description: String,
 	details: Array, // [{ count: Number, title: String }]
 	icon: String,
 	realPrice: Number,
