@@ -77,6 +77,13 @@ exports.loginWithEmail = async (params) => {
 			emailVerified: true,
 			isActive: true,
 		});
+
+		if (user && user.loginProvider && user.providerId) {
+			return fail(
+				`This email is associated with your ${user.loginProvider} account! Please use login with${user.loginProvider}.`
+			);
+		}
+
 		if (!user || !checkSame(params.password, user.password)) {
 			return fail("Invalid email and password combination!", params);
 		}
