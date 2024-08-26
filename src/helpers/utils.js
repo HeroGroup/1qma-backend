@@ -23,13 +23,6 @@ exports.createHashedPasswordFromPlainText = (input) => {
 	return bcrypt.hashSync(input, salt);
 };
 
-exports.createReferCode = () => {
-	return `${this.getRandomInt(999, 9999)}${this.getRandomInt(
-		999,
-		9999
-	)}${this.getRandomInt(999, 9999)}`;
-};
-
 exports.checkSame = (text, password) => {
 	if (!text || !password) {
 		return false;

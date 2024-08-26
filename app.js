@@ -1,10 +1,11 @@
 const express = require("express");
 const app = express();
-if (app.get("env") === "production") {
-	globalThis.env = require("./env.js");
-} else {
-	globalThis.env = require("./env.development.js");
-}
+
+globalThis.env =
+	app.get("env") === "production"
+		? require("./env.js")
+		: require("./env.development.js");
+
 const { createServer } = require("node:http");
 const { Server } = require("socket.io");
 const qs = require("qs");

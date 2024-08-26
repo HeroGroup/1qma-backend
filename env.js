@@ -39,4 +39,5 @@ module.exports = {
 	},
 	defaultLanguage: process.env.DEFAULT_LANGUAGE,
 	defaultCurrency: process.env.DEFAULT_CURRENCY,
+	anonymousNameLength: process.env.ANONYMOUS_NAME_LENGTH,
 };

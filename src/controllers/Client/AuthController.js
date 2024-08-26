@@ -3,7 +3,6 @@ const {
 	handleException,
 	getRandomInt,
 	createHashedPasswordFromPlainText,
-	createReferCode,
 	checkSame,
 	xpNeededForNextLevel,
 } = require("../../helpers/utils");
@@ -15,6 +14,12 @@ const User = require("../../models/User");
 const Verification = require("../../models/Verification");
 
 const { languages, genders, educations } = require("../../helpers/constants");
+const {
+	createUniqueReferCode,
+} = require("../../helpers/createUniqueReferCode");
+const {
+	createUniqueAnonymousName,
+} = require("../../helpers/createUniqueAnonymousName");
 
 exports.init = async () => {
 	const NEXT_VERIFICATION_MINUTES = await Setting.findOne({
@@ -124,7 +129,7 @@ exports.joinToWaitListWithEmailAndMobile = async (params) => {
 	}
 
 	const newUser = new User({
-		referCode: createReferCode(),
+		referCode: await createUniqueReferCode(),
 		email: params.email,
 		emailVerified: false,
 		mobile: params.mobile,
@@ -192,11 +197,9 @@ exports.registerWithReferal = async (params) => {
 			);
 		}
 
-		const referCode = createReferCode();
-
 		const newUser = new User({
-			anonymousName: `user_${referCode}`,
-			referCode,
+			anonymousName: await createUniqueAnonymousName(env.anonymousNameLength),
+			referCode: await createUniqueReferCode(),
 			referer: {
 				_id: refererUser._id,
 				firstName: refererUser.firstName,

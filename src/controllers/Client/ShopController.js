@@ -11,10 +11,10 @@ exports.getShopItems = async (params) => {
 		const limit = params.limit || 5;
 
 		const shopItems = type
-			? await ShopItem.find({ type })
+			? await ShopItem.find({ type, isActive: true })
 					.skip((page - 1) * limit)
 					.limit(limit)
-			: await ShopItem.find();
+			: await ShopItem.find({ isActive: true });
 
 		const res = type ? shopItems : [];
 		if (!type) {
