@@ -691,7 +691,7 @@ exports.forgotPasswordViaEmail = async (params) => {
 
 	if (user.loginProvider && user.providerId) {
 		return fail(
-			`This email is associated with your ${user.loginProvider} account!`
+			`This email is associated with your ${user.loginProvider} account! Please use login with${user.loginProvider}.`
 		);
 	}
 
@@ -713,7 +713,7 @@ exports.forgotPasswordViaMobile = async (params) => {
 
 	if (user.loginProvider && user.providerId) {
 		return fail(
-			`This email is associated with your ${user.loginProvider} account!`
+			`This email is associated with your ${user.loginProvider} account! Please use login with${user.loginProvider}.`
 		);
 	}
 
@@ -743,7 +743,7 @@ exports.updatePasswordThroughEmail = async (params) => {
 
 	if (user.loginProvider && user.providerId) {
 		return fail(
-			`This email is associated with your ${user.loginProvider} account!`
+			`This email is associated with your ${user.loginProvider} account! Please use login with${user.loginProvider}.`
 		);
 	}
 
@@ -785,7 +785,7 @@ exports.updatePasswordThroughMobile = async (params) => {
 
 	if (user.loginProvider && user.providerId) {
 		return fail(
-			`This email is associated with your ${user.loginProvider} account!`
+			`This email is associated with your ${user.loginProvider} account! Please use login with${user.loginProvider}.`
 		);
 	}
 
