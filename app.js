@@ -174,23 +174,27 @@ async function main() {
 		if (sessionId) {
 			sess.store.get(sessionId, async (error, sessionData) => {
 				if (sessionData) {
-					userId = sessionData.user._id;
+					userId = sessionData.user?._id;
 					sessionData.socketId = socket.id;
 					sess.store.set(sessionId, sessionData);
-					await User.findByIdAndUpdate(userId, { socketId: socket.id });
+					if (userId) {
+						await User.findByIdAndUpdate(userId, { socketId: socket.id });
+					}
 				}
 			});
 		}
 
-		await reconnectPlayer(userId, socket.id);
+		if (userId) {
+			await reconnectPlayer(userId, socket.id);
 
-		socket.on("disconnecting", async () => {
-			for (const room of socket.rooms) {
-				if (room !== socket.id) {
-					await playerDisconnected({ id: userId, gameId: room });
+			socket.on("disconnecting", async () => {
+				for (const room of socket.rooms) {
+					if (room !== socket.id) {
+						await playerDisconnected({ id: userId, gameId: room });
+					}
 				}
-			}
-		});
+			});
+		}
 	});
 
 	globalThis.io = io;

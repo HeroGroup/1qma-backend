@@ -1483,7 +1483,7 @@ const calculateResult = async (gameId) => {
 		const plyr = await User.findById(item._id);
 		item["avgRank"] = plyr.statistics.survival?.avgRank || 0;
 		const playerHighScore = plyr.games.highScore || 0;
-		const currentXp = plyr.statistics.totalXP || 0 + item.totalXP; // 450 + 150 = 600
+		const currentXp = (plyr.statistics.totalXP || 0) + item.totalXP; // 450 + 150 = 600
 		let level = plyr.statistics.level || 0; // 0
 		let currentLevelXP = plyr.statistics.currentLevelXP || 0;
 		let _xpNeededForNextLevel = plyr.statistics.xpNeededForNextLevel; // xpNeededForNextLevel(level); // 500
