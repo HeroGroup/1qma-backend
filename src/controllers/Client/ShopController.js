@@ -52,7 +52,7 @@ exports.shopWithCoin = async (params) => {
 		}
 
 		// control user balance
-		const user = await User.findById(id);
+		let user = await User.findById(id);
 		const shopItemCoinType = shopItem.coinPrice.coin;
 		const shopItemCoinPrice = shopItem.coinPrice.price;
 		const userAsset = user.assets.coins[shopItemCoinType];
@@ -66,7 +66,11 @@ exports.shopWithCoin = async (params) => {
 		const userAssets = user.assets.coins;
 		userAssets[shopItemCoinType] =
 			userAssets[shopItemCoinType] - shopItemCoinPrice;
-		await User.findByIdAndUpdate(id, { "assets.coins": userAssets });
+		user = await User.findByIdAndUpdate(
+			id,
+			{ "assets.coins": userAssets },
+			{ new: true }
+		);
 
 		let title = "shop ";
 		for (detail of shopItem.details) {
@@ -83,7 +87,7 @@ exports.shopWithCoin = async (params) => {
 
 		await transaction.save();
 
-		return success("Successful payment!");
+		return success("Successful payment!", { newBalance: user.assets.coins });
 	} catch (e) {
 		return handleException(e);
 	}
