@@ -4,6 +4,7 @@ const {
 	checkSame,
 	removeFile,
 	objectId,
+	renameFile,
 } = require("../../helpers/utils");
 const AccountType = require("../../models/AccountType");
 const Category = require("../../models/Category");
@@ -149,11 +150,13 @@ exports.updateProfilePicture = async (params, avatar) => {
 			return fail("invalid user!");
 		}
 
-		avatar.path = avatar.path.replace("public/", "");
+		let newAvatarPath = `/public/uploads/avatar-${id}.png`;
+		renameFile(avatar.path, newAvatarPath);
+		newAvatarPath = newAvatarPath.replace("public/", "");
 
 		user = await User.findOneAndUpdate(
 			{ _id: id },
-			{ profilePicture: avatar.path },
+			{ profilePicture: newAvatarPath },
 			{ new: true }
 		);
 		return success("profile picture updated successfully!", user);

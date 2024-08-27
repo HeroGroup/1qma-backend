@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const { unlink } = require("node:fs");
 const QRCode = require("qrcode");
+const fs = require("fs");
 
 exports.handleException = (e) => {
 	if (!(e instanceof Error)) {
@@ -123,4 +124,10 @@ exports.scoreNeededForNextCheckpoint = (checkpoint) => {
 		default:
 			break;
 	}
+};
+
+exports.renameFile = (src, dst) => {
+	fs.rename(src, dst, function (err) {
+		if (err) console.log(err);
+	});
 };
