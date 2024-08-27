@@ -151,7 +151,7 @@ exports.updateProfilePicture = async (params, avatar) => {
 		}
 
 		let newAvatarPath = `/public/uploads/avatar-${id}.png`;
-		renameFile(`/${avatar.path}`, newAvatarPath);
+		renameFile(`${__basedir}/${avatar.path}`, newAvatarPath);
 		newAvatarPath = newAvatarPath.replace("public/", "");
 
 		user = await User.findOneAndUpdate(
