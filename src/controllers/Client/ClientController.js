@@ -150,7 +150,7 @@ exports.updateProfilePicture = async (params, avatar) => {
 			return fail("invalid user!");
 		}
 
-		let newAvatarPath = `/public/uploads/avatar-${id}.png`;
+		let newAvatarPath = `${__basedir}/public/uploads/avatar-${id}.png`;
 		renameFile(`${__basedir}/${avatar.path}`, newAvatarPath);
 		newAvatarPath = newAvatarPath.replace("public/", "");
 
