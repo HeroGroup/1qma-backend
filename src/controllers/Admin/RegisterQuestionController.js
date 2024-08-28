@@ -18,6 +18,10 @@ exports.addQuestion = async (params) => {
 			return fail("invalid parameters!");
 		}
 
+		if (options && options.length < 2) {
+			return fail("More than one options should be included!");
+		}
+
 		const registerQuestion = new RegisterQuestion({
 			question,
 			type,
@@ -38,6 +42,10 @@ exports.updateQuestion = async (params) => {
 		const { id, question, type, options, placeholder, isActive } = params;
 		if (!params.id) {
 			return fail("invalid question id!");
+		}
+
+		if (options && options.length < 2) {
+			return fail("More than one options should be included!");
 		}
 
 		const registerQuestion = await RegisterQuestion.findByIdAndUpdate(

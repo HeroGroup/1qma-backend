@@ -369,29 +369,8 @@ exports.joinGame = async (params, socketId, language) => {
 			return fail("Invalid player id!");
 		}
 
-		const player = await User.findById(id);
-		if (!player) {
-			return fail("invalid player!");
-		}
-
 		if (!gameId) {
-			return fail("Game id required!");
-		}
-
-		let game = await Game.findById(gameId);
-		if (!game) {
-			return fail("invalid game!");
-		}
-
-		// check player is not already in game
-		if (
-			game.players.find(
-				(element) =>
-					element._id.toString() === player._id.toString() &&
-					element.status !== "left"
-			)
-		) {
-			return fail("You are already in this game!");
+			return fail("Game id is required!");
 		}
 
 		if (!question) {
@@ -402,11 +381,32 @@ exports.joinGame = async (params, socketId, language) => {
 			return fail("Enter answer for the question!");
 		}
 
+		const player = await User.findById(id);
+		if (!player) {
+			return fail("invalid player!");
+		}
+
+		let game = await Game.findById(gameId);
+		if (!game) {
+			return fail("invalid game!");
+		}
+
 		let gameStatus = game.status;
 		if (gameStatus === "started") {
 			return fail("Sorry, Game is already started!");
 		} else if (gameStatus === "ended") {
 			return fail("Sorry, Game has already ended!");
+		}
+
+		// check player is not already in game
+		if (
+			game.players.find(
+				(element) =>
+					element._id.toString() === player._id.toString() &&
+					element.status != "left"
+			)
+		) {
+			return fail("You are already in this game!");
 		}
 
 		// check if player has enough coins
@@ -447,12 +447,9 @@ exports.joinGame = async (params, socketId, language) => {
 			profilePicture,
 		});
 
-		const numberOfPlayersSetting = await Setting.findOne({
-			key: "NUMBER_OF_PLAYERS_PER_GAME",
-		});
 		const currentPlayersCount = game.players.length;
 		let isStarted = false;
-		if (parseInt(numberOfPlayersSetting.value) === currentPlayersCount + 1) {
+		if (parseInt(game.numberOfPlayers) === currentPlayersCount + 1) {
 			isStarted = true;
 		}
 
