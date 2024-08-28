@@ -6,6 +6,7 @@ const {
 	createHashedPasswordFromPlainText,
 	checkSame,
 } = require("../../helpers/utils");
+const Game = require("../../models/Game");
 
 exports.login = async (params) => {
 	try {
@@ -61,7 +62,7 @@ exports.createAdminUser = async (params) => {
 exports.dashboard = async (params) => {
 	try {
 		const usersCount = await User.countDocuments();
-		const gamesCount = 0;
+		const gamesCount = await Game.countDocuments();
 
 		return success("", { usersCount, gamesCount });
 	} catch (e) {

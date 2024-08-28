@@ -150,13 +150,12 @@ exports.updateProfilePicture = async (params, avatar) => {
 			return fail("invalid user!");
 		}
 
-		let newAvatarPath = `public/uploads/avatar-${id}.png`;
-		renameFile(`${__basedir}/${avatar.path}`, `${__basedir}/${newAvatarPath}`);
-		// newAvatarPath = newAvatarPath.replace("public/", "");
+		let avatarNewPath = `public/uploads/avatar-${id}.png`;
+		renameFile(`${__basedir}/${avatar.path}`, `${__basedir}/${avatarNewPath}`);
 
 		user = await User.findOneAndUpdate(
 			{ _id: id },
-			{ profilePicture: newAvatarPath.replace("public/", "") },
+			{ profilePicture: avatarNewPath.replace("public/", "") },
 			{ new: true }
 		);
 		return success("profile picture updated successfully!", user);
