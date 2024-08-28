@@ -111,6 +111,10 @@ exports.init = async () => {
 			key: "KEEP_SCORE_PRICE_BRONZE",
 		});
 
+		const answerWordsLimitationSetting = await Setting.findOne({
+			key: "ANSWER_WORDS_LIMITATION",
+		});
+
 		const categories = await Category.find();
 
 		return success("initialize game parameters", {
@@ -125,6 +129,7 @@ exports.init = async () => {
 				coin: "bronze",
 				count: keepScorePriceSetting?.value || 5,
 			},
+			answerWordsLimitation: answerWordsLimitationSetting?.value || 100,
 			categories,
 		});
 	} catch (e) {
