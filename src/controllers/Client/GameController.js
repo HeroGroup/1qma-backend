@@ -1669,7 +1669,7 @@ const refundPlayers = async (game, player_id) => {
 	// and everyone who are connected rather than game creator
 	const connectedJoinedPlayers = game.players.filter(
 		(plyr) =>
-			plyr.status === "connected" &&
+			plyr.status != "left" &&
 			plyr._id !== player_id &&
 			plyr._id !== game.creator._id
 	);
@@ -1691,7 +1691,7 @@ const refundPlayers = async (game, player_id) => {
 
 	// if creator is still connected, refung create game price
 	const creator = game.players.find(
-		(plyr) => plyr.status === "connected" && plyr._id === game.creator._id
+		(plyr) => plyr.status != "left" && plyr._id === game.creator._id
 	);
 
 	if (creator) {
