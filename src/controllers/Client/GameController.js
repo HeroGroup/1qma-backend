@@ -1189,8 +1189,8 @@ exports.exitGame = async (params, socketId) => {
 		// TODO: shift rates properly
 
 		// update player and game status and remove player question
-		await Game.findOneAndUpdate(
-			{ _id: objectId(gameId) },
+		await Game.findByIdAndUpdate(
+			gameId,
 			{
 				"players.$[player].status": "left",
 				...(canceled ? { status: "canceled", canceledAt: moment() } : {}),
@@ -1202,36 +1202,27 @@ exports.exitGame = async (params, socketId) => {
 		);
 
 		// remove player question rates
-		await Game.findOneAndUpdate(
-			{ _id: objectId(gameId) },
-			{
-				$pull: {
-					"questions.$[].rates": { user_id: player_id },
-				},
-			}
-		);
+		await Game.findByIdAndUpdate(gameId, {
+			$pull: {
+				"questions.$[].rates": { user_id: player_id },
+			},
+		});
 
 		// remove player answers
-		await Game.findOneAndUpdate(
-			{ _id: objectId(gameId) },
-			{
-				$pull: {
-					"questions.$[].answers": { user_id: player_id },
-				},
-			}
-		);
+		await Game.findByIdAndUpdate(gameId, {
+			$pull: {
+				"questions.$[].answers": { user_id: player_id },
+			},
+		});
 
 		// remove player answers rates
-		await Game.findOneAndUpdate(
-			{ _id: objectId(gameId) },
-			{
-				$pull: {
-					"questions.$[].answers.$[].rates": {
-						user_id: player_id,
-					},
+		await Game.findByIdAndUpdate(gameId, {
+			$pull: {
+				"questions.$[].answers.$[].rates": {
+					user_id: player_id,
 				},
-			}
-		);
+			},
+		});
 
 		return success("ok");
 	} catch (e) {
@@ -1674,6 +1665,7 @@ const updateQuestionStatistics = async (obj) => {
 };
 
 const refundPlayers = async (game, player_id) => {
+	console.log("refund");
 	// refund join game price to players rather than who is leaving
 	// and everyone who are connected rather than game creator
 	const connectedJoinedPlayers = game.players.filter(
@@ -1683,10 +1675,14 @@ const refundPlayers = async (game, player_id) => {
 			plyr._id !== game.creator._id
 	);
 
+	console.log("1");
+
 	const connectedJoinedPlayersIds = [];
 	for (const i of connectedJoinedPlayers) {
 		connectedJoinedPlayersIds.push(i._id);
 	}
+
+	console.log("2");
 
 	const joinGamePriceSetting = await Setting.findOne({
 		key: "JOIN_GAME_PRICE_BRONZE",
@@ -1697,6 +1693,8 @@ const refundPlayers = async (game, player_id) => {
 		{ _id: { $in: connectedJoinedPlayersIds } },
 		{ $inc: { "assets.coins.bronze": parseInt(joinGamePrice) } }
 	);
+
+	console.log("3");
 
 	// if creator is still connected, refung create game price
 	const creator = game.players.find(
@@ -1712,6 +1710,8 @@ const refundPlayers = async (game, player_id) => {
 		{ _id: creator._id },
 		{ $inc: { "assets.coins.bronze": parseInt(createGamePrice) } }
 	);
+
+	console.log("4");
 };
 
 /*
