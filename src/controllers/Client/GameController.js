@@ -1404,10 +1404,12 @@ const calculateResult = async (gameId) => {
 			const answersRatesRaw = [];
 			for (let i = 0; i < questions.length; i++) {
 				const question = questions[i];
-				const _questionRate =
-					question.rates.find(
+				const questionWeight =
+					1 +
+					(question.rates.find(
 						(r) => r.user_id.toString() === player._id.toString()
-					)?.rate || 1 / 100 + 1; // 1 => 1.01, 5 => 1.05
+					)?.rate || 1) /
+						100; // 1 => 1.01, 5 => 1.05
 
 				const answer = question.answers.find(
 					(elm) => elm.user_id.toString() === player._id.toString()
@@ -1415,7 +1417,7 @@ const calculateResult = async (gameId) => {
 				const sumRates =
 					answer?.rates.reduce((n, { rate }) => n + rate, 0) || numberOfPlayers;
 				answersRatesRaw.push(sumRates);
-				answersRates.push(sumRates * _questionRate);
+				answersRates.push(sumRates * questionWeight);
 			}
 
 			const questionRate = questions[ownQuestionIndex].rates.reduce(
@@ -1423,7 +1425,7 @@ const calculateResult = async (gameId) => {
 				0
 			);
 
-			const totalScore = answersRates.reduce((acc, cur) => acc + cur); // + questionRate;
+			const totalScore = answersRates.reduce((acc, cur) => acc + cur);
 
 			return {
 				_id: player._id,
