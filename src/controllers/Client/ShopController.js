@@ -55,7 +55,7 @@ exports.shopWithCoin = async (params) => {
 		let user = await User.findById(id);
 		const shopItemCoinType = shopItem.coinPrice.coin;
 		const shopItemCoinPrice = shopItem.coinPrice.price;
-		const userAsset = user.assets.coins[shopItemCoinType];
+		const userAsset = user.assets.coins[shopItemCoinType] || 0;
 
 		if (parseInt(userAsset) < parseInt(shopItemCoinPrice)) {
 			return fail(
