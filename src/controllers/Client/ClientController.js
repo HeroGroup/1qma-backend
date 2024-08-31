@@ -21,6 +21,7 @@ const {
 } = require("../../helpers/constants");
 const { findMyFriends } = require("../../helpers/findMyFriends");
 const Transaction = require("../../models/Transaction");
+const moment = require("moment");
 
 exports.init = async (userId) => {
 	try {
@@ -208,6 +209,7 @@ exports.invite = async (params) => {
 		const existingEmail = await User.countDocuments({
 			email,
 			emailVerified: true,
+			$or: [{ inWaitList: false }, { inWaitList: { $exists: false } }],
 		});
 		if (existingEmail > 0) {
 			return fail("This email address is already in!");
@@ -216,7 +218,11 @@ exports.invite = async (params) => {
 		// add it to user invitations
 		await User.findOneAndUpdate(
 			{ _id: id },
-			{ $push: { invitations: { email, status: "pending" } } }
+			{
+				$push: {
+					invitations: { email, status: "pending", createdAt: moment() },
+				},
+			}
 		);
 
 		// TODO: create and send invite link

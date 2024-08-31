@@ -5,6 +5,7 @@ const {
 	createHashedPasswordFromPlainText,
 	checkSame,
 	xpNeededForNextLevel,
+	objectId,
 } = require("../../helpers/utils");
 const AccountType = require("../../models/AccountType");
 const Category = require("../../models/Category");
@@ -338,9 +339,15 @@ exports.choosePreferedLanguage = async (params) => {
 
 	if (user.referer) {
 		// update referer user
-		await User.findOneAndUpdate(
-			{ _id: user.referer._id },
-			{
+		const refererUserId = user.referer._id;
+		const refererUser = await User.findById(refererUserId);
+
+		const userInvitationIndex = refererUser.invitations.findIndex((elm) => {
+			return elm._id === objectId(id) || elm.email === user.email;
+		});
+
+		if (userInvitationIndex === -1) {
+			await User.findByIdAndUpdate(refererUserId, {
 				$push: {
 					invitations: {
 						_id: user._id,
@@ -348,8 +355,8 @@ exports.choosePreferedLanguage = async (params) => {
 						createdAt: moment(),
 					},
 				},
-			}
-		);
+			});
+		}
 
 		return success("Language preferences updated successfully!", user);
 	} else {
