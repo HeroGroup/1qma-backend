@@ -82,6 +82,7 @@ const gameCustomProjection = async (game) => {
 		gameInviteList: game.inviteList,
 		gameNumberOfPlayers: game.numberOfPlayers,
 		gamePlayers: game.players.filter((plyr) => plyr.status === "connected"),
+		gameNumberOfPlayers: game.numberOfPlayers,
 	};
 };
 
