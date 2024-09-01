@@ -22,7 +22,6 @@ const {
 const { findMyFriends } = require("../../helpers/findMyFriends");
 const Transaction = require("../../models/Transaction");
 const moment = require("moment");
-const { languages } = require("../../helpers/constants");
 
 exports.init = async (userId) => {
 	try {
