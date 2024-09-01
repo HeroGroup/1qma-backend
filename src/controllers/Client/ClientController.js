@@ -301,6 +301,9 @@ exports.listQuestions = async (userId, params) => {
 		let typeQuery = { showNothing: true };
 		if (type === "public") {
 			typeQuery = { user: { $exists: false } };
+		} else if (type === "trivia") {
+			// show all public and private questions
+			typeQuery = {};
 		} else if (type === "private") {
 			typeQuery = { "user._id": objectId(userId) };
 		} else if (type === "bookmark") {

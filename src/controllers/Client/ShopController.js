@@ -87,6 +87,8 @@ exports.shopWithCoin = async (params) => {
 
 		await transaction.save();
 
+		// TODO: implement the shop item
+
 		return success("Successful payment!", { newBalance: user.assets.coins });
 	} catch (e) {
 		return handleException(e);

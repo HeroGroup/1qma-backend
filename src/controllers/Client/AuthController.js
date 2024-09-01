@@ -343,7 +343,7 @@ exports.choosePreferedLanguage = async (params) => {
 		const refererUser = await User.findById(refererUserId);
 
 		const userInvitationIndex = refererUser.invitations.findIndex((elm) => {
-			return elm._id === objectId(id) || elm.email === user.email;
+			return elm._id === objectId(user._id) || elm.email === user.email;
 		});
 
 		if (userInvitationIndex === -1) {
