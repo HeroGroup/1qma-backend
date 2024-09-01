@@ -22,6 +22,7 @@ const {
 const { findMyFriends } = require("../../helpers/findMyFriends");
 const Transaction = require("../../models/Transaction");
 const moment = require("moment");
+const { languages } = require("../../helpers/constants");
 
 exports.init = async (userId) => {
 	try {
@@ -115,14 +116,23 @@ exports.updateProfile = async (params) => {
 
 exports.updateUserSettings = async (params) => {
 	try {
-		const { id } = params;
+		const { id, language } = params;
 		if (!id) {
 			return fail("invalid user id!");
 		}
+
+		if (!language) {
+			return fail("invalid language was selected!");
+		}
+
+		const selectedLanguage = languages.find(
+			(element) => element._id === language
+		);
+
 		const user = await User.findOneAndUpdate(
 			{ _id: id },
 			{
-				preferedLanguage: params.language,
+				preferedLanguage: selectedLanguage,
 				defaultHomePage: params.defaultHomePage,
 			},
 			{
