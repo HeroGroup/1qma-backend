@@ -306,6 +306,13 @@ exports.createGame = async (params, socketId, language) => {
 					message,
 					data,
 				});
+
+				console.log({
+					id: notif._id.toString(),
+					title,
+					message,
+					data,
+				});
 			}
 		} else {
 			// TODO: find players who match game criteria and send proper notification
@@ -645,6 +652,35 @@ exports.invitePlayer = async (params) => {
 			{ _id: objectId(gameId) },
 			{ $push: { inviteList: email } }
 		);
+
+		let playerUser = await User.findOne({ email: playerEmail });
+		let title = "New Game!";
+		let message = `you have been invited to play this game created by ${creator.email}`;
+		let data = { type: "GAME_INVITE", gameId };
+
+		let notif = new Notification({
+			title,
+			message,
+			data,
+			createdAt: moment(),
+			hasSeen: false,
+			user: playerUser._id,
+		});
+		await notif.save();
+
+		io.to(playerUser.socketId).emit("notification", {
+			id: notif._id.toString(),
+			title,
+			message,
+			data,
+		});
+
+		console.log({
+			id: notif._id.toString(),
+			title,
+			message,
+			data,
+		});
 
 		return success(`Invitation was sent to ${email} successfully!`);
 	} catch (e) {
