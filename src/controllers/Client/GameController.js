@@ -653,7 +653,7 @@ exports.invitePlayer = async (params) => {
 			{ $push: { inviteList: email } }
 		);
 
-		let playerUser = await User.findOne({ email: playerEmail });
+		let playerUser = await User.findOne({ email });
 		let title = "New Game!";
 		let message = `you have been invited to play this game created by ${creator.email}`;
 		let data = { type: "GAME_INVITE", gameId };
