@@ -95,13 +95,13 @@ exports.generateQR = async (text) => {
 
 exports.xpNeededForNextLevel = (level) => {
 	let increment = 0;
-	if (level <= 5) {
+	if (level < 5) {
 		increment = 500;
-	} else if (level <= 10) {
+	} else if (level < 10) {
 		increment = 1000;
-	} else if (level <= 15) {
+	} else if (level < 15) {
 		increment = 2000;
-	} else if (level <= 20) {
+	} else if (level < 20) {
 		increment = 4000;
 	} else {
 		increment = 8000;
