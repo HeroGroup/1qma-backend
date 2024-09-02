@@ -306,13 +306,6 @@ exports.createGame = async (params, socketId, language) => {
 					message,
 					data,
 				});
-
-				console.log({
-					id: notif._id.toString(),
-					title,
-					message,
-					data,
-				});
 			}
 		} else {
 			// TODO: find players who match game criteria and send proper notification
@@ -669,13 +662,6 @@ exports.invitePlayer = async (params) => {
 		await notif.save();
 
 		io.to(playerUser.socketId).emit("notification", {
-			id: notif._id.toString(),
-			title,
-			message,
-			data,
-		});
-
-		console.log({
 			id: notif._id.toString(),
 			title,
 			message,
@@ -1710,9 +1696,9 @@ const refundPlayers = async (game, player_id) => {
 	// and everyone who are connected rather than game creator
 	const connectedJoinedPlayers = game.players.filter(
 		(plyr) =>
-			plyr.status != "left" &&
-			plyr._id !== player_id &&
-			plyr._id !== game.creator._id
+			plyr.status !== "left" &&
+			plyr._id.toString() !== player_id.toString() &&
+			plyr._id.toString() !== game.creator._id.toString()
 	);
 
 	const connectedJoinedPlayersIds = [];
@@ -1732,7 +1718,7 @@ const refundPlayers = async (game, player_id) => {
 
 	// if creator is still connected, refung create game price
 	const creator = game.players.find(
-		(plyr) => plyr.status != "left" && plyr._id === game.creator._id
+		(plyr) => plyr.status !== "left" && plyr._id === game.creator._id
 	);
 
 	if (creator) {
