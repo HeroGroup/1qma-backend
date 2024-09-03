@@ -113,7 +113,7 @@ exports.joinToWaitListWithEmailAndMobile = async (params) => {
 
 	// check email is available
 	const emailExists = await User.countDocuments({
-		email: params.email,
+		email: { $regex: params.email, $options: "i" },
 		emailVerified: true,
 	});
 	if (emailExists > 0) {
@@ -131,7 +131,7 @@ exports.joinToWaitListWithEmailAndMobile = async (params) => {
 
 	const newUser = new User({
 		referCode: await createUniqueReferCode(),
-		email: params.email,
+		email: params.email.toLowerCase(),
 		emailVerified: false,
 		mobile: params.mobile,
 		mobileVerified: false,
@@ -144,7 +144,7 @@ exports.joinToWaitListWithEmailAndMobile = async (params) => {
 	newUser.save();
 
 	// send verification codes to email and mobile
-	createEmailVerification(params.email);
+	createEmailVerification(params.email.toLowerCase());
 	createMobileVerification(params.mobile);
 
 	return success("Verification code was sent to you!", params);
@@ -229,7 +229,7 @@ exports.setEmail = async (params) => {
 
 		// check if email exists
 		const users = await User.countDocuments({
-			email,
+			email: { $regex: email, $options: "i" },
 			emailVerified: true,
 			$or: [{ inWaitList: false }, { inWaitList: { $exists: false } }],
 		});
@@ -240,11 +240,11 @@ exports.setEmail = async (params) => {
 
 		const user = await User.findOneAndUpdate(
 			{ _id: id },
-			{ email, emailVerified: false },
+			{ email: email.toLowerCase(), emailVerified: false },
 			{ new: true }
 		);
 
-		createEmailVerification(email);
+		createEmailVerification(email.toLowerCase());
 
 		return success("Verification code was sent to your email!", {
 			params,
@@ -588,7 +588,7 @@ exports.verifyEmail = async (params, updateUser = true) => {
 
 		const verifications = await Verification.find({
 			type: "email",
-			target: email,
+			target: { $regex: email, $options: "i" },
 			verificationCode: params.verificationCode,
 			isVerified: false,
 		})
@@ -608,7 +608,7 @@ exports.verifyEmail = async (params, updateUser = true) => {
 		);
 
 		if (updateUser) {
-			const users = await User.find({ email })
+			const users = await User.find({ email: { $regex: email, $options: "i" } })
 				.sort({ createdAt: -1 })
 				.allowDiskUse();
 
@@ -681,7 +681,7 @@ exports.resendEmail = async (params) => {
 	}
 
 	// send verification code to email
-	return await createEmailVerification(params.email);
+	return await createEmailVerification(params.email.toLowerCase());
 };
 
 exports.resendMobile = async (params) => {
@@ -701,7 +701,9 @@ exports.forgotPasswordViaEmail = async (params) => {
 	}
 
 	// check if this email has a valid user
-	const user = await User.findOne({ email: params.email });
+	const user = await User.findOne({
+		email: { $regex: params.email, $options: "i" },
+	});
 	if (!user) {
 		return fail("This email address does not exist in our database!");
 	}
@@ -713,7 +715,7 @@ exports.forgotPasswordViaEmail = async (params) => {
 	}
 
 	// send verification code to email
-	return createEmailVerification(params.email);
+	return createEmailVerification(params.email.toLowerCase());
 };
 
 exports.forgotPasswordViaMobile = async (params) => {
@@ -753,7 +755,10 @@ exports.updatePasswordThroughEmail = async (params) => {
 	}
 
 	// check if this email has a valid user
-	const user = await User.findOne({ email, emailVerified: true });
+	const user = await User.findOne({
+		email: { $regex: email, $options: "i" },
+		emailVerified: true,
+	});
 	if (!user) {
 		return fail("This email address does not exist in our database!");
 	}
@@ -764,7 +769,10 @@ exports.updatePasswordThroughEmail = async (params) => {
 		);
 	}
 
-	const emailVerified = await this.verifyEmail({ email, verificationCode });
+	const emailVerified = await this.verifyEmail({
+		email: email.toLowerCase(),
+		verificationCode,
+	});
 	if (emailVerified.status === -1) {
 		return emailVerified;
 	}
@@ -773,7 +781,10 @@ exports.updatePasswordThroughEmail = async (params) => {
 	// update password
 	const newPassword = createHashedPasswordFromPlainText(password);
 	await User.findOneAndUpdate(
-		{ email, $or: [{ inWaitList: { $exists: false } }, { inWaitList: false }] },
+		{
+			email: { $regex: email, $options: "i" },
+			$or: [{ inWaitList: { $exists: false } }, { inWaitList: false }],
+		},
 		{ password: newPassword }
 	);
 
@@ -832,7 +843,7 @@ const createEmailVerification = async (email) => {
 	// check latest verification
 	const verifications = await Verification.find({
 		type: "email",
-		target: email,
+		target: { $regex: email, $options: "i" },
 	})
 		.sort({ createdAt: -1 })
 		.allowDiskUse();
@@ -852,7 +863,7 @@ const createEmailVerification = async (email) => {
 
 	const verification = new Verification({
 		type: "email",
-		target: email,
+		target: email.toLowerCase(),
 		verificationCode: "1111", // getRandomInt(999, 9999),
 		createdAt: moment(),
 		validUnitl: moment().add(NEXT_VERIFICATION_MINUTES.value, "m"),
