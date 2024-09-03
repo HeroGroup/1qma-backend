@@ -79,7 +79,7 @@ exports.loginWithEmail = async (params) => {
 		}
 
 		const user = await User.findOne({
-			email: params.email,
+			email: { $regex: params.email, $options: "i" },
 			emailVerified: true,
 			isActive: true,
 		});
