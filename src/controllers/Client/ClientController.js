@@ -252,6 +252,7 @@ exports.userDetails = async (id) => {
 			firstName: 1,
 			lastName: 1,
 			profilePicture: 1,
+			referer: 1,
 			statistics: 1,
 			games: 1,
 		});
