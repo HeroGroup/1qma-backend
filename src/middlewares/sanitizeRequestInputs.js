@@ -11,19 +11,21 @@ exports.sanitizeRequestInputs = (req, res, next) => {
 	// req.body
 	const bodyNames = Object.keys(bodyParameters);
 	bodyNames.forEach((elm) => {
-		req.body[elm] = sanitize(bodyParameters[elm]);
+		if (elm !== "password") {
+			req.body[elm] = sanitize(bodyParameters[elm]);
+		}
 	});
 
 	// req.params
-	const paramsNames = Object.keys(bodyParameters);
+	const paramsNames = Object.keys(paramsParameters);
 	paramsNames.forEach((elm) => {
-		req.params[elm] = sanitize(bodyParameters[elm]);
+		req.params[elm] = sanitize(paramsParameters[elm]);
 	});
 
 	// req.query
-	const queryNames = Object.keys(bodyParameters);
+	const queryNames = Object.keys(queryParameters);
 	queryNames.forEach((elm) => {
-		req.query[elm] = sanitize(bodyParameters[elm]);
+		req.query[elm] = sanitize(queryParameters[elm]);
 	});
 
 	next();
