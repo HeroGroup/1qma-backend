@@ -69,7 +69,7 @@ const createOrGetQuestion = async (
 };
 
 const gameCustomProjection = async (game) => {
-	const gameLink = `${env.frontAppUrl}/game/join?code=${game.code}`;
+	const gameLink = `${env.frontAppUrl}/games/0/join?code=${game.code}`;
 
 	return {
 		gameId: game._id,
