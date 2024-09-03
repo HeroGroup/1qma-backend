@@ -337,7 +337,10 @@ exports.attemptjoin = async (user, code) => {
 			gameType: 1,
 			status: 1,
 		};
-		let game = await Game.findOne({ code }, gameProjection);
+		let game = await Game.findOne(
+			{ code: { $regex: code, $options: "i" } },
+			gameProjection
+		);
 		if (!game) {
 			game = await Game.findById(code, gameProjection);
 			if (!game) {
@@ -545,7 +548,7 @@ exports.findFriendGames = async (email, page, limit) => {
 
 		const friend = await User.findOne(
 			{
-				email,
+				email: { $regex: email, $options: "i" },
 				emailVerified: true,
 				hasCompletedSignup: true,
 			},
@@ -1441,6 +1444,10 @@ const calculateResult = async (gameId) => {
 					answer?.rates.reduce((n, { rate }) => n + rate, 0) || numberOfPlayers;
 				answersRatesRaw.push(sumRates);
 				answersRates.push(sumRates * questionWeight);
+
+				// loop on question.answers
+				// loop on answer.rates
+				// find rate.user_id and multiply with questionWeight
 			}
 
 			const questionRate = questions[ownQuestionIndex].rates.reduce(
