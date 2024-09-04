@@ -55,3 +55,5 @@ exports.homePages = [
 ];
 
 exports.shopItemTypes = ["feature", "asset", "bundle"];
+
+exports.settingsTypes = ["register", "game", "general"];
