@@ -1512,9 +1512,18 @@ const calculateResult = async (gameId) => {
 	});
 	const gameType = game.gameType;
 
+	const winnerRewardSetting = await Setting.findOne({
+		key: "GAME_WINNER_REWARD_BRONZE",
+	});
+
 	let rank = 1;
 	// update users statistics
 	for (const item of scoreboard) {
+		// reward winner
+		if (rank === 1) {
+			item.reward.bronze = winnerRewardSetting?.value || 1;
+		}
+
 		const plyr = await User.findById(item._id);
 		item["avgRank"] = plyr.statistics.survival?.avgRank || 0;
 		const playerHighScore = plyr.games.highScore || 0;
@@ -1587,10 +1596,15 @@ const calculateResult = async (gameId) => {
 		rank++;
 	}
 
-	// update winner statistics
+	// update winner statistics and assets
 	await User.findOneAndUpdate(
 		{ _id: scoreboard[0]._id },
-		{ $inc: { "games.won": 1 } }
+		{
+			$inc: {
+				"games.won": 1,
+				"assets.coins.bronze": winnerRewardSetting?.value || 1,
+			},
+		}
 	);
 
 	// update creator statistics
