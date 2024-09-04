@@ -115,6 +115,7 @@ exports.friendsRecentGames = async (userId) => {
 				category: 1,
 				players: 1,
 				gameType: 1,
+				endedAt: 1,
 				result: 1,
 			}
 		)
