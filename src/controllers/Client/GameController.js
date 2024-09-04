@@ -116,6 +116,14 @@ exports.init = async () => {
 			key: "ANSWER_WORDS_LIMITATION",
 		});
 
+		const rateAnswersDurationSetting = await Setting.findOne({
+			key: "RATE_ANSWERS_DURATION_SECONDS",
+		});
+
+		const rateQuestionsDurationSetting = await Setting.findOne({
+			key: "RATE_QUESTIONS_DURATION_SECONDS",
+		});
+
 		const categories = await Category.find();
 
 		return success("initialize game parameters", {
@@ -124,6 +132,8 @@ exports.init = async () => {
 			numberOfPlayers: numberOfPlayers?.value || 5,
 			gamePrice: { coin: "bronze", count: createGamePrice?.value || 2 },
 			eachStepDurationSeconds: eachStepDurationSetting?.value || 120,
+			rateAnswersDurationSeconds: rateAnswersDurationSetting?.value || 120,
+			rateQuestionsDurationSeconds: rateQuestionsDurationSetting?.value || 120,
 			waitingTimeSeconds: waitingTimeSecondsSetting?.value || 120, // in wating room
 			numberOfRetries: numberOfRetriesSetting?.value || 2, // in wating room
 			keepScorePrice: {

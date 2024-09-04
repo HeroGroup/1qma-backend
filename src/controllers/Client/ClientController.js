@@ -22,12 +22,17 @@ const {
 const { findMyFriends } = require("../../helpers/findMyFriends");
 const Transaction = require("../../models/Transaction");
 const moment = require("moment");
+const Setting = require("../../models/Setting");
 
 exports.init = async (userId) => {
 	try {
 		const accountTypes = await AccountType.find();
 		const categories = await Category.find();
 		const user = await User.findById(userId);
+
+		const answerWordsLimitationSetting = await Setting.findOne({
+			key: "ANSWER_WORDS_LIMITATION",
+		});
 
 		return success("initialize parameters", {
 			languages,
@@ -36,6 +41,7 @@ exports.init = async (userId) => {
 			accountTypes,
 			categories,
 			homePages,
+			answerWordsLimitation: answerWordsLimitationSetting?.value || 100,
 			user,
 		});
 	} catch (e) {
