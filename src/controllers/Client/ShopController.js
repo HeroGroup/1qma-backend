@@ -87,11 +87,31 @@ exports.shopWithCoin = async (params) => {
 
 		await transaction.save();
 
-		// TODO: implement the shop item
+		// assign shop items to user
+		await assignItemsToUser(id, shopItem.details);
 
 		return success("Successful payment!", { newBalance: user.assets.coins });
 	} catch (e) {
 		return handleException(e);
+	}
+};
+
+const assignItemsToUser = async (userId, details) => {
+	for (const item of details) {
+		const { title, count } = item;
+
+		if (title === "invitation") {
+			await User.findByIdAndUpdate(userId, {
+				$inc: { maxInvites: count },
+			});
+		} else {
+			const user = User.findById(userId);
+			const userCoins = user.assets.coins;
+			userCoins[title] = userCoins[title] + count;
+			await User.findByIdAndUpdate(userId, {
+				"assets.coins": userCoins,
+			});
+		}
 	}
 };
 
