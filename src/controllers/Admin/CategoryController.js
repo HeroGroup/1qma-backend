@@ -4,11 +4,8 @@ const { handleException, removeFile } = require("../../helpers/utils");
 exports.getCategories = async () => {
 	try {
 		const categories = await Category.find();
-		return {
-			status: 1,
-			message: "categories retrieved successfully!",
-			data: categories,
-		};
+
+		return success("categories retrieved successfully!", categories);
 	} catch (e) {
 		return handleException(e);
 	}

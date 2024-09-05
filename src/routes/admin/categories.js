@@ -14,7 +14,7 @@ const imageUpload = require("../../services/imageUpload");
  *  get:
  *     tags:
  *     - Admin
- *     summary: get all settings
+ *     summary: get all categories
  */
 router.get("/", async (req, res) => {
 	res.json(await getCategories());
