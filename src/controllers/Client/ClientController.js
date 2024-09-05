@@ -121,13 +121,17 @@ exports.updateProfile = async (params) => {
 
 exports.updateUserSettings = async (params) => {
 	try {
-		const { id, language } = params;
+		const { id, language, font } = params;
 		if (!id) {
 			return fail("invalid user id!");
 		}
 
 		if (!language) {
 			return fail("invalid language was selected!");
+		}
+
+		if (!font) {
+			return fail("invalid font was selected!");
 		}
 
 		const selectedLanguage = languages.find(
@@ -138,6 +142,7 @@ exports.updateUserSettings = async (params) => {
 			{ _id: id },
 			{
 				preferedLanguage: selectedLanguage,
+				preferedFont: font,
 				defaultHomePage: params.defaultHomePage,
 			},
 			{

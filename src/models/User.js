@@ -27,6 +27,7 @@ const userSchema = new Schema({
 	preferedCategories: Array,
 	accountType: Object,
 	preferedLanguage: Object,
+	preferedFont: String,
 	defaultHomePage: String,
 	profilePicture: String,
 	assets: Object,
