@@ -4,11 +4,8 @@ const { handleException, removeFile } = require("../../helpers/utils");
 exports.getAccountTypes = async () => {
 	try {
 		const accountTypes = await AccountType.find();
-		return {
-			status: 1,
-			message: "Account types retrieved successfully!",
-			data: accountTypes,
-		};
+
+		return success("Account types retrieved successfully!", accountTypes);
 	} catch (e) {
 		return handleException(e);
 	}
