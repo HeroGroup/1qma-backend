@@ -22,6 +22,7 @@ const {
 	questionsFromFriendsLatestGames,
 	getTransactions,
 	reportBug,
+	chooseCharityCategory,
 } = require("../../controllers/Client/ClientController");
 
 /**
@@ -558,6 +559,38 @@ router.get("/transactions", hasCompletedSignup, async (req, res) => {
  */
 router.post("/bugReports/add", sameUser, async (req, res) => {
 	res.json(await reportBug(req.session.user, req.body));
+});
+
+/**
+ * @openapi
+ * '/client/charity':
+ *  post:
+ *     tags:
+ *     - Client
+ *     summary: choose charity
+ *     requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *           schema:
+ *            type: object
+ *            required:
+ *              - id
+ *              - charity
+ *              - activity
+ *            properties:
+ *              id:
+ *                type: string
+ *                default: 63738495886737657388948
+ *              charity:
+ *                type: object
+ *                default: {id: 1, title: "Aid Children"}
+ *              activity:
+ *                type: object
+ *                format: {id: 1, title: "Making Schools"}
+ */
+router.post("/charity", sameUser, async (req, res) => {
+	res.json(await chooseCharityCategory(req.body));
 });
 
 module.exports = router;

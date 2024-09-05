@@ -1,3 +1,23 @@
+const moment = require("moment");
+
+const AccountType = require("../../models/AccountType");
+const BugReport = require("../../models/BugReport");
+const Category = require("../../models/Category");
+const Game = require("../../models/Game");
+const Question = require("../../models/Question");
+const Setting = require("../../models/Setting");
+const Transaction = require("../../models/Transaction");
+const User = require("../../models/User");
+
+const {
+	languages,
+	genders,
+	educations,
+	homePages,
+	bugTypes,
+	charityCategories,
+} = require("../../helpers/constants");
+const { findMyFriends } = require("../../helpers/findMyFriends");
 const {
 	handleException,
 	createHashedPasswordFromPlainText,
@@ -6,25 +26,7 @@ const {
 	objectId,
 	renameFile,
 } = require("../../helpers/utils");
-const AccountType = require("../../models/AccountType");
-const BugReport = require("../../models/BugReport");
-const Category = require("../../models/Category");
-const Game = require("../../models/Game");
-const Question = require("../../models/Question");
-const User = require("../../models/User");
 const { validateEmail } = require("../../helpers/validator");
-
-const {
-	languages,
-	genders,
-	educations,
-	homePages,
-	bugTypes,
-} = require("../../helpers/constants");
-const { findMyFriends } = require("../../helpers/findMyFriends");
-const Transaction = require("../../models/Transaction");
-const moment = require("moment");
-const Setting = require("../../models/Setting");
 
 exports.init = async (userId) => {
 	try {
@@ -44,6 +46,7 @@ exports.init = async (userId) => {
 			categories,
 			homePages,
 			bugTypes,
+			charityCategories,
 			answerWordsLimitation: answerWordsLimitationSetting?.value || 100,
 			user,
 		});
@@ -739,19 +742,36 @@ exports.getTransactions = async (userId, params) => {
 	}
 };
 
-exports.reportBug = async (sessionUser, params) => {
+exports.reportBug = async (params) => {
 	try {
-		if (!sessionUser) {
-			return fail("invalid user");
-		}
+		const { id, category, subCategory, description } = params;
 
-		const { category, subCategory, description } = params;
+		if (!id) {
+			return fail("invalid user id!");
+		}
 
 		if (!category || !subCategory) {
 			return fail("invalid category or sub category!");
 		}
 
-		const { _id, firstName, lastName, email } = sessionUser;
+		const user = await User.findById(id);
+		if (!user) {
+			return fail("invalid user!");
+		}
+
+		const bugType = bugTypes.find((elm) => elm.id === category.id);
+		if (!bugType) {
+			return fail("invalid bug category was selected!");
+		}
+
+		const bugSubCategory = bugType.subCategories.find(
+			(elm) => elm.title === subCategory.id
+		);
+		if (!bugSubCategory) {
+			return fail("invalid bug sub category was selected!");
+		}
+
+		const { _id, firstName, lastName, email } = user;
 
 		const bugReport = new BugReport({
 			category,
@@ -768,6 +788,51 @@ exports.reportBug = async (sessionUser, params) => {
 	} catch (e) {
 		return handleException(e);
 	}
+};
+
+exports.chooseCharityCategory = async (params) => {
+	const { id, charity, activity } = params;
+
+	if (!id) {
+		return fail("invalid user id!");
+	}
+
+	if (!charity) {
+		return fail("invalid charity!");
+	}
+
+	if (!activity) {
+		return fail("invalid activity!");
+	}
+
+	let user = await User.findById(id);
+	if (!user) {
+		return fail("invalid user!");
+	}
+
+	const charityCategory = charityCategories.find(
+		(elm) => elm.id === charity.id
+	);
+	if (!charityCategory) {
+		return fail("invalid charity was selected!");
+	}
+
+	const charityActivity = charityCategory.activities.find(
+		(elm) => elm.title === activity.id
+	);
+	if (!charityActivity) {
+		return fail("invalid activity was selected!");
+	}
+
+	user = await User.findByIdAndUpdate(
+		id,
+		{
+			preferedCharity: { charity, activity },
+		},
+		{ new: true }
+	);
+
+	return success("Thank you for making worl a better place.", user);
 };
 
 const like = async (questionId, userId) => {

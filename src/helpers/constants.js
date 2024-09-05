@@ -86,3 +86,11 @@ exports.bugTypes = [
 		subCategories: [],
 	},
 ];
+
+exports.charityCategories = [
+	{
+		id: 1,
+		title: "Aid Children",
+		activities: [{ id: 1, title: "Making Schools" }],
+	},
+];

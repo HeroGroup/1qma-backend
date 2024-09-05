@@ -28,6 +28,7 @@ const userSchema = new Schema({
 	accountType: Object,
 	preferedLanguage: Object,
 	preferedFont: String,
+	preferedCharity: Object,
 	defaultHomePage: String,
 	profilePicture: String,
 	assets: Object,
