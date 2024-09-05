@@ -34,6 +34,11 @@ exports.init = async (userId) => {
 		const categories = await Category.find();
 		const user = await User.findById(userId);
 
+		let charityProgress = 0;
+		if (user.preferedCharity) {
+			// TODO: calculate charity progress
+		}
+
 		const answerWordsLimitationSetting = await Setting.findOne({
 			key: "ANSWER_WORDS_LIMITATION",
 		});
@@ -49,6 +54,7 @@ exports.init = async (userId) => {
 			charityCategories,
 			answerWordsLimitation: answerWordsLimitationSetting?.value || 100,
 			user,
+			charityProgress,
 		});
 	} catch (e) {
 		return handleException(e);
