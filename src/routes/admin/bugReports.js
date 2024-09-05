@@ -16,3 +16,5 @@ const {
 router.get("/", async (req, res) => {
 	res.json(await getBugReports(req.query));
 });
+
+module.exports = router;

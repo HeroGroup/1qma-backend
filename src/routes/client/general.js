@@ -21,6 +21,7 @@ const {
 	questionPerformance,
 	questionsFromFriendsLatestGames,
 	getTransactions,
+	reportBug,
 } = require("../../controllers/Client/ClientController");
 
 /**
@@ -521,6 +522,42 @@ router.get(
  */
 router.get("/transactions", hasCompletedSignup, async (req, res) => {
 	res.json(await getTransactions(req.session.user._id, req.query));
+});
+
+/**
+ * @openapi
+ * '/client/bugReports/add':
+ *  post:
+ *     tags:
+ *     - Client
+ *     summary: send a bug report
+ *     requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *           schema:
+ *            type: object
+ *            required:
+ *              - id
+ *              - category
+ *              - subCategory
+ *              - description
+ *            properties:
+ *              id:
+ *                type: string
+ *                default: 63738495886737657388948
+ *              category:
+ *                type: object
+ *                default: {id: 1, title: "Gameplay"}
+ *              subCategory:
+ *                type: object
+ *                format: {id: 1, title: "gameplay subcategory 1"}
+ *              description:
+ *                type: string
+ *                format: sample description
+ */
+router.post("/bugReports/add", sameUser, async (req, res) => {
+	res.json(await reportBug(req.session.user, req.body));
 });
 
 module.exports = router;

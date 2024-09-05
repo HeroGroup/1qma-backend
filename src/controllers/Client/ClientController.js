@@ -741,7 +741,16 @@ exports.getTransactions = async (userId, params) => {
 
 exports.reportBug = async (sessionUser, params) => {
 	try {
+		if (!sessionUser) {
+			return fail("invalid user");
+		}
+
 		const { category, subCategory, description } = params;
+
+		if (!category || !subCategory) {
+			return fail("invalid category or sub category!");
+		}
+
 		const { _id, firstName, lastName, email } = sessionUser;
 
 		const bugReport = new BugReport({
