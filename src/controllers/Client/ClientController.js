@@ -1,8 +1,10 @@
 const moment = require("moment");
 
 const AccountType = require("../../models/AccountType");
+const BugType = require("../../models/AccountType");
 const BugReport = require("../../models/BugReport");
 const Category = require("../../models/Category");
+const CharityCategory = require("../../models/CharityCategory");
 const Game = require("../../models/Game");
 const Question = require("../../models/Question");
 const Setting = require("../../models/Setting");
@@ -14,8 +16,6 @@ const {
 	genders,
 	educations,
 	homePages,
-	bugTypes,
-	charityCategories,
 } = require("../../helpers/constants");
 const { findMyFriends } = require("../../helpers/findMyFriends");
 const {
@@ -30,8 +30,11 @@ const { validateEmail } = require("../../helpers/validator");
 
 exports.init = async (userId) => {
 	try {
-		const accountTypes = await AccountType.find();
-		const categories = await Category.find();
+		const shouldBeActive = { isActive: true };
+		const accountTypes = await AccountType.find(shouldBeActive);
+		const bugTypes = await BugType.find(shouldBeActive);
+		const categories = await Category.find(shouldBeActive);
+		const charityCategories = await CharityCategory.find(shouldBeActive);
 		const user = await User.findById(userId);
 
 		let charityProgress = 0;
@@ -765,7 +768,7 @@ exports.reportBug = async (params) => {
 			return fail("invalid user!");
 		}
 
-		const bugType = bugTypes.find((elm) => elm.id === category.id);
+		const bugType = await BugType.findById(category.id);
 		if (!bugType) {
 			return fail("invalid bug category was selected!");
 		}
@@ -816,9 +819,7 @@ exports.chooseCharityCategory = async (params) => {
 		return fail("invalid user!");
 	}
 
-	const charityCategory = charityCategories.find(
-		(elm) => elm.id === charity.id
-	);
+	const charityCategory = await CharityCategory.findById(charity.id);
 	if (!charityCategory) {
 		return fail("invalid charity was selected!");
 	}
