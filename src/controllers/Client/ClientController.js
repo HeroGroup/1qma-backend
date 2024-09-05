@@ -7,6 +7,7 @@ const {
 	renameFile,
 } = require("../../helpers/utils");
 const AccountType = require("../../models/AccountType");
+const BugReport = require("../../models/BugReport");
 const Category = require("../../models/Category");
 const Game = require("../../models/Game");
 const Question = require("../../models/Question");
@@ -18,6 +19,7 @@ const {
 	genders,
 	educations,
 	homePages,
+	bugTypes,
 } = require("../../helpers/constants");
 const { findMyFriends } = require("../../helpers/findMyFriends");
 const Transaction = require("../../models/Transaction");
@@ -41,6 +43,7 @@ exports.init = async (userId) => {
 			accountTypes,
 			categories,
 			homePages,
+			bugTypes,
 			answerWordsLimitation: answerWordsLimitationSetting?.value || 100,
 			user,
 		});
@@ -731,6 +734,28 @@ exports.getTransactions = async (userId, params) => {
 			.limit(limit);
 
 		return success("ok", transactions);
+	} catch (e) {
+		return handleException(e);
+	}
+};
+
+exports.reportBug = async (sessionUser, params) => {
+	try {
+		const { category, subCategory, description } = params;
+		const { _id, firstName, lastName, email } = sessionUser;
+
+		const bugReport = new BugReport({
+			category,
+			subCategory,
+			description,
+			user: { _id, firstName, lastName, email },
+		});
+
+		await bugReport.save();
+
+		return success(
+			"Thank you for sending us a report. Our experts will check into it as soon as possible."
+		);
 	} catch (e) {
 		return handleException(e);
 	}
