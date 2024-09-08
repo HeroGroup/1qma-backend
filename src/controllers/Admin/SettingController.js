@@ -10,7 +10,9 @@ exports.getSettings = async () => {
 		for (const settingsType of settingsTypes) {
 			settings.push({
 				title: settingsType,
-				setting: allSettings.filter((setting) => setting.type === settingsType),
+				settings: allSettings.filter(
+					(setting) => setting.type === settingsType
+				),
 			});
 		}
 
