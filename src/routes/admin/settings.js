@@ -37,6 +37,7 @@ router.get("/", async (req, res) => {
  *              - key
  *              - name
  *              - value
+ *              - type
  *            properties:
  *              key:
  *                type: string
@@ -47,6 +48,9 @@ router.get("/", async (req, res) => {
  *              value:
  *                type: string
  *                default: 2
+ *              type:
+ *                type: string
+ *                default: general
  */
 router.post("/add", async (req, res) => {
 	res.json(await addSetting(req.body));
@@ -68,6 +72,7 @@ router.post("/add", async (req, res) => {
  *            required:
  *              - id
  *              - value
+ *              - type
  *            properties:
  *              id:
  *                type: string
@@ -75,6 +80,9 @@ router.post("/add", async (req, res) => {
  *              value:
  *                type: string
  *                default: 5
+ *              type:
+ *                type: string
+ *                default: general
  */
 router.post("/update", async (req, res) => {
 	res.json(await updateSetting(req.body));
