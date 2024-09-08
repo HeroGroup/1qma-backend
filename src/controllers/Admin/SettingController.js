@@ -4,23 +4,19 @@ const { settingsTypes } = require("../../helpers/constants");
 
 exports.getSettings = async () => {
 	try {
-		const settings = await Setting.find();
+		const allSettings = await Setting.find();
 
-		const registerSettings = settings.filter(
-			(setting) => setting.type === "register"
-		);
-
-		const gameSettings = settings.filter((setting) => setting.type === "game");
-
-		const generalSettings = settings.filter(
-			(setting) => setting.type === "general"
-		);
+		const settings = [];
+		for (const settingsType of settingsTypes) {
+			settings.push({
+				title: settingsType,
+				setting: allSettings.filter((setting) => setting.type === settingsType),
+			});
+		}
 
 		return success("settings retrieved successfully!", {
-			registerSettings,
-			gameSettings,
-			generalSettings,
 			settingsTypes,
+			settings,
 		});
 	} catch (e) {
 		return handleException(e);
