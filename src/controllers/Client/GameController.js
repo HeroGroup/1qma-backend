@@ -1540,10 +1540,6 @@ const calculateResult = async (gameId) => {
 		let currentLevelXP = plyr.statistics.currentLevelXP || 0;
 		let _xpNeededForNextLevel = plyr.statistics.xpNeededForNextLevel; // xpNeededForNextLevel(level); // 500
 
-		console.log(
-			`${plyr.email} current xp: ${currentXp}, next level xp: ${_xpNeededForNextLevel}`
-		);
-
 		let shouldUpdateLevel = false;
 
 		if (parseInt(currentXp) >= parseInt(_xpNeededForNextLevel)) {
