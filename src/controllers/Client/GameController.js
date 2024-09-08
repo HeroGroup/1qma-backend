@@ -1409,6 +1409,14 @@ exports.backToCheckpoint = async () => {
 	return success("ok");
 };
 
+exports.forceCalculateResult = async (gameId) => {
+	try {
+		await calculateResult(gameId);
+	} catch (e) {
+		return handleException(e);
+	}
+};
+
 const calculateResult = async (gameId) => {
 	console.time("calculate-game-result");
 
