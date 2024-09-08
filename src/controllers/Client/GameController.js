@@ -1602,7 +1602,7 @@ const calculateResult = async (gameId) => {
 		{
 			$inc: {
 				"games.won": 1,
-				"assets.coins.bronze": winnerRewardSetting?.value || 1,
+				"assets.coins.bronze": parseInt(winnerRewardSetting?.value || 1),
 			},
 		}
 	);
