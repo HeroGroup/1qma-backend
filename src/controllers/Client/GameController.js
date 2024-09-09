@@ -983,7 +983,7 @@ exports.rateAnswers = async (params) => {
 			console.log("next step");
 		} else {
 			io.to(gameId).emit("submit answer", {
-				numberOfSubmitted: ratesCount / playersCount,
+				numberOfSubmitted: Math.round(ratesCount / playersCount),
 				numberOfPlayers: playersCount,
 			});
 			console.log("submit answer");
