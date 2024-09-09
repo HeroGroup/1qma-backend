@@ -189,7 +189,7 @@ exports.registerWithReferal = async (params) => {
 			return fail("unknown referer!", params);
 		}
 
-		const maxInvites = refererUser.maxInvites || 5;
+		const maxInvites = parseInt(refererUser.maxInvites || 5);
 		const invites = refererUser.invitations?.length || 0;
 		const invitesLeft = maxInvites - invites;
 		if (!(invitesLeft > 0)) {
@@ -529,7 +529,7 @@ exports.chooseAccountType = async (params) => {
 					expireDays: 30,
 				},
 				hasCompletedSignup: true,
-				maxInvites: initialMaxNumberOfAllowedRefers?.value || 0,
+				maxInvites: parseInt(initialMaxNumberOfAllowedRefers?.value || 0),
 				assets: {
 					coins: {
 						bronze: parseInt(defaultNumberOfBronzeCoins?.value) || 0,

@@ -32,7 +32,7 @@ const userSchema = new Schema({
 	defaultHomePage: String,
 	profilePicture: String,
 	assets: Object,
-	maxInvites: String,
+	maxInvites: Number,
 	invitations: Array,
 	accessTokens: Array,
 	statistics: Object,
