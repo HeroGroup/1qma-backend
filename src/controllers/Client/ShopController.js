@@ -53,6 +53,10 @@ exports.shopWithCoin = async (params) => {
 
 		// control user balance
 		let user = await User.findById(id);
+		if (!user) {
+			return fail("invalid user!");
+		}
+
 		const shopItemCoinType = shopItem.coinPrice.coin;
 		const shopItemCoinPrice = shopItem.coinPrice.price;
 		const userAsset = user.assets.coins[shopItemCoinType] || 0;
@@ -105,7 +109,7 @@ const assignItemsToUser = async (userId, details) => {
 				$inc: { maxInvites: count },
 			});
 		} else {
-			const user = User.findById(userId);
+			const user = await User.findById(userId);
 			const userCoins = user.assets.coins;
 			userCoins[title] = userCoins[title] + count;
 			await User.findByIdAndUpdate(userId, {
