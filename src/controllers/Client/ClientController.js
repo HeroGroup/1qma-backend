@@ -718,7 +718,7 @@ exports.questionsFromFriendsLatestGames = async (userId, params) => {
 			);
 
 			const questioner = game.players.find(
-				(player) => player._id === question.userId
+				(player) => player._id === question.user_id
 			);
 
 			return {
