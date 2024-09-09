@@ -119,7 +119,7 @@ exports.friendsRecentGames = async (userId) => {
 				result: 1,
 			}
 		)
-			.sort({ createdAt: -1 })
+			.sort({ endedAt: -1 })
 			.limit(5);
 
 		return success("ok", games);
