@@ -1347,9 +1347,32 @@ exports.reconnectPlayer = async (userId, socketId) => {
 				{ arrayFilters: [{ "player._id": objectId(userId) }] }
 			);
 
+			const player = await User.findById(id);
+			if (!player) {
+				return fail("invalid player!");
+			}
+
+			const {
+				_id: player_id,
+				firstName,
+				lastName,
+				email,
+				profilePicture,
+			} = player;
+
 			// join user to still existing game rooms
 			for (const game of games) {
-				joinUserToGameRoom(socketId, game._id.toString());
+				const room = game._id.toString();
+				joinUserToGameRoom(socketId, room);
+				// emit player connected
+				io.to(room).emit("player connected", {
+					_id: player_id,
+					firstName,
+					lastName,
+					email,
+					profilePicture,
+				});
+				console.log(`${email} connected to ${room}`);
 			}
 		}
 
