@@ -185,13 +185,13 @@ async function main() {
 					sessionData.socketId = socket.id;
 					sess.store.set(sessionId, sessionData);
 					await User.findByIdAndUpdate(userId, { socketId: socket.id });
+
+					console.log(`user id: ${userId}`);
+
+					await reconnectPlayer(userId, socket.id);
 				}
 			});
 		}
-
-		console.log(`user id: ${userId}`);
-
-		await reconnectPlayer(userId, socket.id);
 
 		socket.on("disconnecting", async () => {
 			console.log(`${socket.id} disconnected`);
