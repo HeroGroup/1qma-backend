@@ -716,6 +716,11 @@ exports.questionsFromFriendsLatestGames = async (userId, params) => {
 			const answer = question?.answers.find(({ user_id }) =>
 				friendsIdsString.includes(user_id.toString())
 			);
+
+			const questioner = game.players.find(
+				(player) => player._id === question.userId
+			);
+
 			return {
 				gameId: game._id,
 				category: game.category,
@@ -723,6 +728,7 @@ exports.questionsFromFriendsLatestGames = async (userId, params) => {
 				question: question?.question,
 				answer: answer?.answer,
 				endedAt: game.endedAt,
+				user: questioner,
 			};
 		});
 
