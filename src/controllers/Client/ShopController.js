@@ -104,7 +104,7 @@ const assignItemsToUser = async (userId, details) => {
 	for (const item of details) {
 		const { title, count } = item;
 
-		if (title === "invitation") {
+		if (["invitation", "Invitation"].includes(title)) {
 			await User.findByIdAndUpdate(userId, {
 				$inc: { maxInvites: count },
 			});
