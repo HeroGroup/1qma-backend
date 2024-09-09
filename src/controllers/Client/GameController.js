@@ -1330,6 +1330,10 @@ exports.playerDisconnected = async (params) => {
 
 exports.reconnectPlayer = async (userId, socketId) => {
 	try {
+		if (!userId) {
+			return fail("invalid user id!");
+		}
+
 		const userGamesFilter = {
 			"players._id": objectId(userId),
 			status: { $in: ["created", "started"] },
