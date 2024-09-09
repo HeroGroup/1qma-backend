@@ -465,6 +465,7 @@ exports.joinGame = async (params, socketId, language) => {
 			email,
 			profilePicture,
 		});
+		console.log("player added");
 
 		const currentPlayersCount = game.players.length;
 		let isStarted = false;
@@ -518,6 +519,7 @@ exports.joinGame = async (params, socketId, language) => {
 		if (game.status === "started") {
 			// emit game is started
 			io.to(gameRoom).emit("start game", {});
+			console.log("start game");
 		}
 
 		return success("You have successfully joined the game!", {
@@ -771,11 +773,13 @@ exports.submitAnswer = async (params, language) => {
 		if (numberOfSubmitted >= numberOfPlayers) {
 			// emit next question
 			io.to(gameId).emit("next step", {});
+			console.log("next step");
 		} else {
 			io.to(gameId).emit("submit answer", {
 				numberOfSubmitted,
 				numberOfPlayers,
 			});
+			console.log("submit answer");
 		}
 
 		return success("Thank you for the answer.");
@@ -976,11 +980,13 @@ exports.rateAnswers = async (params) => {
 		if (ratesCount >= playersCount * playersCount) {
 			// everyone has answered, emit next question
 			io.to(gameId).emit("next step", {});
+			console.log("next step");
 		} else {
 			io.to(gameId).emit("submit answer", {
 				numberOfSubmitted: ratesCount / playersCount,
 				numberOfPlayers: playersCount,
 			});
+			console.log("submit answer");
 		}
 
 		return success("Thank you for the rates", ratesCount);
@@ -1093,11 +1099,13 @@ exports.rateQuestions = async (params) => {
 			// everyone has answered, calculate and emit result!
 			calculateResult(gameId);
 			io.to(gameId).emit("end game", {});
+			console.log("end game");
 		} else {
 			io.to(gameId).emit("submit answer", {
 				numberOfSubmitted: ratesCount / playersCount,
 				numberOfPlayers: playersCount,
 			});
+			console.log("submit answer");
 		}
 
 		return success("Thank you for the rates", ratesCount);
@@ -1212,6 +1220,7 @@ exports.exitGame = async (params, socketId) => {
 			canceled = true;
 			await refundPlayers(game, player_id);
 			io.to(gameId).emit("cancel game", {});
+			console.log("cancel game");
 		} else {
 			// remove player from game
 			leaveRoom(socketId, gameId);
@@ -1222,6 +1231,7 @@ exports.exitGame = async (params, socketId) => {
 				email,
 				profilePicture,
 			});
+			console.log("player left");
 		}
 
 		// TODO: shift rates properly
