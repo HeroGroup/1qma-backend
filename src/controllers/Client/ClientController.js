@@ -825,13 +825,13 @@ exports.chooseCharityCategory = async (params) => {
 		return fail("invalid user!");
 	}
 
-	const charityCategory = await CharityCategory.findById(charity.id);
+	const charityCategory = await CharityCategory.findById(charity._id);
 	if (!charityCategory) {
 		return fail("invalid charity was selected!");
 	}
 
 	const charityActivity = charityCategory.activities.find(
-		(elm) => elm.title === activity.id
+		(elm) => elm.title === activity._id
 	);
 	if (!charityActivity) {
 		return fail("invalid activity was selected!");

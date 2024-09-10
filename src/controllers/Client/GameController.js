@@ -1279,23 +1279,71 @@ exports.exitGame = async (params, socketId) => {
 };
 
 exports.playerDisconnected = async (params) => {
-	try {
-		const { id, gameId } = params;
-		if (!id) {
-			return fail("invalid user id!");
-		}
+	const { id, gameId } = params;
+	if (!id) {
+		console.log("invalid user id!");
+	}
 
-		if (!gameId) {
-			return fail("invalid game id!");
-		}
-		let game = await Game.findById(gameId);
-		if (!game) {
-			return fail("invalid game!");
-		}
+	if (!gameId) {
+		console.log("invalid game id!");
+	}
+	let game = await Game.findById(gameId);
+	if (!game) {
+		console.log("invalid game!");
+	}
+
+	const player = await User.findById(id);
+	if (!player) {
+		console.log("invalid player!");
+	}
+
+	const { _id: player_id, firstName, lastName, email, profilePicture } = player;
+
+	// emit player disconnected
+	io.to(gameId).emit("player disconnected", {
+		_id: player_id,
+		firstName,
+		lastName,
+		email,
+		profilePicture,
+	});
+
+	game = await Game.findOneAndUpdate(
+		{ _id: objectId(gameId) },
+		{
+			"players.$[player].status": "disconnected",
+		},
+		{ arrayFilters: [{ "player._id": player_id }], new: true }
+	);
+
+	console.log(`${email} disconnected from ${gameId}`);
+};
+
+exports.reconnectPlayer = async (userId, socketId) => {
+	if (!userId) {
+		console.log("invalid user id!");
+	}
+
+	const userGamesFilter = {
+		"players._id": objectId(userId),
+		status: { $in: ["created", "started"] },
+	};
+
+	const games = await Game.find(userGamesFilter);
+	if (games.length > 0) {
+		// update user status in games
+		await Game.updateMany(
+			userGamesFilter,
+			{
+				"players.$[player].status": "connected",
+				"players.$[player].socketId": socketId,
+			},
+			{ arrayFilters: [{ "player._id": objectId(userId) }] }
+		);
 
 		const player = await User.findById(id);
 		if (!player) {
-			return fail("invalid player!");
+			console.log("invalid player!");
 		}
 
 		const {
@@ -1306,83 +1354,20 @@ exports.playerDisconnected = async (params) => {
 			profilePicture,
 		} = player;
 
-		// emit player disconnected
-		io.to(gameId).emit("player disconnected", {
-			_id: player_id,
-			firstName,
-			lastName,
-			email,
-			profilePicture,
-		});
-		console.log(`${email} disconnected from ${gameId}`);
-
-		game = await Game.findOneAndUpdate(
-			{ _id: objectId(gameId) },
-			{
-				"players.$[player].status": "disconnected",
-			},
-			{ arrayFilters: [{ "player._id": player_id }], new: true }
-		);
-	} catch (e) {
-		return handleException(e);
-	}
-};
-
-exports.reconnectPlayer = async (userId, socketId) => {
-	try {
-		if (!userId) {
-			return fail("invalid user id!");
-		}
-
-		const userGamesFilter = {
-			"players._id": objectId(userId),
-			status: { $in: ["created", "started"] },
-		};
-
-		const games = await Game.find(userGamesFilter);
-		if (games.length > 0) {
-			// update user status in games
-			await Game.updateMany(
-				userGamesFilter,
-				{
-					"players.$[player].status": "connected",
-					"players.$[player].socketId": socketId,
-				},
-				{ arrayFilters: [{ "player._id": objectId(userId) }] }
-			);
-
-			const player = await User.findById(id);
-			if (!player) {
-				return fail("invalid player!");
-			}
-
-			const {
+		// join user to still existing game rooms
+		for (const game of games) {
+			const room = game._id.toString();
+			joinUserToGameRoom(socketId, room);
+			// emit player connected
+			io.to(room).emit("player connected", {
 				_id: player_id,
 				firstName,
 				lastName,
 				email,
 				profilePicture,
-			} = player;
-
-			// join user to still existing game rooms
-			for (const game of games) {
-				const room = game._id.toString();
-				joinUserToGameRoom(socketId, room);
-				// emit player connected
-				io.to(room).emit("player connected", {
-					_id: player_id,
-					firstName,
-					lastName,
-					email,
-					profilePicture,
-				});
-				console.log(`${email} connected to ${room}`);
-			}
+			});
+			console.log(`${email} connected to ${room}`);
 		}
-
-		return success("ok");
-	} catch (e) {
-		return handleException(e);
 	}
 };
 
