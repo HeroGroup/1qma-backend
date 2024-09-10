@@ -184,7 +184,12 @@ async function main() {
 					userId = sessionData.user?._id;
 					sessionData.socketId = socket.id;
 					sess.store.set(sessionId, sessionData);
-					await User.findByIdAndUpdate(userId, { socketId: socket.id });
+					const _user = await User.findByIdAndUpdate(
+						userId,
+						{ socketId: socket.id },
+						{ new: true }
+					);
+					console.log(`${_user.email}: ${_user.socketId}`);
 
 					console.log(`user id: ${userId}`);
 
