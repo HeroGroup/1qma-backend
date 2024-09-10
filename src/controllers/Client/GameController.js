@@ -1341,7 +1341,7 @@ exports.reconnectPlayer = async (userId, socketId) => {
 			{ arrayFilters: [{ "player._id": objectId(userId) }] }
 		);
 
-		const player = await User.findById(id);
+		const player = await User.findById(userId);
 		if (!player) {
 			console.log("invalid player!");
 		}
