@@ -14,7 +14,12 @@ const Setting = require("../../models/Setting");
 const User = require("../../models/User");
 const Verification = require("../../models/Verification");
 
-const { languages, genders, educations } = require("../../helpers/constants");
+const {
+	languages,
+	genders,
+	educations,
+	gameStatuses,
+} = require("../../helpers/constants");
 const {
 	createUniqueReferCode,
 } = require("../../helpers/createUniqueReferCode");
