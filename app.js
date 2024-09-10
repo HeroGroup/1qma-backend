@@ -175,7 +175,6 @@ async function main() {
 	});
 
 	io.on("connection", async (socket) => {
-		console.log(`${socket.id} connected`);
 		let userId = "";
 		const sessionId = socket.request?.sessionID;
 		if (sessionId) {
@@ -190,16 +189,12 @@ async function main() {
 						{ new: true }
 					);
 
-					if (userId) {
-						console.log(`user: ${userId}, ${_user.email}: ${_user.socketId}`);
-						await reconnectPlayer(userId, socket.id);
-					}
+					await reconnectPlayer(userId, socket.id);
 				}
 			});
 		}
 
 		socket.on("disconnecting", async () => {
-			console.log(`${socket.id} disconnected`);
 			for (const room of socket.rooms) {
 				if (room !== socket.id && userId) {
 					await playerDisconnected({ id: userId, gameId: room });

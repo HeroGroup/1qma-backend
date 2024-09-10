@@ -203,7 +203,7 @@ exports.createGame = async (params, socketId, language) => {
 			return fail("Invalid category!");
 		}
 
-		const creator = await User.findById(id);
+		let creator = await User.findById(id);
 		if (!creator) {
 			return fail("invalid creator!");
 		}
@@ -281,21 +281,21 @@ exports.createGame = async (params, socketId, language) => {
 		await game.save();
 
 		// decrease creator coins
-		const playerUser = await User.findOneAndUpdate(
-			{ _id: creator._id },
+		creator = await User.findOneAndUpdate(
+			{ _id: creator_id },
 			{ $inc: { "assets.coins.bronze": -createGamePrice } },
 			{ new: true }
 		);
 
 		const gameId = game._id.toString();
 
-		joinUserToGameRoom(socketId, gameId);
+		joinUserToGameRoom(socketId, gameId, email);
 
 		if (players) {
 			// TODO: send invites to players via notification and email
 			// Notification
-			for (const playerEmail of players) {
-				let playerUser = await User.findOne({ email: playerEmail });
+			for (const invitedEmail of players) {
+				let invitedUser = await User.findOne({ email: invitedEmail });
 				let title = "New Game!";
 				let message = `you have been invited to play this game created by ${creator.email}`;
 				let data = { type: "GAME_INVITE", gameId };
@@ -306,11 +306,11 @@ exports.createGame = async (params, socketId, language) => {
 					data,
 					createdAt: moment(),
 					hasSeen: false,
-					user: playerUser._id,
+					user: invitedUser._id,
 				});
 				await notif.save();
 
-				io.to(playerUser.socketId).emit("notification", {
+				io.to(invitedUser.socketId).emit("notification", {
 					id: notif._id.toString(),
 					title,
 					message,
@@ -323,7 +323,7 @@ exports.createGame = async (params, socketId, language) => {
 
 		return success("Game was created successfully!", {
 			game: await gameCustomProjection(game),
-			newBalance: playerUser.assets,
+			newBalance: creator.assets,
 		});
 	} catch (e) {
 		return handleException(e);
@@ -457,7 +457,7 @@ exports.joinGame = async (params, socketId, language) => {
 		);
 
 		const gameRoom = game._id.toString();
-		joinUserToGameRoom(socketId, gameRoom);
+		joinUserToGameRoom(socketId, gameRoom, email);
 		io.to(gameRoom).emit("player added", {
 			_id: player_id,
 			firstName,
@@ -465,7 +465,6 @@ exports.joinGame = async (params, socketId, language) => {
 			email,
 			profilePicture,
 		});
-		console.log("player added");
 
 		const currentPlayersCount = game.players.length;
 		let isStarted = false;
@@ -986,7 +985,7 @@ exports.rateAnswers = async (params) => {
 				numberOfSubmitted: ratesCount / playersCount,
 				numberOfPlayers: playersCount,
 			});
-			console.log("submit answer");
+			console.log("submit answer rates");
 		}
 
 		return success("Thank you for the rates", ratesCount);
@@ -1105,7 +1104,7 @@ exports.rateQuestions = async (params) => {
 				numberOfSubmitted: ratesCount / playersCount,
 				numberOfPlayers: playersCount,
 			});
-			console.log("submit answer");
+			console.log("submit question rates");
 		}
 
 		return success("Thank you for the rates", ratesCount);
@@ -1223,7 +1222,7 @@ exports.exitGame = async (params, socketId) => {
 			console.log("cancel game");
 		} else {
 			// remove player from game
-			leaveRoom(socketId, gameId);
+			leaveRoom(socketId, gameId, email);
 			io.to(gameId).emit("player left", {
 				_id: player_id,
 				firstName,
@@ -1231,7 +1230,6 @@ exports.exitGame = async (params, socketId) => {
 				email,
 				profilePicture,
 			});
-			console.log("player left");
 		}
 
 		// TODO: shift rates properly
@@ -1357,7 +1355,7 @@ exports.reconnectPlayer = async (userId, socketId) => {
 		// join user to still existing game rooms
 		for (const game of games) {
 			const room = game._id.toString();
-			joinUserToGameRoom(socketId, room);
+			joinUserToGameRoom(socketId, room, email);
 			// emit player connected
 			io.to(room).emit("player connected", {
 				_id: player_id,
@@ -1366,7 +1364,6 @@ exports.reconnectPlayer = async (userId, socketId) => {
 				email,
 				profilePicture,
 			});
-			console.log(`${email} connected to ${room}`);
 		}
 	}
 };
@@ -1649,7 +1646,7 @@ const calculateResult = async (gameId) => {
 
 	// disconnect all players from game room
 	for (const player of players) {
-		leaveRoom(player.socketId, gameId);
+		leaveRoom(player.socketId, gameId, player.email);
 	}
 
 	return success("ok", result);

@@ -59,19 +59,19 @@ exports.getSocketClient = async (socketId) => {
 	return socket;
 };
 
-exports.joinUserToGameRoom = async (socketId, room) => {
+exports.joinUserToGameRoom = async (socketId, room, email = "unknown") => {
 	const socket = await this.getSocketClient(socketId);
 	if (socket) {
 		socket.join(room);
-		console.log(`join ${socketId} to ${room}`);
+		console.log(`email: ${email}, socket id: ${socketId} joined to ${room}`);
 	}
 };
 
-exports.leaveRoom = async (socketId, room) => {
+exports.leaveRoom = async (socketId, room, email = "unknown") => {
 	const socket = await this.getSocketClient(socketId);
 	if (socket) {
 		socket.leave(room);
-		console.log(`${socketId} left ${room}`);
+		console.log(`email: ${email}, socket id: ${socketId} left ${room}`);
 	}
 };
 
