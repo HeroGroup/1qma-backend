@@ -831,7 +831,7 @@ exports.chooseCharityCategory = async (params) => {
 	}
 
 	const charityActivity = charityCategory.activities.find(
-		(elm) => elm._id === activity._id
+		(elm) => elm._id.toString() === activity._id.toString()
 	);
 	if (!charityActivity) {
 		return fail("invalid activity was selected!");
