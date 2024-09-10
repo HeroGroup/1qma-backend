@@ -60,7 +60,7 @@ exports.settingsTypes = ["register", "game", "general"];
 
 exports.gameStatuses = {
 	CREATED: "created",
-	STARTED: gameStatuses.STARTED,
+	STARTED: "started",
 	ENDED: "ended",
 	CANCELED: "canceled",
 };
