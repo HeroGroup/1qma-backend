@@ -189,9 +189,7 @@ async function main() {
 						{ socketId: socket.id },
 						{ new: true }
 					);
-					console.log(`${_user.email}: ${_user.socketId}`);
-
-					console.log(`user id: ${userId}`);
+					console.log(`user: ${userId}, ${_user.email}: ${_user.socketId}`);
 
 					await reconnectPlayer(userId, socket.id);
 				}
