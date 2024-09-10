@@ -1647,6 +1647,11 @@ const calculateResult = async (gameId) => {
 
 	console.timeEnd("calculate-game-result");
 
+	// disconnect all players from game room
+	for (const player of players) {
+		leaveRoom(player.socketId, gameId);
+	}
+
 	return success("ok", result);
 };
 

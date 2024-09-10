@@ -189,9 +189,11 @@ async function main() {
 						{ socketId: socket.id },
 						{ new: true }
 					);
-					console.log(`user: ${userId}, ${_user.email}: ${_user.socketId}`);
 
-					await reconnectPlayer(userId, socket.id);
+					if (userId) {
+						console.log(`user: ${userId}, ${_user.email}: ${_user.socketId}`);
+						await reconnectPlayer(userId, socket.id);
+					}
 				}
 			});
 		}
@@ -199,7 +201,7 @@ async function main() {
 		socket.on("disconnecting", async () => {
 			console.log(`${socket.id} disconnected`);
 			for (const room of socket.rooms) {
-				if (room !== socket.id) {
+				if (room !== socket.id && userId) {
 					await playerDisconnected({ id: userId, gameId: room });
 				}
 			}
