@@ -16,6 +16,7 @@ const {
 	genders,
 	educations,
 	homePages,
+	gameStatuses,
 } = require("../../helpers/constants");
 const { findMyFriends } = require("../../helpers/findMyFriends");
 const {
@@ -643,7 +644,7 @@ exports.questionPerformance = async (questionId, params) => {
 		const baseQuestion = await Question.findById(questionId);
 
 		const games = await Game.find(
-			{ status: "ended", "questions._id": objectId(questionId) },
+			{ status: gameStatuses.ENDED, "questions._id": objectId(questionId) },
 			{
 				_id: 1,
 				endedAt: 1,
@@ -700,7 +701,7 @@ exports.questionsFromFriendsLatestGames = async (userId, params) => {
 		const { friendsIds, friendsIdsString } = await findMyFriends(userId);
 
 		const games = await Game.find({
-			status: "ended",
+			status: gameStatuses.ENDED,
 			"result.scoreboard._id": { $in: friendsIds },
 		})
 			.sort({ endedAt: -1 })

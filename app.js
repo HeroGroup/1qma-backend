@@ -183,11 +183,7 @@ async function main() {
 					userId = sessionData.user?._id;
 					sessionData.socketId = socket.id;
 					sess.store.set(sessionId, sessionData);
-					const _user = await User.findByIdAndUpdate(
-						userId,
-						{ socketId: socket.id },
-						{ new: true }
-					);
+					await User.findByIdAndUpdate(userId, { socketId: socket.id });
 
 					await reconnectPlayer(userId, socket.id);
 				}

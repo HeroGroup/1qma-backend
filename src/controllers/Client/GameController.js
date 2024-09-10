@@ -9,7 +9,11 @@ const {
 	scoreNeededForNextCheckpoint,
 } = require("../../helpers/utils");
 const { validateEmail } = require("../../helpers/validator");
-const { createModes, gameTypes } = require("../../helpers/constants");
+const {
+	createModes,
+	gameTypes,
+	gameStatuses,
+} = require("../../helpers/constants");
 const Category = require("../../models/Category");
 const Game = require("../../models/Game");
 const Question = require("../../models/Question");
@@ -274,7 +278,7 @@ exports.createGame = async (params, socketId, language) => {
 					rates: [],
 				},
 			],
-			status: "created", // started, ended
+			status: gameStatuses.CREATED,
 			createdAt: moment(),
 		});
 
@@ -358,7 +362,7 @@ exports.attemptjoin = async (user, code) => {
 			}
 		}
 
-		if (game.status !== "created") {
+		if (game.status !== gameStatuses.CREATED) {
 			return fail("this game is already started!", game.status);
 		}
 
@@ -411,9 +415,9 @@ exports.joinGame = async (params, socketId, language) => {
 		}
 
 		let gameStatus = game.status;
-		if (gameStatus === "started") {
+		if (gameStatus === gameStatuses.STARTED) {
 			return fail("Sorry, Game is already started!");
-		} else if (gameStatus === "ended") {
+		} else if (gameStatus === gameStatuses.ENDED) {
 			return fail("Sorry, Game has already ended!");
 		}
 
@@ -510,12 +514,14 @@ exports.joinGame = async (params, socketId, language) => {
 						rates: [],
 					},
 				},
-				...(isStarted ? { status: "started", startedAt: moment() } : {}),
+				...(isStarted
+					? { status: gameStatuses.STARTED, startedAt: moment() }
+					: {}),
 			},
 			{ new: true }
 		);
 
-		if (game.status === "started") {
+		if (game.status === gameStatuses.STARTED) {
 			// emit game is started
 			io.to(gameRoom).emit("start game", {});
 			console.log("start game");
@@ -573,7 +579,7 @@ exports.findFriendGames = async (email, page, limit) => {
 		const liveGames = await Game.find(
 			{
 				"players._id": friend._id,
-				status: "created",
+				status: gameStatuses.CREATED,
 				"createMode.id": { $in: ["0", "1"] }, // players are random
 			},
 			{ _id: 1, code: 1, category: 1, creator: 1, players: 1, gameType: 1 }
@@ -581,7 +587,7 @@ exports.findFriendGames = async (email, page, limit) => {
 
 		const endedGames = await Game.find({
 			"players._id": friend._id,
-			status: "ended",
+			status: gameStatuses.ENDED,
 		})
 			.skip(((page || 1) - 1) * (limit || 5))
 			.limit(limit || 5);
@@ -640,7 +646,7 @@ exports.invitePlayer = async (params) => {
 			);
 		}
 
-		if (game.status !== "created") {
+		if (game.status !== gameStatuses.CREATED) {
 			return fail("You are not allowed to invite in this step!");
 		}
 
@@ -718,7 +724,7 @@ exports.submitAnswer = async (params, language) => {
 			return fail("invalid game");
 		}
 
-		if (game.status !== "started") {
+		if (game.status !== gameStatuses.STARTED) {
 			return fail("game is not started yet!");
 		}
 
@@ -809,7 +815,7 @@ exports.getQuestion = async (userId, gameId, step) => {
 			return fail("invalid game");
 		}
 
-		if (game.status !== "started") {
+		if (game.status !== gameStatuses.STARTED) {
 			return fail("game is not started yet!");
 		}
 
@@ -903,7 +909,7 @@ exports.rateAnswers = async (params) => {
 		if (!game) {
 			return fail("invalid game!");
 		}
-		if (game.status !== "started") {
+		if (game.status !== gameStatuses.STARTED) {
 			return fail("You are not allowed to rate in this step!");
 		}
 
@@ -1035,7 +1041,7 @@ exports.rateQuestions = async (params) => {
 		if (!game) {
 			return fail("invalid game!");
 		}
-		if (game.status !== "started") {
+		if (game.status !== gameStatuses.STARTED) {
 			return fail("You are not allowed to rate in this step!");
 		}
 
@@ -1122,7 +1128,7 @@ exports.showResult = async (gameId, userId) => {
 		if (!game) {
 			return fail("invalid game!");
 		}
-		if (game.status !== "ended") {
+		if (game.status !== gameStatuses.ENDED) {
 			return success("game is not ended yet!", gameCustomProjection(game));
 		}
 
@@ -1192,7 +1198,7 @@ exports.exitGame = async (params, socketId) => {
 			return fail("invalid game!");
 		}
 
-		if (!["created", "started"].includes(game.status)) {
+		if (![gameStatuses.CREATED, gameStatuses.STARTED].includes(game.status)) {
 			return fail("You can not leave in this step!");
 		}
 
@@ -1239,7 +1245,9 @@ exports.exitGame = async (params, socketId) => {
 			gameId,
 			{
 				"players.$[player].status": "left",
-				...(canceled ? { status: "canceled", canceledAt: moment() } : {}),
+				...(canceled
+					? { status: gameStatuses.CANCELED, canceledAt: moment() }
+					: {}),
 				$pull: {
 					questions: { user_id: player_id },
 				},
@@ -1324,7 +1332,7 @@ exports.reconnectPlayer = async (userId, socketId) => {
 
 	const userGamesFilter = {
 		"players._id": objectId(userId),
-		status: { $in: ["created", "started"] },
+		status: { $in: [gameStatuses.CREATED, gameStatuses.STARTED] },
 	};
 
 	const games = await Game.find(userGamesFilter);
@@ -1639,7 +1647,7 @@ const calculateResult = async (gameId) => {
 	const result = { scoreboard, details };
 	await Game.findOneAndUpdate(
 		{ _id: objectId(gameId) },
-		{ status: "ended", endedAt: moment(), result }
+		{ status: gameStatuses.ENDED, endedAt: moment(), result }
 	);
 
 	console.timeEnd("calculate-game-result");

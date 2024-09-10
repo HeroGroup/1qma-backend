@@ -63,7 +63,7 @@ exports.joinUserToGameRoom = async (socketId, room, email = "unknown") => {
 	const socket = await this.getSocketClient(socketId);
 	if (socket) {
 		socket.join(room);
-		console.log(`email: ${email}, socket id: ${socketId} joined to ${room}`);
+		console.log(`${email} with socket id ${socketId} joined to ${room}`);
 	}
 };
 
@@ -71,7 +71,7 @@ exports.leaveRoom = async (socketId, room, email = "unknown") => {
 	const socket = await this.getSocketClient(socketId);
 	if (socket) {
 		socket.leave(room);
-		console.log(`email: ${email}, socket id: ${socketId} left ${room}`);
+		console.log(`${email} with socket id: ${socketId} left ${room}`);
 	}
 };
 

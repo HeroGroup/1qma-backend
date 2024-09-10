@@ -1,3 +1,4 @@
+const { gameStatuses } = require("../../helpers/constants");
 const { findMyFriends } = require("../../helpers/findMyFriends");
 const { handleException, objectId } = require("../../helpers/utils");
 const Game = require("../../models/Game");
@@ -11,7 +12,7 @@ exports.games = async (userId, type, category, page = 1, limit = 5) => {
 		}
 		const games = await Game.find(
 			{
-				status: "ended",
+				status: gameStatuses.ENDED,
 				...(type === "private"
 					? { "result.scoreboard._id": objectId(userId) }
 					: {}),
@@ -74,7 +75,7 @@ exports.liveGames = async (type, category, page = 1, limit = 5) => {
 		// find games that players are going to be random
 		const games = await Game.find(
 			{
-				status: "created",
+				status: gameStatuses.CREATED,
 				...(type ? { "gameType.id": type } : {}),
 				"createMode.id": { $in: ["0", "1"] },
 				...(category ? { "category._id": objectId(category) } : {}),
@@ -105,7 +106,7 @@ exports.friendsRecentGames = async (userId) => {
 
 		const games = await Game.find(
 			{
-				status: "ended",
+				status: gameStatuses.ENDED,
 				"result.scoreboard._id": { $in: friendsIds },
 			},
 			{
@@ -152,7 +153,7 @@ exports.friendsRecentSurvivalGames = async (userId) => {
 		const games = await Game.find(
 			{
 				"gameType.id": "survival",
-				status: "ended",
+				status: gameStatuses.ENDED,
 				"creator._id": { $in: friendsIds },
 				"result.scoreboard._id": objectId(userId),
 			},
