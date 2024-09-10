@@ -845,7 +845,7 @@ exports.chooseCharityCategory = async (params) => {
 		{ new: true }
 	);
 
-	return success("Thank you for making worl a better place.", user);
+	return success("Thank you for making world a better place.", user);
 };
 
 const like = async (questionId, userId) => {
