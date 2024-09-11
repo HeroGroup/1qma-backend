@@ -42,8 +42,13 @@ const createOrGetQuestion = async (
 
 		// create question first
 		const { _id, firstName, lastName, email, profilePicture } = user;
+
 		const questionObject = new Question({
-			category,
+			category: {
+				_id: category._id,
+				name: category.name,
+				icon: category.icon,
+			},
 			language,
 			question,
 			answer,
