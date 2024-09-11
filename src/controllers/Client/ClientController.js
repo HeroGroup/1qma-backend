@@ -320,6 +320,7 @@ exports.userDetails = async (id) => {
 
 exports.listQuestions = async (userId, params) => {
 	try {
+		console.log(userId, params);
 		const { category, type, search } = params;
 		const page = params.page || 1;
 		const limit = params.limit || 5;
@@ -357,7 +358,7 @@ exports.listQuestions = async (userId, params) => {
 		const questions = await Question.find(query)
 			.skip((page - 1) * limit)
 			.limit(limit);
-
+		console.log(questions.length);
 		const res = questions.map((question) => {
 			const liked = question.likes.includes(objectId(userId));
 			const disliked = question.dislikes.includes(objectId(userId));
