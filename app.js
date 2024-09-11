@@ -207,16 +207,6 @@ async function main() {
 			`${env.app.name} app is listening on port ${port} in ${app.get("env")}`
 		);
 	});
-
-	// clear all rooms
-	for (const [_, socket] of io.of("/").sockets) {
-		for (const room of socket.rooms) {
-			if (room !== socket.id) {
-				console.log(room);
-				socket.leave(room);
-			}
-		}
-	}
 }
 
 main();
