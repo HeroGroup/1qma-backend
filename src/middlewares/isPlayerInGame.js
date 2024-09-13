@@ -5,7 +5,7 @@ exports.isPlayerInGame = async (req, res, next) => {
 		res.sendStatus(401);
 	} else {
 		const gameId = req.body.gameId || req.params.gameId;
-		if (!gameId) {
+		if (!gameId || gameId === undefined) {
 			return res.sendStatus(400);
 		}
 		const userId = req.session.user?._id?.toString() || null;
