@@ -31,6 +31,7 @@ const registerQuestionsRoutes = require("./src/routes/admin/registerQuestions");
 const settingsRoutes = require("./src/routes/admin/settings");
 const shopItemsRoutes = require("./src/routes/admin/shopItems");
 const sponsorsRoutes = require("./src/routes/admin/sponsors");
+const survivalLeaguesRoutes = require("./src/routes/admin/survivalLeagues");
 const usersRoutes = require("./src/routes/admin/users");
 
 const authRoutes = require("./src/routes/client/auth");
@@ -158,6 +159,7 @@ async function main() {
 	app.use("/admin/settings", isAdmin, settingsRoutes);
 	app.use("/admin/shopItems", isAdmin, shopItemsRoutes);
 	app.use("/admin/sponsors", isAdmin, sponsorsRoutes);
+	app.use("/admin/survivalLeagues", isAdmin, survivalLeaguesRoutes);
 	app.use("/admin/users", isAdmin, usersRoutes);
 
 	app.use("/client", isLoggedIn, clientGeneralRoutes);
