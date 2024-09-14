@@ -558,7 +558,7 @@ router.get("/transactions", hasCompletedSignup, async (req, res) => {
  *                format: sample description
  */
 router.post("/bugReports/add", sameUser, async (req, res) => {
-	res.json(await reportBug(req.session.user, req.body));
+	res.json(await reportBug(req.body));
 });
 
 /**
