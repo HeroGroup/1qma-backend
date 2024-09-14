@@ -871,6 +871,32 @@ exports.getFAQs = async () => {
 	}
 };
 
+exports.getTermsOfService = async () => {
+	try {
+		const terms = await Setting.findOne(
+			{ key: "TERMS_OF_SERVICE" },
+			{ value: 1 }
+		);
+
+		return success("ok", terms?.value || "Terms of Service");
+	} catch (e) {
+		return handleException(e);
+	}
+};
+
+exports.getPrivacyPolicies = async () => {
+	try {
+		const privacyPolicies = await Setting.findOne(
+			{ key: "PRIVACY_POLICIES" },
+			{ value: 1 }
+		);
+
+		return success("ok", privacyPolicies?.value || "Privacy Policies");
+	} catch (e) {
+		return handleException(e);
+	}
+};
+
 const like = async (questionId, userId) => {
 	await Question.findOneAndUpdate(
 		{ _id: objectId(questionId) },

@@ -6,6 +6,10 @@ const {
 	addFAQ,
 	updateFAQ,
 	deleteFAQ,
+	getTerms,
+	getPrivacyPolicies,
+	updateTermsOfService,
+	updatePrivacyPolicies,
 } = require("../../controllers/Admin/FAQController");
 
 /**
@@ -115,6 +119,78 @@ router.post("/update", async (req, res) => {
  */
 router.post("/delete", async (req, res) => {
 	res.json(await deleteFAQ(req.body));
+});
+
+/**
+ * @openapi
+ * '/admin/faqs/termsOfService':
+ *  get:
+ *     tags:
+ *     - Admin
+ *     summary: get terms of service
+ */
+router.get("/termsOfService", async (req, res) => {
+	res.json(await getTerms());
+});
+
+/**
+ * @openapi
+ * '/admin/faqs/privacyPolicies':
+ *  get:
+ *     tags:
+ *     - Admin
+ *     summary: get privacy policies
+ */
+router.get("/privacyPolicies", async (req, res) => {
+	res.json(await getPrivacyPolicies());
+});
+
+/**
+ * @openapi
+ * '/admin/faqs/updateTermsOfService':
+ *  post:
+ *     tags:
+ *     - Admin
+ *     summary: update terms of service
+ *     requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *           schema:
+ *            type: object
+ *            required:
+ *              - terms
+ *            properties:
+ *              terms:
+ *                type: string
+ *                default: Terms of Service
+ */
+router.post("/updateTermsOfService", async (req, res) => {
+	res.json(await updateTermsOfService(req.body));
+});
+
+/**
+ * @openapi
+ * '/admin/faqs/privacyPolicies':
+ *  post:
+ *     tags:
+ *     - Admin
+ *     summary: update privacy policies
+ *     requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *           schema:
+ *            type: object
+ *            required:
+ *              - privacyPolicies
+ *            properties:
+ *              privacyPolicies:
+ *                type: string
+ *                default: privacy policies
+ */
+router.post("/updatePrivacyPolicies", async (req, res) => {
+	res.json(await updatePrivacyPolicies(req.body));
 });
 
 module.exports = router;

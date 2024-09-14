@@ -24,6 +24,8 @@ const {
 	reportBug,
 	chooseCharityCategory,
 	getFAQs,
+	getTermsOfService,
+	getPrivacyPolicies,
 } = require("../../controllers/Client/ClientController");
 
 /**
@@ -596,6 +598,14 @@ router.post("/charity", sameUser, async (req, res) => {
 
 router.get("/FAQs", async (req, res) => {
 	res.json(await getFAQs());
+});
+
+router.get("/termsOfService", async (req, res) => {
+	res.json(await getTermsOfService());
+});
+
+router.get("/privacyPolicies", async (req, res) => {
+	res.json(await getPrivacyPolicies());
 });
 
 module.exports = router;

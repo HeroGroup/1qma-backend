@@ -1,4 +1,5 @@
 const FAQ = require("../../models/FAQ");
+const Setting = require("../../models/Setting");
 const { handleException } = require("../../helpers/utils");
 
 exports.getFAQs = async () => {
@@ -64,6 +65,54 @@ exports.deleteFAQ = async (params) => {
 		await FAQ.deleteOne({ _id: id });
 
 		return success("Deleted successfully!");
+	} catch (e) {
+		return handleException(e);
+	}
+};
+
+exports.getTerms = async () => {
+	try {
+		const terms = await Setting.findOne({ key: "TERMS_OF_SERVICE" });
+
+		return success("ok", terms);
+	} catch (e) {
+		return handleException(e);
+	}
+};
+
+exports.getPrivacyPolicies = async () => {
+	try {
+		const privacyPolicies = await Setting.findOne({ key: "PRIVACY_POLICIES" });
+
+		return success("ok", privacyPolicies);
+	} catch (e) {
+		return handleException(e);
+	}
+};
+
+exports.updateTermsOfService = async (params) => {
+	try {
+		const terms = await Setting.findOneAndUpdate(
+			{ key: "TERMS_OF_SERVICE" },
+			{ value: params.terms, name: "Terms of Service" },
+			{ upsert: true, new: true }
+		);
+
+		return success("Updated Successfully!", terms);
+	} catch (e) {
+		return handleException(e);
+	}
+};
+
+exports.updatePrivacyPolicies = async (params) => {
+	try {
+		const terms = await Setting.findOneAndUpdate(
+			{ key: "PRIVACY_POLICIES" },
+			{ value: params.privacyPolicies, name: "Privacy Policies" },
+			{ upsert: true, new: true }
+		);
+
+		return success("Updated Successfully!", terms);
 	} catch (e) {
 		return handleException(e);
 	}
