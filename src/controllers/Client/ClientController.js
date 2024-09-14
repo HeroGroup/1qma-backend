@@ -5,6 +5,7 @@ const BugType = require("../../models/BugType");
 const BugReport = require("../../models/BugReport");
 const Category = require("../../models/Category");
 const CharityCategory = require("../../models/CharityCategory");
+const FAQ = require("../../models/FAQ");
 const Game = require("../../models/Game");
 const Question = require("../../models/Question");
 const Setting = require("../../models/Setting");
@@ -858,6 +859,16 @@ exports.chooseCharityCategory = async (params) => {
 	);
 
 	return success("Thank you for making world a better place.", user);
+};
+
+exports.getFAQs = async () => {
+	try {
+		const faqs = await FAQ.find({ isActive: true }).sort({ order: 1 });
+
+		return success("ok", faqs);
+	} catch (e) {
+		return handleException(e);
+	}
 };
 
 const like = async (questionId, userId) => {

@@ -23,6 +23,7 @@ const {
 	getTransactions,
 	reportBug,
 	chooseCharityCategory,
+	getFAQs,
 } = require("../../controllers/Client/ClientController");
 
 /**
@@ -591,6 +592,10 @@ router.post("/bugReports/add", sameUser, async (req, res) => {
  */
 router.post("/charity", sameUser, async (req, res) => {
 	res.json(await chooseCharityCategory(req.body));
+});
+
+router.get("/FAQs", async (req, res) => {
+	res.json(await getFAQs());
 });
 
 module.exports = router;

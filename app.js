@@ -27,6 +27,7 @@ const bugReportsRoutes = require("./src/routes/admin/bugReports");
 const bugTypesRoutes = require("./src/routes/admin/bugTypes");
 const categoriesRoutes = require("./src/routes/admin/categories");
 const charityCategoriesRoutes = require("./src/routes/admin/charityCategories");
+const faqsRoutes = require("./src/routes/admin/faqs");
 const registerQuestionsRoutes = require("./src/routes/admin/registerQuestions");
 const settingsRoutes = require("./src/routes/admin/settings");
 const shopItemsRoutes = require("./src/routes/admin/shopItems");
@@ -155,6 +156,7 @@ async function main() {
 	app.use("/admin/bugTypes", isAdmin, bugTypesRoutes);
 	app.use("/admin/categories", isAdmin, categoriesRoutes);
 	app.use("/admin/charityCategories", isAdmin, charityCategoriesRoutes);
+	app.use("/admin/faqs", isAdmin, faqsRoutes);
 	app.use("/admin/registerQuestions", isAdmin, registerQuestionsRoutes);
 	app.use("/admin/settings", isAdmin, settingsRoutes);
 	app.use("/admin/shopItems", isAdmin, shopItemsRoutes);
