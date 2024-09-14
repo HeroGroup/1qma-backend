@@ -774,13 +774,13 @@ exports.reportBug = async (params) => {
 			return fail("invalid user!");
 		}
 
-		const bugType = await BugType.findById(category.id);
+		const bugType = await BugType.findById(category);
 		if (!bugType) {
 			return fail("invalid bug category was selected!");
 		}
 
 		const bugSubCategory = bugType.subCategories.find(
-			(elm) => elm.title === subCategory.id
+			(elm) => elm._id.toString() === subCategory
 		);
 		if (!bugSubCategory) {
 			return fail("invalid bug sub category was selected!");
@@ -789,8 +789,8 @@ exports.reportBug = async (params) => {
 		const { _id, firstName, lastName, email } = user;
 
 		const bugReport = new BugReport({
-			category,
-			subCategory,
+			category: { _id: bugType._id, title: bugType.category },
+			subCategory: { _id: bugSubCategory._id, title: bugSubCategory.category },
 			description,
 			user: { _id, firstName, lastName, email },
 		});
@@ -825,13 +825,13 @@ exports.chooseCharityCategory = async (params) => {
 		return fail("invalid user!");
 	}
 
-	const charityCategory = await CharityCategory.findById(charity._id);
+	const charityCategory = await CharityCategory.findById(charity);
 	if (!charityCategory) {
 		return fail("invalid charity was selected!");
 	}
 
 	const charityActivity = charityCategory.activities.find(
-		(elm) => elm._id.toString() === activity._id.toString()
+		(elm) => elm._id.toString() === activity
 	);
 	if (!charityActivity) {
 		return fail("invalid activity was selected!");
@@ -840,7 +840,10 @@ exports.chooseCharityCategory = async (params) => {
 	user = await User.findByIdAndUpdate(
 		id,
 		{
-			preferedCharity: { charity, activity },
+			preferedCharity: {
+				charity: { _id: charityCategory._id, title: charityCategory.title },
+				activity: { _id: charityActivity._id, title: charityActivity.title },
+			},
 		},
 		{ new: true }
 	);

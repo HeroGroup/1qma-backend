@@ -548,11 +548,11 @@ router.get("/transactions", hasCompletedSignup, async (req, res) => {
  *                type: string
  *                default: 63738495886737657388948
  *              category:
- *                type: object
- *                default: {id: 1, title: "Gameplay"}
+ *                type: string
+ *                default: 63738495886737657388948
  *              subCategory:
- *                type: object
- *                format: {id: 1, title: "gameplay subcategory 1"}
+ *                type: string
+ *                format: 63738495886737657388948
  *              description:
  *                type: string
  *                format: sample description
@@ -583,11 +583,11 @@ router.post("/bugReports/add", sameUser, async (req, res) => {
  *                type: string
  *                default: 63738495886737657388948
  *              charity:
- *                type: object
- *                default: {id: 1, title: "Aid Children"}
+ *                type: string
+ *                default: 63738495886737657388948
  *              activity:
- *                type: object
- *                format: {id: 1, title: "Making Schools"}
+ *                type: string
+ *                format: 63738495886737657388948
  */
 router.post("/charity", sameUser, async (req, res) => {
 	res.json(await chooseCharityCategory(req.body));
