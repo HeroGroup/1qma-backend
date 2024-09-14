@@ -5,6 +5,7 @@ const sponsorSchema = new Schema({
 	name: String,
 	icon: String,
 	link: String,
+	order: Number,
 	createdAt: Date,
 	isActive: Boolean,
 });

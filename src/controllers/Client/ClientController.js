@@ -8,6 +8,7 @@ const CharityCategory = require("../../models/CharityCategory");
 const Game = require("../../models/Game");
 const Question = require("../../models/Question");
 const Setting = require("../../models/Setting");
+const Sponsor = require("../../models/Sponsor");
 const Transaction = require("../../models/Transaction");
 const User = require("../../models/User");
 
@@ -36,6 +37,7 @@ exports.init = async (userId) => {
 		const bugTypes = await BugType.find(shouldBeActive);
 		const categories = await Category.find(shouldBeActive);
 		const charityCategories = await CharityCategory.find(shouldBeActive);
+		const sponsors = await Sponsor.find(shouldBeActive);
 		const user = await User.findById(userId);
 
 		let charityProgress = 0;
@@ -59,6 +61,7 @@ exports.init = async (userId) => {
 			answerWordsLimitation: answerWordsLimitationSetting?.value || 100,
 			user,
 			charityProgress,
+			sponsors,
 		});
 	} catch (e) {
 		return handleException(e);

@@ -18,23 +18,28 @@ const RedisStore = require("connect-redis").default;
 const { createClient } = require("redis");
 const passport = require("passport");
 const { swaggerSpec } = require("./src/services/swagger.js");
-const authRoutes = require("./src/routes/client/auth");
-const adminRoutes = require("./src/routes/admin/_admin");
+
+const indexRoutes = require("./src/routes/index");
+
 const accountTypesRoutes = require("./src/routes/admin/accountTypes");
-const bugTypesRoutes = require("./src/routes/admin/bugTypes");
+const adminRoutes = require("./src/routes/admin/_admin");
 const bugReportsRoutes = require("./src/routes/admin/bugReports");
+const bugTypesRoutes = require("./src/routes/admin/bugTypes");
 const categoriesRoutes = require("./src/routes/admin/categories");
 const charityCategoriesRoutes = require("./src/routes/admin/charityCategories");
-const indexRoutes = require("./src/routes/index");
+const registerQuestionsRoutes = require("./src/routes/admin/registerQuestions");
 const settingsRoutes = require("./src/routes/admin/settings");
 const shopItemsRoutes = require("./src/routes/admin/shopItems");
-const registerQuestionsRoutes = require("./src/routes/admin/registerQuestions");
+const sponsorsRoutes = require("./src/routes/admin/sponsors");
 const usersRoutes = require("./src/routes/admin/users");
+
+const authRoutes = require("./src/routes/client/auth");
 const clientGeneralRoutes = require("./src/routes/client/general");
 const gameRoutes = require("./src/routes/client/game");
 const gamesRoutes = require("./src/routes/client/games");
 const notificationsRoutes = require("./src/routes/client/notifications");
 const shopRoutes = require("./src/routes/client/shop");
+
 const {
 	sanitizeRequestInputs,
 } = require("./src/middlewares/sanitizeRequestInputs");
@@ -140,23 +145,27 @@ async function main() {
 	app.use(passport.initialize());
 	app.use(passport.session());
 
+	app.use("/", indexRoutes);
+
 	app.use("/auth", authRoutes);
 	app.use("/admin", adminRoutes);
 	app.use("/admin/accountTypes", isAdmin, accountTypesRoutes);
-	app.use("/admin/bugTypes", isAdmin, bugTypesRoutes);
 	app.use("/admin/bugReports", isAdmin, bugReportsRoutes);
+	app.use("/admin/bugTypes", isAdmin, bugTypesRoutes);
 	app.use("/admin/categories", isAdmin, categoriesRoutes);
 	app.use("/admin/charityCategories", isAdmin, charityCategoriesRoutes);
-	app.use("/admin/users", isAdmin, usersRoutes);
+	app.use("/admin/registerQuestions", isAdmin, registerQuestionsRoutes);
 	app.use("/admin/settings", isAdmin, settingsRoutes);
 	app.use("/admin/shopItems", isAdmin, shopItemsRoutes);
-	app.use("/admin/registerQuestions", isAdmin, registerQuestionsRoutes);
+	app.use("/admin/sponsors", isAdmin, sponsorsRoutes);
+	app.use("/admin/users", isAdmin, usersRoutes);
+
 	app.use("/client", isLoggedIn, clientGeneralRoutes);
 	app.use("/game", hasCompletedSignup, gameRoutes);
 	app.use("/games", hasCompletedSignup, gamesRoutes);
 	app.use("/notifications", hasCompletedSignup, notificationsRoutes);
 	app.use("/shop", hasCompletedSignup, shopRoutes);
-	app.use("/", indexRoutes);
+
 	app.use(express.static("public"));
 
 	app.use(
