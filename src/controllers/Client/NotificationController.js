@@ -44,6 +44,23 @@ exports.markAllNotificationsAsRead = async (userId) => {
 	}
 };
 
+exports.sendNotification = async (to, type, data, userId, save = false) => {
+	io.to(to).emit(type, data);
+
+	if (save) {
+		const { title, message, data: notificationData } = data;
+		let notif = new Notification({
+			title,
+			message,
+			data: notificationData,
+			createdAt: moment(),
+			hasSeen: false,
+			user: userId,
+		});
+		await notif.save();
+	}
+};
+
 /*
 try {
 	//

@@ -13,13 +13,15 @@ const {
 	createModes,
 	gameTypes,
 	gameStatuses,
+	notificationTypes,
+	notificationDataTypes,
 } = require("../../helpers/constants");
 const Category = require("../../models/Category");
 const Game = require("../../models/Game");
 const Question = require("../../models/Question");
 const Setting = require("../../models/Setting");
 const User = require("../../models/User");
-const Notification = require("../../models/Notification");
+const { sendNotification } = require("./NotificationController");
 
 const createOrGetQuestion = async (
 	questionId,
@@ -307,24 +309,15 @@ exports.createGame = async (params, socketId, language) => {
 				let invitedUser = await User.findOne({ email: invitedEmail });
 				let title = "New Game!";
 				let message = `you have been invited to play this game created by ${creator.email}`;
-				let data = { type: "GAME_INVITE", gameId };
+				let data = { type: notificationDataTypes.GAME_INVITE, gameId };
 
-				let notif = new Notification({
-					title,
-					message,
-					data,
-					createdAt: moment(),
-					hasSeen: false,
-					user: invitedUser._id,
-				});
-				await notif.save();
-
-				io.to(invitedUser.socketId).emit("notification", {
-					id: notif._id.toString(),
-					title,
-					message,
-					data,
-				});
+				await sendNotification(
+					invitedUser.socketId,
+					notificationTypes.NOTIFICATION,
+					{ id: notif._id.toString(), title, message, data },
+					invitedUser._id,
+					true
+				);
 			}
 		} else {
 			// TODO: find players who match game criteria and send proper notification
@@ -676,22 +669,13 @@ exports.invitePlayer = async (params) => {
 		let message = `you have been invited to play this game created by ${game.creator.email}`;
 		let data = { type: "GAME_INVITE", gameId };
 
-		let notif = new Notification({
-			title,
-			message,
-			data,
-			createdAt: moment(),
-			hasSeen: false,
-			user: playerUser._id,
-		});
-		await notif.save();
-
-		io.to(playerUser.socketId).emit("notification", {
-			id: notif._id.toString(),
-			title,
-			message,
-			data,
-		});
+		await sendNotification(
+			playerUser.socketId,
+			notificationTypes.NOTIFICATION,
+			{ id: notif._id.toString(), title, message, data },
+			playerUser._id,
+			true
+		);
 
 		return success(`Invitation was sent to ${email} successfully!`);
 	} catch (e) {
@@ -1585,11 +1569,16 @@ const calculateResult = async (gameId) => {
 			const playerSocketId = players.find(
 				(elm) => elm._id === item._id
 			)?.socketId;
-			io.to(playerSocketId).emit("notification:modal", {
-				title: "Level Up!",
-				message: `Congratulations! You have reached level ${level}!`,
-				icon: "",
-			});
+
+			await sendNotification(
+				playerSocketId,
+				notificationTypes.NOTIFICATION_MODAL,
+				{
+					title: "Level Up!",
+					message: `Congratulations! You have reached level ${level}!`,
+					icon: "",
+				}
+			);
 		}
 
 		const $inc = {

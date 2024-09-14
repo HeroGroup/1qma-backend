@@ -64,3 +64,12 @@ exports.gameStatuses = {
 	ENDED: "ended",
 	CANCELED: "canceled",
 };
+
+exports.notificationTypes = {
+	NOTIFICATION: "notification",
+	NOTIFICATION_MODAL: "notification:modal",
+};
+
+exports.notificationDataTypes = {
+	GAME_INVITE: "GAME_INVITE",
+};
