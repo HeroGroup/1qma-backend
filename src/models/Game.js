@@ -19,6 +19,7 @@ const gameSchema = new Schema({
 				{
 					user_id: mongoose.ObjectId,
 					answer: String,
+					isEditing: Boolean,
 					language: String,
 					rates: [{ user_id: mongoose.ObjectId, rate: Number }],
 				},

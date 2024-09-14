@@ -23,6 +23,8 @@ const Setting = require("../../models/Setting");
 const User = require("../../models/User");
 const { sendNotification } = require("./NotificationController");
 
+const nextStepDelay = env.gameNextStepDelay || 1000;
+
 const createOrGetQuestion = async (
 	questionId,
 	user,
@@ -741,6 +743,7 @@ exports.submitAnswer = async (params, language) => {
 					"questions.$[i].answers": {
 						user_id: player._id,
 						answer,
+						isEditing: false,
 						language,
 						rates: [],
 					},
@@ -749,7 +752,12 @@ exports.submitAnswer = async (params, language) => {
 			arrayFilters = [{ "i.user_id": objectId(questionId) }];
 		} else {
 			// edit answer
-			updateQuery = { $set: { "questions.$[i].answers.$[j].answer": answer } };
+			updateQuery = {
+				$set: {
+					"questions.$[i].answers.$[j].answer": answer,
+					"questions.$[i].answers.$[j].isEditing": false,
+				},
+			};
 			arrayFilters = [
 				{ "i.user_id": objectId(questionId) },
 				{ "j.user_id": objectId(id) },
@@ -761,15 +769,19 @@ exports.submitAnswer = async (params, language) => {
 			new: true,
 		});
 
-		const numberOfSubmitted = game.questions[questionIndex].answers.length;
+		const numberOfSubmitted =
+			game.questions[questionIndex].answers.filter((a) => a.isEditing === false)
+				?.length || 0;
 		const numberOfPlayers = game.players.filter(
 			(plyr) => plyr.status === "connected"
 		).length;
 
 		if (numberOfSubmitted >= numberOfPlayers) {
 			// emit next question
-			io.to(gameId).emit("next step", {});
-			console.log("next step");
+			setTimeout(() => {
+				io.to(gameId).emit("next step", {});
+				console.log("next step");
+			}, nextStepDelay);
 		} else {
 			io.to(gameId).emit("submit answer", {
 				numberOfSubmitted,
@@ -779,6 +791,58 @@ exports.submitAnswer = async (params, language) => {
 		}
 
 		return success("Thank you for the answer.");
+	} catch (e) {
+		return handleException(e);
+	}
+};
+
+exports.editAnswer = async (params) => {
+	try {
+		const { id, gameId, questionId } = params;
+
+		if (!id) {
+			return fail("invalid user id!");
+		}
+
+		if (!gameId) {
+			return fail("invalid game id!");
+		}
+
+		if (!questionId) {
+			return fail("invalid question id!");
+		}
+
+		const player = await User.findById(id);
+		if (!player) {
+			return fail("invalid player");
+		}
+
+		let game = await Game.findById(gameId);
+		if (!game) {
+			return fail("invalid game");
+		}
+
+		if (game.status !== gameStatuses.STARTED) {
+			return fail("You can not edit your answer now!");
+		}
+
+		await Game.findByIdAndUpdate(
+			gameId,
+			{
+				$set: {
+					"questions.$[i].answers.$[j].isEditing": true,
+				},
+			},
+			{
+				arrayFilters: [
+					{ "i.user_id": objectId(questionId) },
+					{ "j.user_id": objectId(id) },
+				],
+				new: true,
+			}
+		);
+
+		return success("ok");
 	} catch (e) {
 		return handleException(e);
 	}
@@ -975,8 +1039,10 @@ exports.rateAnswers = async (params) => {
 		).length;
 		if (ratesCount >= playersCount * playersCount) {
 			// everyone has answered, emit next question
-			io.to(gameId).emit("next step", {});
-			console.log("next step");
+			setTimeout(() => {
+				io.to(gameId).emit("next step", {});
+				console.log("next step");
+			}, nextStepDelay);
 		} else {
 			io.to(gameId).emit("submit answer", {
 				numberOfSubmitted: ratesCount / playersCount,
@@ -1094,8 +1160,10 @@ exports.rateQuestions = async (params) => {
 		if (ratesCount === playersCount * playersCount) {
 			// everyone has answered, calculate and emit result!
 			calculateResult(gameId);
-			io.to(gameId).emit("end game", {});
-			console.log("end game");
+			setTimeout(() => {
+				io.to(gameId).emit("end game", {});
+				console.log("end game");
+			}, nextStepDelay);
 		} else {
 			io.to(gameId).emit("submit answer", {
 				numberOfSubmitted: ratesCount / playersCount,

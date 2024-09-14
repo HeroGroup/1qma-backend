@@ -40,4 +40,5 @@ module.exports = {
 	defaultLanguage: process.env.DEFAULT_LANGUAGE,
 	defaultCurrency: process.env.DEFAULT_CURRENCY,
 	anonymousNameLength: process.env.ANONYMOUS_NAME_LENGTH,
+	gameNextStepDelay: process.env.GAME_NEXT_STEP_DELAY_MS,
 };

@@ -9,6 +9,7 @@ const {
 	attemptjoin,
 	getQuestion,
 	submitAnswer,
+	editAnswer,
 	rateAnswers,
 	getAllQuestions,
 	rateQuestions,
@@ -281,6 +282,38 @@ router.post("/submitAnswer", sameUser, isPlayerInGame, async (req, res) => {
 			req.session.user?.preferedLanguage.code || env.defaultLanguage
 		)
 	);
+});
+
+/**
+ * @openapi
+ * '/game/editAnswer':
+ *  post:
+ *     tags:
+ *     - Game
+ *     summary: attempt to edit an answer
+ *     requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *           schema:
+ *            type: object
+ *            required:
+ *              - id
+ *              - gameId
+ *              - questionId
+ *            properties:
+ *              id:
+ *                type: string
+ *                default: 65445678098765456
+ *              gameId:
+ *                type: string
+ *                default: 65445678098765456
+ *              questionId:
+ *                type: string
+ *                default: 65445678098765456
+ */
+router.post("/editAnswer", sameUser, isPlayerInGame, async (req, res) => {
+	res.json(await editAnswer(req.body));
 });
 
 /**
