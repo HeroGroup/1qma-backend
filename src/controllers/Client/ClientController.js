@@ -1,7 +1,7 @@
 const moment = require("moment");
 
 const AccountType = require("../../models/AccountType");
-const BugType = require("../../models/AccountType");
+const BugType = require("../../models/BugType");
 const BugReport = require("../../models/BugReport");
 const Category = require("../../models/Category");
 const CharityCategory = require("../../models/CharityCategory");
