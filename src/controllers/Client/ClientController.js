@@ -33,11 +33,17 @@ const { validateEmail } = require("../../helpers/validator");
 exports.init = async (userId) => {
 	try {
 		const shouldBeActive = { isActive: true };
-		const accountTypes = await AccountType.find(shouldBeActive);
-		const bugTypes = await BugType.find(shouldBeActive);
-		const categories = await Category.find(shouldBeActive);
-		const charityCategories = await CharityCategory.find(shouldBeActive);
-		const sponsors = await Sponsor.find(shouldBeActive);
+		const sortCriteria = { order: 1 };
+
+		const accountTypes = await AccountType.find(shouldBeActive).sort(
+			sortCriteria
+		);
+		const bugTypes = await BugType.find(shouldBeActive).sort(sortCriteria);
+		const categories = await Category.find(shouldBeActive).sort(sortCriteria);
+		const charityCategories = await CharityCategory.find(shouldBeActive).sort(
+			sortCriteria
+		);
+		const sponsors = await Sponsor.find(shouldBeActive).sort(sortCriteria);
 		const user = await User.findById(userId);
 
 		let charityProgress = 0;
