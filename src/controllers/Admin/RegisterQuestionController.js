@@ -13,7 +13,7 @@ exports.listQuestions = async () => {
 
 exports.addQuestion = async (params) => {
 	try {
-		const { question, type, options, placeholder } = params;
+		const { question, type, options, placeholder, order } = params;
 		if (!params.question || !params.type) {
 			return fail("invalid parameters!");
 		}
@@ -27,6 +27,7 @@ exports.addQuestion = async (params) => {
 			type,
 			options,
 			placeholder,
+			order: order || 0,
 			isActive: true,
 		});
 		await registerQuestion.save();
@@ -39,7 +40,8 @@ exports.addQuestion = async (params) => {
 
 exports.updateQuestion = async (params) => {
 	try {
-		const { id, question, type, options, placeholder, isActive } = params;
+		const { id, question, type, options, placeholder, order, isActive } =
+			params;
 		if (!params.id) {
 			return fail("invalid question id!");
 		}
@@ -50,7 +52,7 @@ exports.updateQuestion = async (params) => {
 
 		const registerQuestion = await RegisterQuestion.findByIdAndUpdate(
 			id,
-			{ question, type, options, placeholder, isActive },
+			{ question, type, options, placeholder, order, isActive },
 			{ new: true }
 		);
 

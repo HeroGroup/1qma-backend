@@ -135,7 +135,9 @@ exports.init = async () => {
 			key: "RATE_QUESTIONS_DURATION_SECONDS",
 		});
 
-		const categories = await Category.find();
+		const categories = await Category.find({ isActive: true }).sort({
+			order: 1,
+		});
 
 		return success("initialize game parameters", {
 			createModes,

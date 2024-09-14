@@ -50,6 +50,9 @@ router.get("/", async (req, res) => {
  *              placeholder:
  *                type: string
  *                default: sports
+ *              order:
+ *                type: number
+ *                default: 1
  */
 router.post("/add", async (req, res) => {
 	res.json(await addQuestion(req.body));
@@ -88,6 +91,9 @@ router.post("/add", async (req, res) => {
  *              placeholder:
  *                type: string
  *                default: sports
+ *              order:
+ *                type: number
+ *                default: 1
  */
 router.post("/update", async (req, res) => {
 	res.json(await updateQuestion(req.body));

@@ -11,6 +11,7 @@ const AccountType = require("../../models/AccountType");
 const Category = require("../../models/Category");
 const RegisterQuestion = require("../../models/RegisterQuestion");
 const Setting = require("../../models/Setting");
+const Sponsor = require("../../models/Sponsor");
 const User = require("../../models/User");
 const Verification = require("../../models/Verification");
 
@@ -23,13 +24,21 @@ const {
 } = require("../../helpers/createUniqueAnonymousName");
 
 exports.init = async () => {
+	const shouldBeActive = { isActive: true };
+	const sortCriteria = { order: 1 };
+
+	const accountTypes = await AccountType.find(shouldBeActive).sort(
+		sortCriteria
+	);
+	const categories = await Category.find(shouldBeActive).sort(sortCriteria);
+	const furtherQuestions = await RegisterQuestion.find(shouldBeActive).sort(
+		sortCriteria
+	);
+	const sponsors = await Sponsor.find(shouldBeActive).sort(sortCriteria);
+
 	const NEXT_VERIFICATION_MINUTES = await Setting.findOne({
 		key: "NEXT_VERIFICATION_MINUTES",
 	});
-
-	const accountTypes = await AccountType.find().sort({ order: 1 });
-	const categories = await Category.find().sort({ order: 1 });
-	const furtherQuestions = await RegisterQuestion.find({ isActive: true });
 
 	const normalGameVideoLinkSetting = await Setting.findOne({
 		key: "NORMAL_GAME_VIDEO_LINK",
@@ -52,6 +61,7 @@ exports.init = async () => {
 		accountTypes,
 		nextVerificationMinutes: NEXT_VERIFICATION_MINUTES.value,
 		furtherQuestions,
+		sponsors,
 		gameExplanations: [
 			{
 				gameType: "Normal Game",

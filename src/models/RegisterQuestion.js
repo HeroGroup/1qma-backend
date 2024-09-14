@@ -6,6 +6,7 @@ const registerQuestionSchema = new Schema({
 	type: String,
 	options: Array,
 	placeholder: String,
+	order: Number,
 	isActive: Boolean,
 });
 
