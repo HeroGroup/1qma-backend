@@ -171,7 +171,7 @@ router.post("/updateTermsOfService", async (req, res) => {
 
 /**
  * @openapi
- * '/admin/faqs/privacyPolicies':
+ * '/admin/faqs/updatePrivacyPolicies':
  *  post:
  *     tags:
  *     - Admin
