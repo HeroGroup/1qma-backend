@@ -368,10 +368,10 @@ exports.listQuestions = async (userId, params) => {
 				sortCriteria = { createdAt: 1 };
 				break;
 			case "highest":
-				sortCriteria = { avgRate: 1 };
+				sortCriteria = { avgRate: -1 };
 				break;
 			case "lowest":
-				sortCriteria = { avgRate: -1 };
+				sortCriteria = { avgRate: 1 };
 				break;
 			default:
 				sortCriteria = { createdAt: -1 };
