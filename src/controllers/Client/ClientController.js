@@ -330,7 +330,7 @@ exports.userDetails = async (id) => {
 
 exports.listQuestions = async (userId, params) => {
 	try {
-		const { category, type, search } = params;
+		const { category, type, search, sort } = params;
 		const page = params.page || 1;
 		const limit = params.limit || 5;
 
@@ -362,9 +362,26 @@ exports.listQuestions = async (userId, params) => {
 			...(search ? { question: { $regex: search, $options: "i" } } : {}),
 		};
 
+		let sortCriteria = { createdAt: -1 };
+		switch (sort) {
+			case "oldest":
+				sortCriteria = { createdAt: 1 };
+				break;
+			case "highest":
+				sortCriteria = { avgRate: 1 };
+				break;
+			case "lowest":
+				sortCriteria = { avgRate: -1 };
+				break;
+			default:
+				sortCriteria = { createdAt: -1 };
+				break;
+		}
+
 		const total = await Question.countDocuments(query);
 
 		const questions = await Question.find(query)
+			.sort(sortCriteria)
 			.skip((page - 1) * limit)
 			.limit(limit);
 

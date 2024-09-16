@@ -26,6 +26,10 @@ const router = express.Router();
  *         schema:
  *           type: string
  *       - in: query
+ *         name: sort
+ *         schema:
+ *           type: string
+ *       - in: query
  *         name: page
  *         schema:
  *           type: string
@@ -35,8 +39,10 @@ const router = express.Router();
  *           type: string
  */
 router.get("/", async (req, res) => {
-	const { type, category, page, limit } = req.query;
-	res.json(await games(req.session.user._id, type, category, page, limit));
+	const { type, category, sort, page, limit } = req.query;
+	res.json(
+		await games(req.session.user._id, type, category, sort, page, limit)
+	);
 });
 
 /**

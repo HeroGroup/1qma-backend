@@ -266,6 +266,10 @@ router.post("/invite", sameUser, async (req, res) => {
  *         schema:
  *           type: string
  *       - in: query
+ *         name: sort
+ *         schema:
+ *           type: string
+ *       - in: query
  *         name: page
  *         schema:
  *           type: string

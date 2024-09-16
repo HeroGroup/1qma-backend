@@ -4,12 +4,23 @@ const { handleException, objectId } = require("../../helpers/utils");
 const Game = require("../../models/Game");
 const User = require("../../models/User");
 
-exports.games = async (userId, type, category, page = 1, limit = 5) => {
+exports.games = async (
+	userId,
+	type,
+	category,
+	sort = "newest",
+	page = 1,
+	limit = 5
+) => {
 	try {
 		if (!["", "private"].includes(type)) {
 			// empty means public
 			return fail("invalid type!");
 		}
+
+		const sortCriteria =
+			sort === "oldest" ? { createdAt: 1 } : { createdAt: -1 };
+
 		const games = await Game.find(
 			{
 				status: gameStatuses.ENDED,
@@ -29,7 +40,7 @@ exports.games = async (userId, type, category, page = 1, limit = 5) => {
 				result: 1,
 			}
 		)
-			.sort({ createdAt: -1 })
+			.sort(sortCriteria)
 			.skip((page - 1) * limit)
 			.limit(limit);
 
