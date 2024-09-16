@@ -113,6 +113,7 @@ async function main() {
 
 	app.use(cors(corsOptions));
 	app.use(express.json());
+	app.use(sanitizeRequestInputs);
 	app.use(morgan("dev"));
 
 	app.set("query parser", function (str) {
@@ -177,8 +178,6 @@ async function main() {
 		swaggerUI.serve,
 		swaggerUI.setup(swaggerSpec, { explorer: true })
 	);
-
-	app.use(sanitizeRequestInputs);
 
 	// Sharing the session context
 	io.engine.use(session(sess));

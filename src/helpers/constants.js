@@ -1,3 +1,10 @@
+exports.sanitizeInputExceptions = [
+	"password",
+	"passwordConfirmation",
+	"terms",
+	"privacyPolicies",
+];
+
 exports.authReasons = ["register", "login", "join_to_wait_list"];
 
 exports.createModes = [

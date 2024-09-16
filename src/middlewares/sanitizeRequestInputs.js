@@ -1,3 +1,4 @@
+const { sanitizeInputExceptions } = require("../helpers/constants");
 const { sanitize } = require("../helpers/validator");
 
 exports.sanitizeRequestInputs = (req, res, next) => {
@@ -11,7 +12,7 @@ exports.sanitizeRequestInputs = (req, res, next) => {
 	// req.body
 	const bodyNames = Object.keys(bodyParameters);
 	bodyNames.forEach((elm) => {
-		if (elm !== "password") {
+		if (!sanitizeInputExceptions.includes(elm)) {
 			req.body[elm] = sanitize(bodyParameters[elm]);
 		}
 	});

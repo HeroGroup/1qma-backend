@@ -1,6 +1,10 @@
 const sanitizeHtml = require("sanitize-html");
 
 exports.sanitize = (input) => {
+	if (Array.isArray(input)) {
+		return sanitizeArray(input);
+	}
+
 	const inputType = typeof input;
 	switch (inputType) {
 		case "string":
@@ -19,6 +23,14 @@ exports.sanitize = (input) => {
 		default:
 			return input;
 	}
+};
+
+const sanitizeArray = (input) => {
+	for (let index = 0; index < input.length; index++) {
+		input[index] = this.sanitize(input[index]);
+	}
+
+	return input;
 };
 
 exports.simpleValidation = (input, message) => {
