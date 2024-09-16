@@ -8,6 +8,7 @@ const survivalLeagueSchema = new Schema({
 	endDate: Date,
 	totalScore: Number,
 	totalGames: Number,
+	isActive: Boolean,
 });
 
 module.exports = mongoose.model("SurvivalLeagues", survivalLeagueSchema);
