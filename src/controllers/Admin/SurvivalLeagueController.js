@@ -79,8 +79,8 @@ exports.updateSurvivalLeague = async (params, icon) => {
 				title,
 				startDate,
 				endDate,
-				...(totalScore ? { totalScore } : {}),
-				...(totalGames ? { totalGames } : {}),
+				...(isNaN(totalScore) ? { totalScore: 0 } : { totalScore }),
+				...(isNaN(totalGames) ? { totalGames: 0 } : { totalGames }),
 				icon: iconPath,
 			},
 			{ new: true }
