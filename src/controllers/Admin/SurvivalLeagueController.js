@@ -41,7 +41,7 @@ exports.addSurvivalLeague = async (params, icon) => {
 			isActive: true,
 		});
 
-		await survivalLeague.updateMany({}, { isActive: false });
+		await SurvivalLeague.updateMany({}, { isActive: false });
 		await survivalLeague.save();
 
 		return success("Addedd successfully!", survivalLeague);
