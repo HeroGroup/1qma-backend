@@ -38,7 +38,10 @@ exports.addSurvivalLeague = async (params, icon) => {
 			...(isNaN(totalScore) ? {} : { totalScore }),
 			...(isNaN(totalGames) ? {} : { totalGames }),
 			icon: icon?.path || "",
+			isActive: true,
 		});
+
+		await survivalLeague.updateMany({}, { isActive: false });
 		await survivalLeague.save();
 
 		return success("Addedd successfully!", survivalLeague);
