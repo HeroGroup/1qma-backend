@@ -1,5 +1,7 @@
 const express = require("express");
 const router = express.Router();
+const { nullStringToNull } = require("../../middlewares/nullStringToNull");
+
 const imageUpload = require("../../services/imageUpload");
 
 const {
@@ -61,9 +63,14 @@ router.get("/", async (req, res) => {
  *                type: string
  *                format: binary
  */
-router.post("/add", imageUpload.single("icon"), async (req, res) => {
-	res.json(await addSurvivalLeague(req.body, req.file));
-});
+router.post(
+	"/add",
+	imageUpload.single("icon"),
+	nullStringToNull,
+	async (req, res) => {
+		res.json(await addSurvivalLeague(req.body, req.file));
+	}
+);
 
 /**
  * @openapi
@@ -109,9 +116,14 @@ router.post("/add", imageUpload.single("icon"), async (req, res) => {
  *                type: string
  *                format: binary
  */
-router.post("/update", imageUpload.single("icon"), async (req, res) => {
-	res.json(await updateSurvivalLeague(req.body, req.file));
-});
+router.post(
+	"/update",
+	imageUpload.single("icon"),
+	nullStringToNull,
+	async (req, res) => {
+		res.json(await updateSurvivalLeague(req.body, req.file));
+	}
+);
 
 /**
  * @openapi

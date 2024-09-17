@@ -14,9 +14,11 @@ exports.getSurvivalLeagues = async () => {
 exports.addSurvivalLeague = async (params, icon) => {
 	try {
 		const { title, startDate, endDate, totalScore, totalGames } = params;
+
 		if (!title) {
 			return fail("Invalid title!");
 		}
+
 		if (!startDate) {
 			return fail("Invalid start Date!");
 		}
@@ -33,8 +35,8 @@ exports.addSurvivalLeague = async (params, icon) => {
 			title,
 			startDate,
 			endDate,
-			...(totalScore ? { totalScore } : {}),
-			...(totalGames ? { totalGames } : {}),
+			...(isNaN(totalScore) ? {} : { totalScore }),
+			...(isNaN(totalGames) ? {} : { totalGames }),
 			icon: icon?.path || "",
 		});
 		await survivalLeague.save();
