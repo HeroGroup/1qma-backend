@@ -33,8 +33,8 @@ exports.addSurvivalLeague = async (params, icon) => {
 			title,
 			startDate,
 			endDate,
-			totalScore,
-			totalGames,
+			...(totalScore ? { totalScore } : {}),
+			...(totalGames ? { totalGames } : {}),
 			icon: icon?.path || "",
 		});
 		await survivalLeague.save();
@@ -70,7 +70,14 @@ exports.updateSurvivalLeague = async (params, icon) => {
 
 		survivalLeague = await SurvivalLeague.findByIdAndUpdate(
 			id,
-			{ title, startDate, endDate, totalScore, totalGames, icon: iconPath },
+			{
+				title,
+				startDate,
+				endDate,
+				...(totalScore ? { totalScore } : {}),
+				...(totalGames ? { totalGames } : {}),
+				icon: iconPath,
+			},
 			{ new: true }
 		);
 
