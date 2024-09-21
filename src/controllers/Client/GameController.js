@@ -1610,12 +1610,24 @@ const calculateResult = async (gameId) => {
 		key: "GAME_WINNER_REWARD_BRONZE",
 	});
 
+	const secondPlaceRewardSetting = await Setting.findOne({
+		key: "SECOND_PLACE_REWARD_BRONZE",
+	});
+
+	const thirdPlaceRewardSetting = await Setting.findOne({
+		key: "THIRD_PLACE_REWARD_BRONZE",
+	});
+
 	let rank = 1;
 	// update users statistics
 	for (const item of scoreboard) {
-		// reward winner
+		// reward first three places
 		if (rank === 1) {
 			item.reward.bronze = winnerRewardSetting?.value || 1;
+		} else if (rank === 2) {
+			item.reward.bronze = secondPlaceRewardSetting?.value || 1;
+		} else if (rank === 3) {
+			item.reward.bronze = thirdPlaceRewardSetting?.value || 1;
 		}
 
 		const plyr = await User.findById(item._id);
