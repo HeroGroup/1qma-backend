@@ -19,6 +19,7 @@ const {
 	educations,
 	homePages,
 	gameStatuses,
+	introTypes,
 } = require("../../helpers/constants");
 const { findMyFriends } = require("../../helpers/findMyFriends");
 const {
@@ -909,6 +910,41 @@ exports.getPrivacyPolicies = async () => {
 		);
 
 		return success("ok", privacyPolicies?.value || "Privacy Policies");
+	} catch (e) {
+		return handleException(e);
+	}
+};
+
+exports.viewIntro = async (params) => {
+	try {
+		const { id, type } = params;
+		if (!id) {
+			return fail("invali user id!");
+		}
+		if (!type) {
+			return fail("invali intro type!");
+		}
+
+		if (!introTypes.includes(type)) {
+			return fail("invali intro type!");
+		}
+
+		let user = await User.findById(id);
+		if (!user) {
+			return fail("invalid user");
+		}
+
+		const userIntros = user.hasSeenIntros;
+		userIntros[type] = true;
+		user = await User.findByIdAndUpdate(
+			id,
+			{
+				hasSeenIntros: userIntros,
+			},
+			{ new: true }
+		);
+
+		return success("ok", user);
 	} catch (e) {
 		return handleException(e);
 	}

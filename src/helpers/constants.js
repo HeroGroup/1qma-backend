@@ -80,3 +80,4 @@ exports.notificationTypes = {
 exports.notificationDataTypes = {
 	GAME_INVITE: "GAME_INVITE",
 };
+exports.introTypes = ["dashboard", "games", "triviaHub", "shop"];

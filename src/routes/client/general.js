@@ -26,6 +26,7 @@ const {
 	getFAQs,
 	getTermsOfService,
 	getPrivacyPolicies,
+	viewIntro,
 } = require("../../controllers/Client/ClientController");
 
 /**
@@ -597,7 +598,11 @@ router.post("/bugReports/add", sameUser, async (req, res) => {
  *                format: 63738495886737657388948
  */
 router.post("/charity", sameUser, async (req, res) => {
-	res.json(await chooseCharityCategory(req.body));
+	const updateUserCharityResult = await chooseCharityCategory(req.body);
+	if (updateUserCharityResult.status === 1) {
+		req.session.user = updateUserCharityResult.data;
+	}
+	res.json(updateUserCharityResult);
 });
 
 /**
@@ -634,6 +639,38 @@ router.get("/termsOfService", async (req, res) => {
  */
 router.get("/privacyPolicies", async (req, res) => {
 	res.json(await getPrivacyPolicies());
+});
+
+/**
+ * @openapi
+ * '/client/intro/view':
+ *  post:
+ *     tags:
+ *     - Client
+ *     summary: user has seen an intro
+ *     requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *           schema:
+ *            type: object
+ *            required:
+ *              - id
+ *              - type
+ *            properties:
+ *              id:
+ *                type: string
+ *                default: 63738495886737657388948
+ *              type:
+ *                type: string
+ *                default: dashboard
+ */
+router.post("/intro/view", sameUser, async (req, res) => {
+	const updateUserIntroResult = await viewIntro(req.body);
+	if (updateUserIntroResult.status === 1) {
+		req.session.user = updateUserIntroResult.data;
+	}
+	res.json(updateUserIntroResult);
 });
 
 module.exports = router;

@@ -573,6 +573,12 @@ exports.chooseAccountType = async (params) => {
 					highScore: 0,
 					survivalGamesPlayed: 0,
 				},
+				hasSeenIntros: {
+					dashboard: false,
+					games: false,
+					triviaHub: false,
+					shop: false,
+				},
 				isActive: true,
 			},
 			{ new: true }

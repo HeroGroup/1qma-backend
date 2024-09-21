@@ -37,6 +37,12 @@ const userSchema = new Schema({
 	accessTokens: Array,
 	statistics: Object,
 	games: Object,
+	hasSeenIntros: {
+		dashboard: Boolean,
+		games: Boolean,
+		triviaHub: Boolean,
+		shop: Boolean,
+	},
 	socketId: String,
 });
 
