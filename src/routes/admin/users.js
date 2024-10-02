@@ -9,7 +9,7 @@ const {
 } = require("../../controllers/Admin/UserController");
 
 const transporter = nodemailer.createTransport({
-	host: "1qma.games",
+	host: "169.62.56.50",
 	port: 465,
 	secure: true, // true for port 465, false for other ports
 	auth: {
