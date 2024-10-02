@@ -7,6 +7,7 @@ const {
 	generateQR,
 	xpNeededForNextLevel,
 	scoreNeededForNextCheckpoint,
+	shuffleArray,
 } = require("../../helpers/utils");
 const { validateEmail } = require("../../helpers/validator");
 const {
@@ -934,6 +935,8 @@ exports.getAnswers = async (gameId, questionId) => {
 			}
 		);
 
+		shuffleArray(answers);
+
 		return success("ok", {
 			questionId,
 			question: gameQuestions[questionIndex]?.question,
@@ -1074,6 +1077,8 @@ exports.getAllQuestions = async (gameId) => {
 				language: element.language,
 			};
 		});
+
+		shuffleArray(questions);
 
 		return success("ok", questions);
 	} catch (e) {
