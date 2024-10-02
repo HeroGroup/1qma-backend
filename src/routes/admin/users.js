@@ -10,8 +10,8 @@ const {
 
 const transporter = nodemailer.createTransport({
 	host: "169.62.56.50",
-	port: 465,
-	secure: true, // true for port 465, false for other ports
+	port: 587,
+	secure: false, // true for port 465, false for other ports
 	auth: {
 		user: "info@1qma.games",
 		pass: "QO*^*tqg![rp",
