@@ -41,6 +41,9 @@ const gameRoutes = require("./src/routes/client/game");
 const gamesRoutes = require("./src/routes/client/games");
 const notificationsRoutes = require("./src/routes/client/notifications");
 const shopRoutes = require("./src/routes/client/shop");
+const gameplayTutorialRoutes = require("./src/routes/client/gameplayTutorial");
+
+const cronTasksRoutes = require("./src/routes/system/cronTasks.js");
 
 const {
 	sanitizeRequestInputs,
@@ -157,6 +160,7 @@ async function main() {
 	app.use("/admin/bugTypes", isAdmin, bugTypesRoutes);
 	app.use("/admin/categories", isAdmin, categoriesRoutes);
 	app.use("/admin/charityCategories", isAdmin, charityCategoriesRoutes);
+	app.use("/admin/cronTasks", cronTasksRoutes);
 	app.use("/admin/faqs", isAdmin, faqsRoutes);
 	app.use("/admin/registerQuestions", isAdmin, registerQuestionsRoutes);
 	app.use("/admin/settings", isAdmin, settingsRoutes);
@@ -170,6 +174,7 @@ async function main() {
 	app.use("/games", hasCompletedSignup, gamesRoutes);
 	app.use("/notifications", hasCompletedSignup, notificationsRoutes);
 	app.use("/shop", hasCompletedSignup, shopRoutes);
+	app.use("/tutorials/gameplay", hasCompletedSignup, gameplayTutorialRoutes);
 
 	app.use(express.static("public"));
 

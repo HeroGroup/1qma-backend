@@ -41,4 +41,5 @@ module.exports = {
 	defaultCurrency: process.env.DEFAULT_CURRENCY,
 	anonymousNameLength: process.env.ANONYMOUS_NAME_LENGTH,
 	gameNextStepDelay: process.env.GAME_NEXT_STEP_DELAY_MS,
+	renewAccountsToken: process.env.RENEW_ACCOUNTS_TOKEN,
 };
