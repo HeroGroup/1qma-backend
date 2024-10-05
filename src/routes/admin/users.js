@@ -8,8 +8,6 @@ const {
 	deleteUser,
 } = require("../../controllers/Admin/UserController");
 
-const transporter = nodemailer.createTransport(env.email);
-
 /**
  * @openapi
  * '/admin/users':
@@ -76,6 +74,8 @@ router.post("/delete", async (req, res) => {
 });
 
 router.get("/sendEmail", async (req, res) => {
+	const transporter = nodemailer.createTransport(env.email);
+
 	// send mail with defined transport object
 	const info = await transporter.sendMail({
 		from: '"info" <info@1qma.games>', // sender address
