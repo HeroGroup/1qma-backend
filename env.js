@@ -52,6 +52,7 @@ module.exports = {
 		},
 		tls: {
 			rejectUnauthorized: process.env.EMAIL_TLS_REJECT_UNAUTHORIZED,
+			servername: process.env.EMAIL_TLS_SERVER_NAME,
 		},
 	},
 };
