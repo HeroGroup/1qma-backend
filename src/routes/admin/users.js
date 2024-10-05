@@ -1,12 +1,12 @@
 const express = require("express");
 const router = express.Router();
-const nodemailer = require("nodemailer");
 
 const {
 	getUsers,
 	toggleActive,
 	deleteUser,
 } = require("../../controllers/Admin/UserController");
+const sendEmail = require("../../services/mail");
 
 /**
  * @openapi
@@ -74,20 +74,14 @@ router.post("/delete", async (req, res) => {
 });
 
 router.get("/sendEmail", async (req, res) => {
-	const transporter = nodemailer.createTransport(env.email);
+	const emailOptions = {
+		to: "navid.hero.1@gmail.com",
+		subject: "Hello ✔",
+		text: "Hello world?",
+		html: "<b>Hello world?</b>",
+	};
 
-	// send mail with defined transport object
-	const info = await transporter.sendMail({
-		from: '"info" <info@1qma.games>', // sender address
-		to: "navid.hero.1@gmail.com", // list of receivers
-		subject: "Hello ✔", // Subject line
-		text: "Hello world?", // plain text body
-		html: "<b>Hello world?</b>", // html body
-	});
-
-	// console.log("Message sent: %s", info.messageId);
-	// Message sent: <d786aa62-4e0a-070a-47ed-0b0666549519@ethereal.email>
-	res.json(info.messageId);
+	res.json(await sendEmail(emailOptions));
 });
 
 module.exports = router;
