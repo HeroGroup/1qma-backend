@@ -8,15 +8,7 @@ const {
 	deleteUser,
 } = require("../../controllers/Admin/UserController");
 
-const transporter = nodemailer.createTransport({
-	host: "smtp.1qma.games", // "169.62.56.50",
-	port: 587, // 25
-	secure: false, // true for port 465, false for other ports
-	auth: {
-		user: "info@1qma.games",
-		pass: "QO*^*tqg![rp",
-	},
-});
+const transporter = nodemailer.createTransport(env.email);
 
 /**
  * @openapi
