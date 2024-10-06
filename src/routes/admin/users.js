@@ -74,12 +74,12 @@ router.post("/delete", async (req, res) => {
 });
 
 router.get("/sendEmail", async (req, res) => {
-	const emailOptions = {
-		to: "navid.hero.1@gmail.com",
-		subject: "Hello ✔",
-		text: "Hello world?",
-		html: "<b>Hello world?</b>",
-	};
+	// to: "navid.hero.1@gmail.com",
+	// subject: "Hello ✔",
+	// text: "Hello world?",
+	const { to, subject, text } = req.query;
+	const html = "<b>Hello world?</b>";
+	const emailOptions = { to, subject, text, html };
 
 	res.json(await sendEmail(emailOptions));
 });
