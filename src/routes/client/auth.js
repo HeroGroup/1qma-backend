@@ -64,14 +64,17 @@ router.get("/register/init", async (req, res) => {
  *                type: string
  *                default: somepassword
  */
-router.post("/loginWithEmail", notLoggedIn, async (req, res) => {
-	const loginWithEmailResult = await loginWithEmail(req.body);
-	if (loginWithEmailResult.status === 1) {
-		req.session.user = loginWithEmailResult.data;
-	}
+router.post(
+	"/loginWithEmail",
+	/*notLoggedIn,*/ async (req, res) => {
+		const loginWithEmailResult = await loginWithEmail(req.body);
+		if (loginWithEmailResult.status === 1) {
+			req.session.user = loginWithEmailResult.data;
+		}
 
-	res.json(loginWithEmailResult);
-});
+		res.json(loginWithEmailResult);
+	}
+);
 
 /**
  * @openapi
