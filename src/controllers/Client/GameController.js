@@ -317,7 +317,7 @@ exports.createGame = async (params, socketId, language) => {
 				await sendNotification(
 					invitedUser.socketId,
 					notificationTypes.NOTIFICATION,
-					{ id: notif._id.toString(), title, message, data },
+					{ id: gameId, title, message, data },
 					invitedUser._id,
 					true
 				);

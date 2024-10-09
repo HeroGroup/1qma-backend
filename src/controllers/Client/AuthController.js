@@ -539,6 +539,7 @@ exports.chooseAccountType = async (params) => {
 					expireDays: 30,
 				},
 				hasCompletedSignup: true,
+				signupCompletedAt: moment(),
 				maxInvites: parseInt(initialMaxNumberOfAllowedRefers?.value || 0),
 				assets: {
 					coins: {

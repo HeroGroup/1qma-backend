@@ -15,6 +15,7 @@ const userSchema = new Schema({
 	isActive: Boolean,
 	userType: String,
 	hasCompletedSignup: Boolean,
+	signupCompletedAt: Date,
 	created_at: Date,
 	referCode: String,
 	referer: Object,
