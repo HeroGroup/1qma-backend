@@ -15,9 +15,14 @@ exports.sanitize = (input) => {
 			// loop through object
 			const paramNames = Object.keys(input);
 			paramNames.forEach((elm) => {
-				input[elm] = sanitizeHtml(input[elm], {
-					allowedTags: [],
-				});
+				let inputValue = input[elm];
+				if (Array.isArray(inputValue)) {
+					sanitizeArray(inputValue);
+				} else {
+					inputValue = sanitizeHtml(inputValue, {
+						allowedTags: [],
+					});
+				}
 			});
 			return input;
 		default:
