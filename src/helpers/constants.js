@@ -63,7 +63,7 @@ exports.homePages = [
 
 exports.shopItemTypes = ["feature", "asset", "bundle"];
 
-exports.settingsTypes = ["register", "game", "general"];
+exports.settingsTypes = ["register", "game", "general", "tutorial_game"];
 
 exports.gameStatuses = {
 	CREATED: "created",

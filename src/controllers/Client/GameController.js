@@ -201,9 +201,7 @@ exports.createGame = async (params, socketId, language) => {
 		const numberOfPlayersSetting = await Setting.findOne({
 			key: "NUMBER_OF_PLAYERS_PER_GAME",
 		});
-		const playersShouldCount = numberOfPlayersSetting
-			? numberOfPlayersSetting.value
-			: 5;
+		const playersShouldCount = numberOfPlayersSetting?.value || 5;
 
 		if (createMode === "3" || createMode === "2") {
 			if (!players || players.length < playersShouldCount - 1) {

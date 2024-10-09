@@ -41,7 +41,7 @@ const gameRoutes = require("./src/routes/client/game");
 const gamesRoutes = require("./src/routes/client/games");
 const notificationsRoutes = require("./src/routes/client/notifications");
 const shopRoutes = require("./src/routes/client/shop");
-const gameplayTutorialRoutes = require("./src/routes/client/gameplayTutorial");
+const tutorialGameplayRoutes = require("./src/routes/client/tutorialGameplay.js");
 
 const cronTasksRoutes = require("./src/routes/system/cronTasks.js");
 
@@ -173,7 +173,7 @@ async function main() {
 	app.use("/games", hasCompletedSignup, gamesRoutes);
 	app.use("/notifications", hasCompletedSignup, notificationsRoutes);
 	app.use("/shop", hasCompletedSignup, shopRoutes);
-	app.use("/tutorials/gameplay", hasCompletedSignup, gameplayTutorialRoutes);
+	app.use("/tutorials/gameplay", hasCompletedSignup, tutorialGameplayRoutes);
 
 	app.use("/system/cronTasks", cronTasksRoutes);
 
