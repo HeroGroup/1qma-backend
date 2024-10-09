@@ -675,7 +675,7 @@ exports.invitePlayer = async (params) => {
 		await sendNotification(
 			playerUser.socketId,
 			notificationTypes.NOTIFICATION,
-			{ id: notif._id.toString(), title, message, data },
+			{ id: gameId, title, message, data },
 			playerUser._id,
 			true
 		);
@@ -1162,11 +1162,7 @@ exports.rateQuestions = async (params) => {
 		).length;
 		if (ratesCount === playersCount * playersCount) {
 			// everyone has answered, calculate and emit result!
-			calculateResult(gameId);
-			setTimeout(() => {
-				io.to(gameId).emit("end game", {});
-				console.log("end game");
-			}, nextStepDelay);
+			calculateResult(gameId, nextStepDelay);
 		} else {
 			io.to(gameId).emit("submit answer", {
 				numberOfSubmitted: ratesCount / playersCount,
@@ -1506,7 +1502,7 @@ exports.forceCalculateResult = async (gameId) => {
 	}
 };
 
-const calculateResult = async (gameId) => {
+const calculateResult = async (gameId, nextStepDelay = 1000) => {
 	console.time("calculate-game-result");
 
 	if (!gameId) {
@@ -1730,11 +1726,15 @@ const calculateResult = async (gameId) => {
 	);
 
 	console.timeEnd("calculate-game-result");
+	setTimeout(() => {
+		io.to(gameId).emit("end game", {});
+		console.log("end game");
 
-	// disconnect all players from game room
-	for (const player of players) {
-		leaveRoom(player.socketId, gameId, player.email);
-	}
+		// disconnect all players from game room
+		for (const player of players) {
+			leaveRoom(player.socketId, gameId, player.email);
+		}
+	}, nextStepDelay);
 
 	return success("ok", result);
 };
@@ -1813,8 +1813,8 @@ const updateQuestionStatistics = async (obj) => {
 		return;
 	}
 
-	const oldRates = question.rates;
-	const oldAvgRate = question.avgRate;
+	const oldRates = question.rates || 0;
+	const oldAvgRate = question.avgRate || 0;
 	const currentRates = obj.rates?.length || 0;
 	const currentAnswers = obj.answers?.length || 0;
 	const questionScore = obj.rates.reduce((n, { rate }) => n + rate, 0);
