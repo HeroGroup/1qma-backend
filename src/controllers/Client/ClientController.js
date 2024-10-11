@@ -259,22 +259,30 @@ exports.invite = async (params) => {
 			emailVerified: true,
 			$or: [{ inWaitList: false }, { inWaitList: { $exists: false } }],
 		});
+
 		if (existingEmail > 0) {
 			return fail("This email address is already in!");
 		}
 
 		// add it to user invitations
-		await User.findOneAndUpdate(
+		const me = await User.findOneAndUpdate(
 			{ _id: id },
 			{
 				$push: {
 					invitations: { email, status: "pending", createdAt: moment() },
 				},
+			},
+			{
+				new: true,
 			}
 		);
 
 		// TODO: create and send invite link
-		sendEmail(email, "Invitation to 1QMA", inviteFriendHtml(env.frontAppUrl));
+		sendEmail(
+			email,
+			"Invitation to 1QMA",
+			inviteFriendHtml(`${env.frontAppUrl}/signup?referCode=${me.referCode}`)
+		);
 
 		return success(`Invitation Email was sent to ${email}`);
 	} catch (e) {
