@@ -7,6 +7,7 @@ const {
 	checkSame,
 } = require("../../helpers/utils");
 const Game = require("../../models/Game");
+const { gameStatuses } = require("../../helpers/constants");
 
 exports.login = async (params) => {
 	try {
@@ -61,10 +62,14 @@ exports.createAdminUser = async (params) => {
 
 exports.dashboard = async (params) => {
 	try {
-		const usersCount = await User.countDocuments();
-		const gamesCount = await Game.countDocuments();
+		const usersCount = await User.countDocuments({
+			$or: [{ inWaitList: false }, { inWaitList: { $exists: false } }],
+		});
+		const gamesCount = await Game.countDocuments({
+			status: gameStatuses.ENDED,
+		});
 
-		return success("", { usersCount, gamesCount });
+		return success("ok", { usersCount, gamesCount });
 	} catch (e) {
 		return handleException(e);
 	}
