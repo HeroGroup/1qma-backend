@@ -6,7 +6,6 @@ const {
 	toggleActive,
 	deleteUser,
 } = require("../../controllers/Admin/UserController");
-const sendEmail = require("../../services/mail");
 
 /**
  * @openapi
@@ -71,14 +70,6 @@ router.post("/toggleActive", async (req, res) => {
  */
 router.post("/delete", async (req, res) => {
 	res.json(await deleteUser(req.body));
-});
-
-router.get("/sendEmail", async (req, res) => {
-	const { to, subject } = req.query;
-	const html = "<b>Another Hello to the world?</b>";
-	const emailOptions = { to, subject, html };
-	await sendEmail(emailOptions);
-	res.json(success(`Message was sent successfully to ${to}`));
 });
 
 module.exports = router;
