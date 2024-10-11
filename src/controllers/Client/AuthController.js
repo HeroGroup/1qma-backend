@@ -22,6 +22,7 @@ const {
 const {
 	createUniqueAnonymousName,
 } = require("../../helpers/createUniqueAnonymousName");
+const sendEmail = require("../../services/mail");
 
 exports.init = async () => {
 	const shouldBeActive = { isActive: true };
@@ -877,11 +878,12 @@ const createEmailVerification = async (email) => {
 			email
 		);
 	}
+	const verificationCode = getRandomInt(999, 9999);
 
 	const verification = new Verification({
 		type: "email",
-		target: email.toLowerCase(),
-		verificationCode: "1111", // getRandomInt(999, 9999),
+		target: email,
+		verificationCode,
 		createdAt: moment(),
 		validUnitl: moment().add(NEXT_VERIFICATION_MINUTES.value, "m"),
 		isVerified: false,
@@ -889,7 +891,12 @@ const createEmailVerification = async (email) => {
 
 	await verification.save();
 
-	// TODO: send email
+	// send email
+	sendEmail({
+		to: email,
+		subject: "verification code",
+		html: `<b>${verificationCode}</b>`,
+	});
 
 	return success("Verification code was sent to you!");
 };
