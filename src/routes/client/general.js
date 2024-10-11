@@ -243,7 +243,11 @@ router.get("/:id/details", async (req, res) => {
  *                format: navid@gmail.com
  */
 router.post("/invite", sameUser, async (req, res) => {
-	res.json(await invite(req.body));
+	const inviteResponse = await invite(req.body);
+	if (inviteResponse.status === 1) {
+		req.session.user = inviteResponse.data;
+	}
+	res.json(inviteResponse);
 });
 
 /**

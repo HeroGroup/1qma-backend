@@ -251,7 +251,19 @@ exports.invite = async (params) => {
 			return fail("invalid email!");
 		}
 
-		// TODO: check limit
+		// check limit
+		let me = await User.findById(id);
+		if (me.maxInvites <= me.invitations.length) {
+			return fail("You have exceeded your invite limit!");
+		}
+
+		// check if I have already invited this email
+		for (let index = 0; index < me.invitations.length; index++) {
+			const element = me.invitations[index];
+			if (element.email === email) {
+				return fail(`You have already invited ${email}!`);
+			}
+		}
 
 		// check if email is already exists
 		const existingEmail = await User.countDocuments({
@@ -261,20 +273,18 @@ exports.invite = async (params) => {
 		});
 
 		if (existingEmail > 0) {
-			return fail("This email address is already in!");
+			return fail("This email address is already a player!");
 		}
 
 		// add it to user invitations
-		const me = await User.findOneAndUpdate(
-			{ _id: id },
+		me = await User.findByIdAndUpdate(
+			id,
 			{
 				$push: {
 					invitations: { email, status: "pending", createdAt: moment() },
 				},
 			},
-			{
-				new: true,
-			}
+			{ new: true }
 		);
 
 		// TODO: create and send invite link
@@ -284,7 +294,7 @@ exports.invite = async (params) => {
 			inviteFriendHtml(`${env.frontAppUrl}/signup?referCode=${me.referCode}`)
 		);
 
-		return success(`Invitation Email was sent to ${email}`);
+		return success(`Invitation Email was sent to ${email}`, me);
 	} catch (e) {
 		return handleException(e);
 	}
