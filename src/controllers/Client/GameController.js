@@ -1048,7 +1048,7 @@ exports.rateAnswers = async (params) => {
 			}, nextStepDelay);
 		} else {
 			io.to(gameId).emit("submit answer", {
-				numberOfSubmitted: ratesCount / playersCount,
+				numberOfSubmitted: Math.floor(ratesCount / playersCount),
 				numberOfPlayers: playersCount,
 			});
 			console.log("submit answer rates");
@@ -1167,7 +1167,7 @@ exports.rateQuestions = async (params) => {
 			calculateResult(gameId, nextStepDelay);
 		} else {
 			io.to(gameId).emit("submit answer", {
-				numberOfSubmitted: ratesCount / playersCount,
+				numberOfSubmitted: Math.floor(ratesCount / playersCount),
 				numberOfPlayers: playersCount,
 			});
 			console.log("submit question rates");

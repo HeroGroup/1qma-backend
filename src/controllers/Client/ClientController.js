@@ -31,6 +31,8 @@ const {
 	renameFile,
 } = require("../../helpers/utils");
 const { validateEmail } = require("../../helpers/validator");
+const sendEmail = require("../../services/mail");
+const { inviteFriendHtml } = require("../../views/templates/html/inviteFriend");
 
 exports.init = async (userId) => {
 	try {
@@ -272,6 +274,8 @@ exports.invite = async (params) => {
 		);
 
 		// TODO: create and send invite link
+		sendEmail(email, "Invitation to 1QMA", inviteFriendHtml(env.frontAppUrl));
+
 		return success(`Invitation Email was sent to ${email}`);
 	} catch (e) {
 		return handleException(e);
@@ -335,10 +339,6 @@ exports.listQuestions = async (userId, params) => {
 		const page = params.page || 1;
 		const limit = params.limit || 5;
 
-		// if (!category) {
-		// 	return fail("invalid category!");
-		// }
-
 		if (!type) {
 			return fail(
 				"invalid type! Type should be public, private, or bookmarked."
@@ -350,7 +350,9 @@ exports.listQuestions = async (userId, params) => {
 			typeQuery = { user: { $exists: false } };
 		} else if (type === "trivia") {
 			// show all public and private questions
-			typeQuery = {};
+			typeQuery = {
+				$or: [{ plays: { $gt: 0 } }, { user: { $exists: false } }],
+			};
 		} else if (type === "private") {
 			typeQuery = { "user._id": objectId(userId) };
 		} else if (type === "bookmark") {

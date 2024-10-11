@@ -15,7 +15,12 @@ const Sponsor = require("../../models/Sponsor");
 const User = require("../../models/User");
 const Verification = require("../../models/Verification");
 
-const { languages, genders, educations } = require("../../helpers/constants");
+const {
+	languages,
+	genders,
+	educations,
+	emailTemplates,
+} = require("../../helpers/constants");
 const {
 	createUniqueReferCode,
 } = require("../../helpers/createUniqueReferCode");
@@ -23,6 +28,10 @@ const {
 	createUniqueAnonymousName,
 } = require("../../helpers/createUniqueAnonymousName");
 const sendEmail = require("../../services/mail");
+const {
+	forgotPasswordHtml,
+} = require("../../views/templates/html/forgotPassword");
+const { verificationHtml } = require("../../views/templates/html/verification");
 
 exports.init = async () => {
 	const shouldBeActive = { isActive: true };
@@ -155,10 +164,16 @@ exports.joinToWaitListWithEmailAndMobile = async (params) => {
 	newUser.save();
 
 	// send verification codes to email and mobile
-	createEmailVerification(params.email.toLowerCase());
+	createEmailVerification(
+		params.email.toLowerCase(),
+		emailTemplates.VERIFICATION
+	);
 	createMobileVerification(params.mobile);
 
-	return success("Verification code was sent to you!", params);
+	return success(
+		`A verification code was sent to ${params.email}. Please check your spam folder as well!`,
+		params
+	);
 };
 
 exports.joinToWaitListWithMobile = async (params) => {
@@ -255,12 +270,15 @@ exports.setEmail = async (params) => {
 			{ new: true }
 		);
 
-		createEmailVerification(email.toLowerCase());
+		createEmailVerification(email.toLowerCase(), emailTemplates.VERIFICATION);
 
-		return success("Verification code was sent to your email!", {
-			params,
-			user,
-		});
+		return success(
+			`A verification code was sent to ${email}. Please check your spam folder as well!`,
+			{
+				params,
+				user,
+			}
+		);
 	} catch (e) {
 		handleException(e);
 	}
@@ -733,7 +751,10 @@ exports.forgotPasswordViaEmail = async (params) => {
 	}
 
 	// send verification code to email
-	return createEmailVerification(params.email.toLowerCase());
+	return createEmailVerification(
+		params.email.toLowerCase(),
+		emailTemplates.FORGOT_PASSWORD
+	);
 };
 
 exports.forgotPasswordViaMobile = async (params) => {
@@ -854,7 +875,7 @@ exports.updatePasswordThroughMobile = async (params) => {
 	return success("Password was updated successfully. Please login now!");
 };
 
-const createEmailVerification = async (email) => {
+const createEmailVerification = async (email, template = "verification") => {
 	const NEXT_VERIFICATION_MINUTES = await Setting.findOne({
 		key: "NEXT_VERIFICATION_MINUTES",
 	});
@@ -872,8 +893,8 @@ const createEmailVerification = async (email) => {
 	) {
 		const wait = moment.duration(-moment().diff(verifications[0].validUnitl));
 		return fail(
-			`You have to wait ${wait.as(
-				"seconds"
+			`You have to wait ${Math.floor(
+				wait.as("seconds")
 			)} seconds for your next verification`,
 			email
 		);
@@ -891,14 +912,17 @@ const createEmailVerification = async (email) => {
 
 	await verification.save();
 
-	// send email
-	sendEmail({
-		to: email,
-		subject: "verification code",
-		html: `<b>${verificationCode}</b>`,
-	});
+	const html =
+		template === "verification"
+			? verificationHtml(verificationCode)
+			: forgotPasswordHtml(verificationCode);
 
-	return success("Verification code was sent to you!");
+	// send email
+	sendEmail(email, "verification code", html);
+
+	return success(
+		`A verification code was sent to ${email}. Please check your spam folder as well!`
+	);
 };
 
 const createMobileVerification = async (mobile) => {
@@ -919,8 +943,8 @@ const createMobileVerification = async (mobile) => {
 	) {
 		const wait = moment.duration(-moment().diff(verifications[0].validUnitl));
 		return fail(
-			`You have to wait ${wait.as(
-				"seconds"
+			`You have to wait ${Math.floor(
+				wait.as("seconds")
 			)} seconds for your next verification`,
 			mobile
 		);
