@@ -4,7 +4,7 @@ const sendEmail = async (options) => {
 	const transporter = nodemailer.createTransport(env.email);
 
 	const mailOptions = {
-		from: env.email.from,
+		from: env.emailFrom,
 		...options,
 	};
 
