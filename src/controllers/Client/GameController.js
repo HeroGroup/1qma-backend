@@ -23,6 +23,8 @@ const Question = require("../../models/Question");
 const Setting = require("../../models/Setting");
 const User = require("../../models/User");
 const { sendNotification } = require("./NotificationController");
+const sendEmail = require("../../services/mail");
+const { inviteGameHtml } = require("../../views/templates/html/inviteGame");
 
 const nextStepDelay = env.gameNextStepDelay || 1000;
 
@@ -307,7 +309,8 @@ exports.createGame = async (params, socketId, language) => {
 		joinUserToGameRoom(socketId, gameId, email);
 
 		if (players) {
-			// TODO: send invites to players via notification and email
+			// send invites to players via notification and email
+
 			// Notification
 			for (const invitedEmail of players) {
 				let invitedUser = await User.findOne({ email: invitedEmail });
@@ -321,6 +324,13 @@ exports.createGame = async (params, socketId, language) => {
 					{ id: gameId, title, message, data },
 					invitedUser._id,
 					true
+				);
+
+				// email
+				sendEmail(
+					invitedEmail,
+					"game invitation",
+					inviteGameHtml(`${env.frontAppUrl}/game/join?code=${game.code}`)
 				);
 			}
 		} else {
