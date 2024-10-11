@@ -74,14 +74,11 @@ router.post("/delete", async (req, res) => {
 });
 
 router.get("/sendEmail", async (req, res) => {
-	// to: "navid.hero.1@gmail.com",
-	// subject: "Hello ✔",
-	// text: "Hello world?",
-	const { to, subject, text } = req.query;
-	const html = "<b>Hello world?</b>";
-	const emailOptions = { to, subject, text, html };
-
-	res.json(await sendEmail(emailOptions));
+	const { to, subject } = req.query;
+	const html = "<b>Another Hello to the world?</b>";
+	const emailOptions = { to, subject, html };
+	await sendEmail(emailOptions);
+	res.json(success(`Message was sent successfully to ${to}`));
 });
 
 module.exports = router;
