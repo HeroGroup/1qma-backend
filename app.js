@@ -117,7 +117,7 @@ async function main() {
 	app.use(cors(corsOptions));
 	app.use(express.json());
 	app.use(sanitizeRequestInputs);
-	app.use(morgan("dev"));
+	// app.use(morgan("dev"));
 
 	app.set("query parser", function (str) {
 		return qs.parse(str);
