@@ -1,8 +1,11 @@
 exports.forgotPasswordHtml = (code) => {
-	return `<h1>Reset Your Password</h1>
+	return `<div style="text-align:center">
+	<img src="${env.app.url}/images/reset_pass.png" alt="reset password" />
+	<h2>Reset Your Password</h2>
+	</div>
 	<p>We have received your request to reset your account password. Please use the below verification code to reset your password:</p>
 	<b>${code}</b>
 	<p>If you did not make this request, please ignore this email.</p>
-	<p>Thank you,</p>
+	<label>Thank you,</label><br>
 	<b>1QMA</b>`;
 };
