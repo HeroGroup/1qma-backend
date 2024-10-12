@@ -84,8 +84,8 @@ exports.notificationDataTypes = {
 exports.introTypes = ["dashboard", "games", "triviaHub", "shop"];
 
 exports.emailTemplates = {
-	VERIFICATION: "verification",
-	FORGOT_PASSWORD: "forgotPassword",
-	INVITE_FRIEND: "inviteFriend",
-	INVITE_GAME: "inviteGame",
+	VERIFICATION: "verification code",
+	FORGOT_PASSWORD: "forgot password",
+	INVITE_FRIEND: "invitation",
+	INVITE_GAME: "game invite",
 };

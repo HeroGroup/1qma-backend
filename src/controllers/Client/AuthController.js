@@ -877,7 +877,10 @@ exports.updatePasswordThroughMobile = async (params) => {
 	return success("Password was updated successfully. Please login now!");
 };
 
-const createEmailVerification = async (email, template = "verification") => {
+const createEmailVerification = async (
+	email,
+	template = emailTemplates.VERIFICATION
+) => {
 	const NEXT_VERIFICATION_MINUTES = await Setting.findOne({
 		key: "NEXT_VERIFICATION_MINUTES",
 	});
@@ -915,12 +918,12 @@ const createEmailVerification = async (email, template = "verification") => {
 	await verification.save();
 
 	const html =
-		template === "verification"
+		template === emailTemplates.VERIFICATION
 			? verificationHtml(verificationCode)
 			: forgotPasswordHtml(verificationCode);
 
 	// send email
-	sendEmail(email, "verification code", html);
+	sendEmail(email, template, html);
 
 	return success(
 		`A verification code was sent to ${email}. Please check your spam folder as well!`
