@@ -23,9 +23,6 @@ const {
 	getTransactions,
 	reportBug,
 	chooseCharityCategory,
-	getFAQs,
-	getTermsOfService,
-	getPrivacyPolicies,
 	viewIntro,
 } = require("../../controllers/Client/ClientController");
 
@@ -607,42 +604,6 @@ router.post("/charity", sameUser, async (req, res) => {
 		req.session.user = updateUserCharityResult.data;
 	}
 	res.json(updateUserCharityResult);
-});
-
-/**
- * @openapi
- * '/client/FAQs':
- *  get:
- *     tags:
- *     - Client
- *     summary: fetch frequently asked questions (faq)
- */
-router.get("/FAQs", async (req, res) => {
-	res.json(await getFAQs());
-});
-
-/**
- * @openapi
- * '/client/termsOfService':
- *  get:
- *     tags:
- *     - Client
- *     summary: fetch terms of service
- */
-router.get("/termsOfService", async (req, res) => {
-	res.json(await getTermsOfService());
-});
-
-/**
- * @openapi
- * '/client/privacyPolicies':
- *  get:
- *     tags:
- *     - Client
- *     summary: fetch privacy policies
- */
-router.get("/privacyPolicies", async (req, res) => {
-	res.json(await getPrivacyPolicies());
 });
 
 /**
