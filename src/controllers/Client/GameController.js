@@ -330,7 +330,10 @@ exports.createGame = async (params, socketId, language) => {
 				sendEmail(
 					invitedEmail,
 					"game invitation",
-					inviteGameHtml(`${env.frontAppUrl}/game/join?code=${game.code}`)
+					inviteGameHtml(
+						`${env.frontAppUrl}/game/join?code=${game.code}`,
+						`${firstName} ${lastName}`
+					)
 				);
 			}
 		} else {

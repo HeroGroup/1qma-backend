@@ -291,7 +291,10 @@ exports.invite = async (params) => {
 		sendEmail(
 			email,
 			"Invitation to 1QMA",
-			inviteFriendHtml(`${env.frontAppUrl}/signup?referCode=${me.referCode}`)
+			inviteFriendHtml(
+				`${env.frontAppUrl}/signup?referCode=${me.referCode}`,
+				`${me.firstName} ${me.lastName}`
+			)
 		);
 
 		return success(`Invitation Email was sent to ${email}`, me);
