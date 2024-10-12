@@ -85,7 +85,7 @@ exports.introTypes = ["dashboard", "games", "triviaHub", "shop"];
 
 exports.emailTemplates = {
 	VERIFICATION: "verification code",
-	FORGOT_PASSWORD: "forgot password",
+	RESET_PASSWORD: "reset password",
 	INVITE_FRIEND: "invitation",
 	INVITE_GAME: "game invite",
 };

@@ -755,7 +755,7 @@ exports.forgotPasswordViaEmail = async (params) => {
 	// send verification code to email
 	return createEmailVerification(
 		params.email.toLowerCase(),
-		emailTemplates.FORGOT_PASSWORD
+		emailTemplates.RESET_PASSWORD
 	);
 };
 
