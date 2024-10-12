@@ -236,6 +236,8 @@ exports.registerWithReferal = async (params) => {
 			isActive: true,
 			hasCompletedSignup: false,
 			created_at: moment(),
+			emailVerified: false,
+			mobileVerified: false,
 		});
 
 		await newUser.save();
