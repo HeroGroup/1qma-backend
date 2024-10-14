@@ -62,10 +62,20 @@ exports.init = async (userId) => {
 			// TODO: calculate charity progress
 		}
 
-		// TODO: manipulate user invitations
-		const userInvitations = user.invitations;
-		for (const invitation of userInvitations) {
-			//
+		// manipulate user invitations
+		const invitationLinkValidity = await Setting.findOne({
+			key: "INVITATION_LINK_VALIDITY_DAYS",
+		});
+
+		for (const invitation of user.invitations) {
+			if (invitation.status === "pending") {
+				const passed = moment().diff(invitation.createdAt, "seconds");
+				const validUntil = (invitationLinkValidity?.value || 2) * 24 * 60 * 60; // days
+
+				if (passed > validUntil) {
+					invitation.status = "expired";
+				}
+			}
 		}
 
 		return success("initialize parameters", {
@@ -262,6 +272,22 @@ exports.invite = async (params, lang = "en") => {
 
 		// check limit
 		let me = await User.findById(id);
+
+		// check pending invitations
+		const invitationLinkValidity = await Setting.findOne({
+			key: "INVITATION_LINK_VALIDITY_DAYS",
+		});
+
+		for (const invitation of me.invitations) {
+			if (invitation.status === "pending") {
+				const passed = moment().diff(invitation.createdAt, "seconds");
+				const validUntil = (invitationLinkValidity?.value || 2) * 24 * 60 * 60; // days
+
+				if (passed > validUntil) {
+					invitation.status = "expired";
+				}
+			}
+		}
 		if (me.maxInvites <= me.invitations.length) {
 			return fail("You have exceeded your invite limit!");
 		}
@@ -269,7 +295,7 @@ exports.invite = async (params, lang = "en") => {
 		// check if I have already invited this email
 		for (let index = 0; index < me.invitations.length; index++) {
 			const element = me.invitations[index];
-			if (element.email === email) {
+			if (element.email === email && element.status === "pending") {
 				return fail(`You have already invited ${email}!`);
 			}
 		}

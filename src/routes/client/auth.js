@@ -107,7 +107,7 @@ router.post(
 		res.json(
 			await joinToWaitListWithEmailAndMobile(
 				req.body,
-				req.session.user?.preferedLanguage.code
+				req.session.user?.preferedLanguage?.code
 			)
 		);
 	}
@@ -231,7 +231,7 @@ router.post(
 router.post("/setEmail", sameUser, async (req, res) => {
 	const setEmailResult = await setEmail(
 		req.body,
-		req.session.user?.preferedLanguage.code
+		req.session.user?.preferedLanguage?.code
 	);
 	if (setEmailResult.status === 1) {
 		req.session.user = setEmailResult.data.user;
@@ -534,7 +534,7 @@ router.post("/verify/:type", async (req, res) => {
  */
 router.post("/email/resend", async (req, res) => {
 	res.json(
-		await resendEmail(req.body, req.session.user?.preferedLanguage.code)
+		await resendEmail(req.body, req.session.user?.preferedLanguage?.code)
 	);
 });
 
@@ -593,7 +593,7 @@ router.post("/forgotPassword/:media", async (req, res) => {
 		res.json(
 			await forgotPasswordViaEmail(
 				params,
-				req.session.user?.preferedLanguage.code
+				req.session.user?.preferedLanguage?.code
 			)
 		);
 	} else if (media === "mobile") {

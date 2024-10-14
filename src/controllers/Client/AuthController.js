@@ -228,7 +228,7 @@ exports.registerWithInvitationLink = async (id) => {
 			return fail("Link has been expired!");
 		}
 
-		const invitationLinkValidity = Setting.findOne({
+		const invitationLinkValidity = await Setting.findOne({
 			key: "INVITATION_LINK_VALIDITY_DAYS",
 		});
 
