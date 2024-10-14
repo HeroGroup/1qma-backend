@@ -53,15 +53,20 @@ exports.init = async (userId) => {
 		);
 		const sponsors = await Sponsor.find(shouldBeActive).sort(sortCriteria);
 		const user = await User.findById(userId);
+		const answerWordsLimitationSetting = await Setting.findOne({
+			key: "ANSWER_WORDS_LIMITATION",
+		});
 
 		let charityProgress = 0;
 		if (user.preferedCharity) {
 			// TODO: calculate charity progress
 		}
 
-		const answerWordsLimitationSetting = await Setting.findOne({
-			key: "ANSWER_WORDS_LIMITATION",
-		});
+		// TODO: manipulate user invitations
+		const userInvitations = user.invitations;
+		for (const invitation of userInvitations) {
+			//
+		}
 
 		return success("initialize parameters", {
 			languages,
