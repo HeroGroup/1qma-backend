@@ -323,7 +323,7 @@ exports.setEmail = async (params, lang = "en") => {
 		}
 
 		if (invitationId) {
-			const invitation = InvitationLink.findById(invitationId);
+			const invitation = await InvitationLink.findById(invitationId);
 			if (!invitation) {
 				return fail("invalid invitation id!");
 			}
