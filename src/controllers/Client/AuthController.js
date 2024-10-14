@@ -215,6 +215,10 @@ exports.joinToWaitListWithMobile = async (params) => {
 
 exports.registerWithInvitationLink = async (id) => {
 	try {
+		if (!id) {
+			return fail("invalid id!");
+		}
+
 		const invitationLink = await InvitationLink.findById(id);
 		if (!invitationLink) {
 			return fail("invalid invitation link!");
@@ -313,9 +317,20 @@ exports.registerWithReferal = async (params) => {
 
 exports.setEmail = async (params, lang = "en") => {
 	try {
-		const { id, email } = params;
+		const { id, email, invitationId } = params;
 		if (!validateEmail(email)) {
 			return fail("invalid email address!");
+		}
+
+		if (invitationId) {
+			const invitation = InvitationLink.findById(invitationId);
+			if (!invitation) {
+				return fail("invalid invitation id!");
+			}
+
+			if (invitation?.invitedEmail !== email) {
+				return fail(`This invitation is not for ${email}!`);
+			}
 		}
 
 		// check if email exists
