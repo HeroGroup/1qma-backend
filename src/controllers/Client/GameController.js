@@ -1206,7 +1206,8 @@ exports.showResult = async (gameId, userId) => {
 		}
 
 		if (game.result) {
-			const { creator, category, gameType, startedAt, endedAt, result } = game;
+			const { code, creator, category, gameType, startedAt, endedAt, result } =
+				game;
 
 			let statistics = {};
 			let nextCheckpoint = scoreNeededForNextCheckpoint(0);
@@ -1239,6 +1240,7 @@ exports.showResult = async (gameId, userId) => {
 			}
 
 			return success("ok", {
+				code,
 				creator,
 				category,
 				gameType,

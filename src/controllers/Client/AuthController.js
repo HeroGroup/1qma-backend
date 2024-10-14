@@ -32,6 +32,7 @@ const {
 	forgotPasswordHtml,
 } = require("../../views/templates/html/forgotPassword");
 const { verificationHtml } = require("../../views/templates/html/verification");
+const InvitationLink = require("../../models/InvitationLink");
 
 exports.init = async () => {
 	const shouldBeActive = { isActive: true };
@@ -205,6 +206,63 @@ exports.joinToWaitListWithMobile = async (params) => {
 	createMobileVerification(params.mobile);
 
 	return success("Verification code was sent to your phone!", params);
+};
+
+exports.registerWithInvitationLink = async (id) => {
+	try {
+		const invitationLink = await InvitationLink.findById(id);
+		if (!invitationLink) {
+			return fail("invalid invitation link!");
+		}
+
+		if (!invitationLink.isActive) {
+			return fail("Link has been expired!");
+		}
+
+		const invitationLinkValidity = Setting.findOne({
+			key: "INVITATION_LINK_VALIDITY_DAYS",
+		});
+
+		const passed = moment().diff(invitationLink.createdAt, "seconds");
+		const validUntil = (invitationLinkValidity?.value || 2) * 24 * 60 * 60; // days
+
+		if (passed > validUntil) {
+			return fail("Link has been expired!");
+		}
+
+		const refererUser = await User.findOne({
+			referCode: invitationLink.referCode,
+		});
+
+		if (!refererUser) {
+			return fail("unknown referer!", params);
+		}
+
+		const newUser = new User({
+			anonymousName: await createUniqueAnonymousName(env.anonymousNameLength),
+			referCode: await createUniqueReferCode(),
+			referer: {
+				_id: refererUser._id,
+				firstName: refererUser.firstName,
+				lastName: refererUser.lastName,
+				profilePicture: refererUser.profilePicture,
+			},
+			isActive: true,
+			hasCompletedSignup: false,
+			created_at: moment(),
+			email: invitationLink.invitedEmail,
+			emailVerified: false,
+			mobileVerified: false,
+		});
+
+		await newUser.save();
+
+		await InvitationLink.findByIdAndUpdate(id, { isActive: false });
+
+		return success("ok", newUser);
+	} catch (e) {
+		return handleException(e);
+	}
 };
 
 exports.registerWithReferal = async (params) => {
@@ -383,10 +441,21 @@ exports.choosePreferedLanguage = async (params) => {
 					invitations: {
 						_id: user._id,
 						email: user.email,
+						status: "success",
 						createdAt: moment(),
 					},
 				},
 			});
+		} else {
+			const invitations = refererUser.invitations;
+			for (const invitation of invitations) {
+				if (invitation.email === user.email) {
+					invitation["_id"] = user._id;
+					invitation.status = "success";
+					invitation.createdAt = moment();
+				}
+			}
+			await User.findByIdAndUpdate(refererUserId, { invitations });
 		}
 
 		return success("Language preferences updated successfully!", user);
@@ -1067,8 +1136,6 @@ exports.googleOAuth = async (profile, userSession, reason) => {
 exports.facebookAuth = async (profile, userSession, reason) => {
 	console.log(profile, userSession, reason);
 };
-
-exports.registerWithInvitationLink = async (params) => {};
 
 exports.logout = async (id) => {
 	try {

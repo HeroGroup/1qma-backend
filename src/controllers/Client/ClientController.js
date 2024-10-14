@@ -33,6 +33,7 @@ const {
 const { validateEmail } = require("../../helpers/validator");
 const sendEmail = require("../../services/mail");
 const { inviteFriendHtml } = require("../../views/templates/html/inviteFriend");
+const InvitationLink = require("../../models/InvitationLink");
 
 exports.init = async (userId) => {
 	try {
@@ -287,14 +288,21 @@ exports.invite = async (params) => {
 			{ new: true }
 		);
 
-		// TODO: create and send invite link
+		// create and send invite link
+		const invitationLink = new InvitationLink({
+			referCode: me.referCode,
+			invitedEmail: email,
+			createdAt: moment(),
+			isActive: true,
+		});
+		await invitationLink.save();
+
+		const inviteLink = `${env.frontAppUrl}/signup?id=${invitationLink._id}`;
+
 		sendEmail(
 			email,
 			"Invitation to 1QMA",
-			inviteFriendHtml(
-				`${env.frontAppUrl}/signup?referCode=${me.referCode}`,
-				`${me.firstName} ${me.lastName}`
-			)
+			inviteFriendHtml(inviteLink, `${me.firstName} ${me.lastName}`)
 		);
 
 		return success(`Invitation Email was sent to ${email}`, me);

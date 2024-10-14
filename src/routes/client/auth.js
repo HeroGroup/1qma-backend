@@ -21,9 +21,9 @@ const {
 	updatePasswordThroughMobile,
 	forgotPasswordViaEmail,
 	forgotPasswordViaMobile,
-	registerWithInvitationLink,
 	loginWithEmail,
 	answerFurtherQuestions,
+	registerWithInvitationLink,
 } = require("../../controllers/Client/AuthController");
 const { sameUser } = require("../../middlewares/sameUser");
 const { notLoggedIn } = require("../../middlewares/notLoggedIn");
@@ -168,9 +168,20 @@ router.post(
 	}
 );
 
-router.get("/registerWithInvitationLink", notLoggedIn, async (req, res) => {
-	res.json(await registerWithInvitationLink(req.body));
-});
+/**
+ * @openapi
+ * '/auth/registerWithInvitationLink':
+ *  get:
+ *     tags:
+ *     - Authentication
+ *     summary: check if invitation link is valid
+ */
+router.post(
+	"/registerWithInvitationLink",
+	/*notLoggedIn, */ async (req, res) => {
+		res.json(await registerWithInvitationLink(req.body.id));
+	}
+);
 
 /**
  * @openapi
