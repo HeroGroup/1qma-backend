@@ -31,6 +31,12 @@ exports.addSetting = async (params) => {
 			return fail("invalid setting name, key or value!");
 		}
 
+		// check setting is not repetetive
+		const existingSettingKey = await Setting.find({ key: params.key });
+		if (existingSettingKey.length > 0) {
+			return fail("Key is repetetive!");
+		}
+
 		const setting = new Setting({
 			name: params.name,
 			key: params.key,
