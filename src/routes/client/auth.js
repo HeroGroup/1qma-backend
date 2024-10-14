@@ -180,6 +180,18 @@ router.post(
  *     tags:
  *     - Authentication
  *     summary: check if invitation link is valid
+ *     requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *           schema:
+ *            type: object
+ *            required:
+ *              - id
+ *            properties:
+ *              referer:
+ *                type: id
+ *                default: 6523678562956295692
  */
 router.post(
 	"/registerWithInvitationLink",
