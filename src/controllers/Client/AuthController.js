@@ -30,8 +30,12 @@ const {
 const sendEmail = require("../../services/mail");
 const {
 	forgotPasswordHtml,
+	forgotPasswordHtmlFa,
 } = require("../../views/templates/html/forgotPassword");
-const { verificationHtml } = require("../../views/templates/html/verification");
+const {
+	verificationHtml,
+	verificationHtmlFa,
+} = require("../../views/templates/html/verification");
 const InvitationLink = require("../../models/InvitationLink");
 
 exports.init = async () => {
@@ -121,7 +125,7 @@ exports.loginWithEmail = async (params) => {
 	}
 };
 
-exports.joinToWaitListWithEmailAndMobile = async (params) => {
+exports.joinToWaitListWithEmailAndMobile = async (params, lang = "en") => {
 	// check email is valid
 	if (!validateEmail(params.email)) {
 		return fail("invalid email address!", params);
@@ -167,7 +171,8 @@ exports.joinToWaitListWithEmailAndMobile = async (params) => {
 	// send verification codes to email and mobile
 	createEmailVerification(
 		params.email.toLowerCase(),
-		emailTemplates.VERIFICATION
+		emailTemplates.VERIFICATION,
+		lang
 	);
 	createMobileVerification(params.mobile);
 
@@ -306,7 +311,7 @@ exports.registerWithReferal = async (params) => {
 	}
 };
 
-exports.setEmail = async (params) => {
+exports.setEmail = async (params, lang = "en") => {
 	try {
 		const { id, email } = params;
 		if (!validateEmail(email)) {
@@ -330,7 +335,11 @@ exports.setEmail = async (params) => {
 			{ new: true }
 		);
 
-		createEmailVerification(email.toLowerCase(), emailTemplates.VERIFICATION);
+		createEmailVerification(
+			email.toLowerCase(),
+			emailTemplates.VERIFICATION,
+			lang
+		);
 
 		return success(
 			`A verification code was sent to ${email}. Please check your spam folder as well!`,
@@ -781,14 +790,14 @@ exports.verifyMobile = async (params, updateUser = true) => {
 	}
 };
 
-exports.resendEmail = async (params) => {
+exports.resendEmail = async (params, lang = "en") => {
 	// check email is valid
 	if (!validateEmail(params.email)) {
 		return fail("invalid email address!", params);
 	}
 
 	// send verification code to email
-	return await createEmailVerification(params.email.toLowerCase());
+	return await createEmailVerification(params.email.toLowerCase(), lang);
 };
 
 exports.resendMobile = async (params) => {
@@ -801,7 +810,7 @@ exports.resendMobile = async (params) => {
 	return await createMobileVerification(params.mobile);
 };
 
-exports.forgotPasswordViaEmail = async (params) => {
+exports.forgotPasswordViaEmail = async (params, lang = "en") => {
 	// check email is valid
 	if (!validateEmail(params.email)) {
 		return fail("invalid email address!", params);
@@ -824,7 +833,8 @@ exports.forgotPasswordViaEmail = async (params) => {
 	// send verification code to email
 	return createEmailVerification(
 		params.email.toLowerCase(),
-		emailTemplates.RESET_PASSWORD
+		emailTemplates.RESET_PASSWORD,
+		lang
 	);
 };
 
@@ -948,7 +958,8 @@ exports.updatePasswordThroughMobile = async (params) => {
 
 const createEmailVerification = async (
 	email,
-	template = emailTemplates.VERIFICATION
+	template = emailTemplates.VERIFICATION,
+	lang
 ) => {
 	const NEXT_VERIFICATION_MINUTES = await Setting.findOne({
 		key: "NEXT_VERIFICATION_MINUTES",
@@ -988,7 +999,11 @@ const createEmailVerification = async (
 
 	const html =
 		template === emailTemplates.VERIFICATION
-			? verificationHtml(verificationCode)
+			? lang === "fa"
+				? verificationHtmlFa(verificationCode)
+				: verificationHtml(verificationCode)
+			: lang === "fa"
+			? forgotPasswordHtmlFa(verificationCode)
 			: forgotPasswordHtml(verificationCode);
 
 	// send email

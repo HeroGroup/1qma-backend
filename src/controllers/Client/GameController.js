@@ -24,7 +24,10 @@ const Setting = require("../../models/Setting");
 const User = require("../../models/User");
 const { sendNotification } = require("./NotificationController");
 const sendEmail = require("../../services/mail");
-const { inviteGameHtml } = require("../../views/templates/html/inviteGame");
+const {
+	inviteGameHtml,
+	inviteGameHtmlFa,
+} = require("../../views/templates/html/inviteGame");
 
 const nextStepDelay = env.gameNextStepDelay || 1000;
 
@@ -330,10 +333,15 @@ exports.createGame = async (params, socketId, language) => {
 				sendEmail(
 					invitedEmail,
 					"game invitation",
-					inviteGameHtml(
-						`${env.frontAppUrl}/game/join?code=${game.code}`,
-						`${firstName} ${lastName}`
-					)
+					language === "fa"
+						? inviteGameHtmlFa(
+								`${env.frontAppUrl}/game/join?code=${game.code}`,
+								`${firstName} ${lastName}`
+						  )
+						: inviteGameHtml(
+								`${env.frontAppUrl}/game/join?code=${game.code}`,
+								`${firstName} ${lastName}`
+						  )
 				);
 			}
 		} else {

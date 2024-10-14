@@ -240,7 +240,10 @@ router.get("/:id/details", async (req, res) => {
  *                format: navid@gmail.com
  */
 router.post("/invite", sameUser, async (req, res) => {
-	const inviteResponse = await invite(req.body);
+	const inviteResponse = await invite(
+		req.body,
+		req.session.user?.preferedLanguage.code
+	);
 	if (inviteResponse.status === 1) {
 		req.session.user = inviteResponse.data;
 	}

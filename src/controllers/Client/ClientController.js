@@ -32,7 +32,10 @@ const {
 } = require("../../helpers/utils");
 const { validateEmail } = require("../../helpers/validator");
 const sendEmail = require("../../services/mail");
-const { inviteFriendHtml } = require("../../views/templates/html/inviteFriend");
+const {
+	inviteFriendHtml,
+	inviteFriendHtmlFa,
+} = require("../../views/templates/html/inviteFriend");
 const InvitationLink = require("../../models/InvitationLink");
 
 exports.init = async (userId) => {
@@ -242,7 +245,7 @@ exports.removeProfilePicture = async (params) => {
 	}
 };
 
-exports.invite = async (params) => {
+exports.invite = async (params, lang = "en") => {
 	try {
 		const { id, email } = params;
 		if (!id) {
@@ -302,7 +305,9 @@ exports.invite = async (params) => {
 		sendEmail(
 			email,
 			"Invitation to 1QMA",
-			inviteFriendHtml(inviteLink, `${me.firstName} ${me.lastName}`)
+			lang === "fa"
+				? inviteFriendHtmlFa(inviteLink, `${me.firstName} ${me.lastName}`)
+				: inviteFriendHtml(inviteLink, `${me.firstName} ${me.lastName}`)
 		);
 
 		return success(`Invitation Email was sent to ${email}`, me);

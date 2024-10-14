@@ -71,7 +71,7 @@ router.post("/create", sameUser, async (req, res) => {
 
 /**
  * @openapi
- * '/tutorials/gameplay/create':
+ * '/tutorials/gameplay/start':
  *  post:
  *     tags:
  *     - Tutorial Gameplay

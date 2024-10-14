@@ -104,7 +104,12 @@ router.post(
 	"/joinToWaitListWithEmailAndMobile",
 	notLoggedIn,
 	async (req, res) => {
-		res.json(await joinToWaitListWithEmailAndMobile(req.body));
+		res.json(
+			await joinToWaitListWithEmailAndMobile(
+				req.body,
+				req.session.user?.preferedLanguage.code
+			)
+		);
 	}
 );
 
@@ -171,7 +176,7 @@ router.post(
 /**
  * @openapi
  * '/auth/registerWithInvitationLink':
- *  get:
+ *  post:
  *     tags:
  *     - Authentication
  *     summary: check if invitation link is valid
@@ -207,7 +212,10 @@ router.post(
  *      - in: path
  */
 router.post("/setEmail", sameUser, async (req, res) => {
-	const setEmailResult = await setEmail(req.body);
+	const setEmailResult = await setEmail(
+		req.body,
+		req.session.user?.preferedLanguage.code
+	);
 	if (setEmailResult.status === 1) {
 		req.session.user = setEmailResult.data.user;
 	}
@@ -508,7 +516,9 @@ router.post("/verify/:type", async (req, res) => {
  *                default: navid@gmail.com
  */
 router.post("/email/resend", async (req, res) => {
-	res.json(await resendEmail(req.body));
+	res.json(
+		await resendEmail(req.body, req.session.user?.preferedLanguage.code)
+	);
 });
 
 /**
@@ -563,7 +573,12 @@ router.post("/forgotPassword/:media", async (req, res) => {
 	const media = req.params.media;
 
 	if (media === "email") {
-		res.json(await forgotPasswordViaEmail(params));
+		res.json(
+			await forgotPasswordViaEmail(
+				params,
+				req.session.user?.preferedLanguage.code
+			)
+		);
 	} else if (media === "mobile") {
 		res.json(await forgotPasswordViaMobile(params));
 	} else {
