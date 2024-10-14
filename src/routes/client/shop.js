@@ -56,7 +56,12 @@ router.get("/", async (req, res) => {
  *                default: 63738495886737657388948
  */
 router.post("/payWithCoin", sameUser, async (req, res) => {
-	res.json(await shopWithCoin(req.body));
+	const payWithCoinResult = await shopWithCoin(req.body);
+	if (payWithCoinResult.status === 1) {
+		// update user assets in session
+		req.session.user.assets.coins = payWithCoinResult.data.newBalance;
+	}
+	res.json(payWithCoinResult);
 });
 
 module.exports = router;
