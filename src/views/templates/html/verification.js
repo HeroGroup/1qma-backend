@@ -1,6 +1,6 @@
 exports.verificationHtml = (code) => {
 	return `<div style="text-align:center">
-	<img src="${env.app.url}/images/verify.png" alt="verify" />
+	<img src="${env.app.url}/images/verify.png" alt="verify" title="verify" width="200" />
 	<h2>Verification Code</h2>
 	</div>
 	<p>Thank you for registering with <b>1QMA</b></p>
