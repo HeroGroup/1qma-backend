@@ -1,6 +1,6 @@
 exports.forgotPasswordHtml = (code) => {
 	return `<div>
-	<img src="https://api.staging.1qma.games/images/invite.png" alt="logo" title="logo" width="250"/>
+	<img src="https://api.staging.1qma.games/images/logo.png" alt="logo" title="logo" width="250"/>
 	</div>
 	<hr style="border:2px solid lightgray;" />
 	<div style="text-align:center">
