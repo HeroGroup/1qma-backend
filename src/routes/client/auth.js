@@ -196,7 +196,12 @@ router.post(
 router.post(
 	"/registerWithInvitationLink",
 	/*notLoggedIn, */ async (req, res) => {
-		res.json(await registerWithInvitationLink(req.body.id));
+		const registerResult = await registerWithInvitationLink(req.body.id);
+		if (registerResult.status === 1) {
+			req.session.user = registerResult.data;
+		}
+
+		res.json(registerResult);
 	}
 );
 
