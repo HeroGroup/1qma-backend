@@ -1,5 +1,9 @@
 exports.inviteFriendHtml = (link, invitee) => {
-	return `<div style="text-align:center">
+	return `<div>
+	<img src="https://api.staging.1qma.games/images/invite.png" alt="logo" title="logo" width="250"/>
+	</div>
+	<hr style="border:2px solid lightgray;" />
+	<div style="text-align:center">
 	<img src="${env.app.url}/images/platform.png" alt="invitation to platform" title="invitation to platform" width="200" />
 	<h2>Invitation to the Platform</h2>
 	</div>

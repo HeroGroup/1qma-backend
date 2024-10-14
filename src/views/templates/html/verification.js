@@ -1,5 +1,9 @@
 exports.verificationHtml = (code) => {
-	return `<div style="text-align:center">
+	return `<div>
+	<img src="https://api.staging.1qma.games/images/invite.png" alt="logo" title="logo" width="250"/>
+	</div>
+	<hr style="border:2px solid lightgray;" />
+	<div style="text-align:center">
 	<img src="${env.app.url}/images/verify.png" alt="verify" title="verify" width="200" />
 	<h2>Verification Code</h2>
 	</div>
