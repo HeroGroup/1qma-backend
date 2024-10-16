@@ -24,6 +24,7 @@ const {
 	reportBug,
 	chooseCharityCategory,
 	viewIntro,
+	testLevelUp,
 } = require("../../controllers/Client/ClientController");
 
 /**
@@ -639,6 +640,10 @@ router.post("/intro/view", sameUser, async (req, res) => {
 		req.session.user = updateUserIntroResult.data;
 	}
 	res.json(updateUserIntroResult);
+});
+
+router.get("/levelup", async (req, res) => {
+	res.json(await testLevelUp(req.session.socketId));
 });
 
 module.exports = router;

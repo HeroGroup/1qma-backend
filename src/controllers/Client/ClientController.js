@@ -7,6 +7,7 @@ const Category = require("../../models/Category");
 const CharityCategory = require("../../models/CharityCategory");
 const FAQ = require("../../models/FAQ");
 const Game = require("../../models/Game");
+const InvitationLink = require("../../models/InvitationLink");
 const Question = require("../../models/Question");
 const Setting = require("../../models/Setting");
 const Sponsor = require("../../models/Sponsor");
@@ -20,6 +21,7 @@ const {
 	homePages,
 	gameStatuses,
 	introTypes,
+	notificationTypes,
 } = require("../../helpers/constants");
 const { findMyFriends } = require("../../helpers/findMyFriends");
 const {
@@ -36,7 +38,7 @@ const {
 	inviteFriendHtml,
 	inviteFriendHtmlFa,
 } = require("../../views/templates/html/inviteFriend");
-const InvitationLink = require("../../models/InvitationLink");
+const { sendNotification } = require("./NotificationController");
 
 exports.init = async (userId) => {
 	try {
@@ -1012,6 +1014,18 @@ exports.viewIntro = async (params) => {
 		);
 
 		return success("ok", user);
+	} catch (e) {
+		return handleException(e);
+	}
+};
+
+exports.testLevelUp = async (socketId) => {
+	try {
+		await sendNotification(socketId, notificationTypes.NOTIFICATION_MODAL, {
+			title: "Level Up!",
+			message: `Congratulations! You have reached level 3!`,
+			icon: "",
+		});
 	} catch (e) {
 		return handleException(e);
 	}
