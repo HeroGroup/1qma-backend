@@ -2,6 +2,7 @@ const { gameStatuses } = require("../../helpers/constants");
 const { findMyFriends } = require("../../helpers/findMyFriends");
 const { handleException, objectId } = require("../../helpers/utils");
 const Game = require("../../models/Game");
+const SurvivalLeague = require("../../models/SurvivalLeague");
 const User = require("../../models/User");
 
 exports.games = async (
@@ -142,6 +143,8 @@ exports.friendsRecentGames = async (userId) => {
 
 exports.survivalScoreboard = async () => {
 	try {
+		const survivalLeague = await SurvivalLeague.findOne({ isActive: true });
+
 		const users = await User.find(
 			{
 				"statistics.survival.adjustedScore": { $gt: 0 },
@@ -151,7 +154,10 @@ exports.survivalScoreboard = async () => {
 			.sort({ "statistics.survival.adjustedScore": -1 })
 			.limit(100);
 
-		return success("ok", users);
+		return success("ok", {
+			users,
+			survivalTitle: survivalLeague?.title || "Survival",
+		});
 	} catch (e) {
 		return handleException(e);
 	}
