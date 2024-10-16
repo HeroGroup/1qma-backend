@@ -16,6 +16,8 @@ const {
 	gameStatuses,
 	notificationTypes,
 	notificationDataTypes,
+	coinTypes,
+	transactionTypes,
 } = require("../../helpers/constants");
 const Category = require("../../models/Category");
 const Game = require("../../models/Game");
@@ -28,6 +30,7 @@ const {
 	inviteGameHtml,
 	inviteGameHtmlFa,
 } = require("../../views/templates/html/inviteGame");
+const { addCoinTransaction } = require("./TransactionController");
 
 const nextStepDelay = env.gameNextStepDelay || 1000;
 
@@ -37,16 +40,41 @@ const createOrGetQuestion = async (
 	category,
 	language,
 	question,
-	answer
+	answer,
+	currentBalance
 ) => {
 	try {
 		if (questionId) {
 			const questionObject = await Question.findById(questionId);
 			if (questionObject) {
-				return {
+				// check if this is from public questions, consider the price
+				// if user has enough balance, decrease from their balance
+				// if not reject using this question
+				if (!questionObject.user) {
+					// public question
+					const publicQuestionFee = await Setting.findOne({
+						key: "PUBLIC_QUESTION_USAGE_FEE",
+					});
+					const publicQuestionFeeValue = parseInt(
+						publicQuestionFee?.value || 5
+					);
+					if (currentBalance <= publicQuestionFeeValue) {
+						return fail(
+							"Unfortunately you do not have enough coins to use this question!"
+						);
+					}
+					await addCoinTransaction(
+						transactionTypes.DECREASE,
+						"Use Public Question",
+						{ price: publicQuestionFeeValue, coin: coinTypes.BRONZE },
+						user._id
+					);
+				}
+
+				return success("ok", {
 					question_id: objectId(questionId),
 					question_language: questionObject.language,
-				};
+				});
 			}
 		}
 
@@ -78,10 +106,10 @@ const createOrGetQuestion = async (
 		});
 		await questionObject.save();
 
-		return {
+		return success("ok", {
 			question_id: questionObject._id,
 			question_language: language,
-		};
+		});
 	} catch (e) {
 		return handleException(e);
 	}
@@ -151,14 +179,14 @@ exports.init = async () => {
 			createModes,
 			gameTypes,
 			numberOfPlayers: numberOfPlayers?.value || 5,
-			gamePrice: { coin: "bronze", count: createGamePrice?.value || 2 },
+			gamePrice: { coin: coinTypes.BRONZE, count: createGamePrice?.value || 2 },
 			eachStepDurationSeconds: eachStepDurationSetting?.value || 120,
 			rateAnswersDurationSeconds: rateAnswersDurationSetting?.value || 120,
 			rateQuestionsDurationSeconds: rateQuestionsDurationSetting?.value || 120,
 			waitingTimeSeconds: waitingTimeSecondsSetting?.value || 120, // in wating room
 			numberOfRetries: numberOfRetriesSetting?.value || 2, // in wating room
 			keepScorePrice: {
-				coin: "bronze",
+				coin: coinTypes.BRONZE,
 				count: keepScorePriceSetting?.value || 5,
 			},
 			answerWordsLimitation: answerWordsLimitationSetting?.value || 100,
@@ -248,14 +276,23 @@ exports.createGame = async (params, socketId, language) => {
 			profilePicture,
 		} = creator;
 
-		const { question_id, question_language } = await createOrGetQuestion(
+		const {
+			tatus: questionStatus,
+			message: questionMessage,
+			data: questionData,
+		} = await createOrGetQuestion(
 			questionId,
 			creator,
 			dbCategory,
 			language,
 			question,
-			answer
+			answer,
+			creatorBronzeCoins - createGamePrice // current balance
 		);
+
+		if (questionStatus === -1) {
+			return fail(questionMessage);
+		}
 
 		const game = new Game({
 			code: `G-${createGameCode()}`,
@@ -278,9 +315,9 @@ exports.createGame = async (params, socketId, language) => {
 			],
 			questions: [
 				{
-					_id: question_id,
+					_id: questionData.question_id,
 					user_id: creator_id,
-					language: question_language,
+					language: questionData.question_language,
 					question,
 					answers: [
 						{
@@ -305,6 +342,15 @@ exports.createGame = async (params, socketId, language) => {
 			{ _id: creator_id },
 			{ $inc: { "assets.coins.bronze": -createGamePrice } },
 			{ new: true }
+		);
+		await addCoinTransaction(
+			transactionTypes.DECREASE,
+			"Create Game Price",
+			{
+				price: createGamePrice,
+				coin: coinTypes.BRONZE,
+			},
+			creator_id
 		);
 
 		const gameId = game._id.toString();
@@ -346,6 +392,7 @@ exports.createGame = async (params, socketId, language) => {
 			}
 		} else {
 			// TODO: find players who match game criteria and send proper notification
+			// e.g. you may be interested to play this game
 		}
 
 		return success("Game was created successfully!", {
@@ -476,11 +523,35 @@ exports.joinGame = async (params, socketId, language) => {
 			profilePicture,
 		} = player;
 
+		const {
+			status: questionStatus,
+			message: questionMessage,
+			data: questionData,
+		} = await createOrGetQuestion(
+			questionId,
+			player,
+			game.category,
+			language,
+			question,
+			answer,
+			playerBronzeCoins - joinGamePrice // current balance
+		);
+
+		if (questionStatus === -1) {
+			return fail(questionMessage);
+		}
+
 		// update players coins
 		const playerUser = await User.findOneAndUpdate(
 			{ _id: player_id },
 			{ $inc: { "assets.coins.bronze": -joinGamePrice } },
 			{ new: true }
+		);
+		await addCoinTransaction(
+			transactionTypes.DECREASE,
+			"Join Game Price",
+			{ price: joinGamePrice, coin: coinTypes.BRONZE },
+			player_id
 		);
 
 		const gameRoom = game._id.toString();
@@ -499,15 +570,6 @@ exports.joinGame = async (params, socketId, language) => {
 			isStarted = true;
 		}
 
-		const { question_id, question_language } = await createOrGetQuestion(
-			questionId,
-			player,
-			game.category,
-			language,
-			question,
-			answer
-		);
-
 		game = await Game.findOneAndUpdate(
 			{ _id: game.id },
 			{
@@ -522,10 +584,10 @@ exports.joinGame = async (params, socketId, language) => {
 						status: "connected",
 					},
 					questions: {
-						_id: question_id,
+						_id: questionData.question_id,
 						user_id: player_id,
 						question,
-						language: question_language,
+						language: questionData.question_language,
 						answers: [
 							{
 								user_id: player_id,
@@ -1463,6 +1525,9 @@ exports.keepMyScore = async (params) => {
 	try {
 		// increase total score and adjusted score
 		const { id, gameId } = params;
+		if (!id) {
+			return fail("invalid user id!");
+		}
 		if (!gameId) {
 			return fail("invalid game id!");
 		}
@@ -1481,7 +1546,7 @@ exports.keepMyScore = async (params) => {
 		});
 		const keepScorePrice = keepScorePriceSetting?.value || 5;
 
-		const user = await User.findById(id);
+		let user = await User.findById(id);
 
 		const { avgRank, userTotalScore, userCheckpoint } =
 			user.statistics.survival;
@@ -1495,7 +1560,7 @@ exports.keepMyScore = async (params) => {
 			updateCheckpoint = true;
 		}
 
-		await User.findOneAndUpdate(
+		user = await User.findOneAndUpdate(
 			{ _id: objectId(id) },
 			{
 				"statistics.survival.adjustedScore":
@@ -1506,9 +1571,16 @@ exports.keepMyScore = async (params) => {
 					"statistics.survival.rebuys": 1,
 					...(updateCheckpoint ? { "statistics.survival.checkpoint": 1 } : {}),
 				},
-			}
+			},
+			{ new: true }
 		);
-		return success("ok");
+		await addCoinTransaction(
+			transactionTypes.DECREASE,
+			"Keep My Score",
+			{ price: keepScorePrice, coin: coinTypes.BRONZE },
+			objectId(id)
+		);
+		return success("ok", { newBalance: user.assets });
 	} catch (e) {
 		return handleException(e);
 	}
@@ -1728,14 +1800,58 @@ const calculateResult = async (gameId, nextStepDelay = 1000) => {
 	}
 
 	// update winner statistics and assets
+	const winnerReward = parseInt(winnerRewardSetting?.value || 1);
+	const winnerId = scoreboard[0]._id;
 	await User.findOneAndUpdate(
-		{ _id: scoreboard[0]._id },
+		{ _id: winnerId },
 		{
 			$inc: {
 				"games.won": 1,
-				"assets.coins.bronze": parseInt(winnerRewardSetting?.value || 1),
+				"assets.coins.bronze": winnerReward,
 			},
 		}
+	);
+	addCoinTransaction(
+		transactionTypes.INCREASE,
+		"Winner Reward",
+		{ price: winnerReward, coin: coinTypes.BRONZE },
+		winnerId
+	);
+
+	// update second place assets
+	const secondPlaceReward = parseInt(secondPlaceRewardSetting?.value || 1);
+	const secondPlaceId = scoreboard[1]._id;
+	await User.findOneAndUpdate(
+		{ _id: secondPlaceId },
+		{
+			$inc: {
+				"assets.coins.bronze": secondPlaceReward,
+			},
+		}
+	);
+	await addCoinTransaction(
+		transactionTypes.INCREASE,
+		"Second Place Reward",
+		{ price: secondPlaceReward, coin: coinTypes.BRONZE },
+		secondPlaceId
+	);
+
+	// update third place assets
+	const thirdPlaceReward = parseInt(thirdPlaceRewardSetting?.value || 1);
+	const thirdPlaceId = scoreboard[2]?._id;
+	await User.findOneAndUpdate(
+		{ _id: thirdPlaceId },
+		{
+			$inc: {
+				"assets.coins.bronze": thirdPlaceReward,
+			},
+		}
+	);
+	await addCoinTransaction(
+		transactionTypes.INCREASE,
+		"Second Place Reward",
+		{ price: thirdPlaceReward, coin: coinTypes.BRONZE },
+		thirdPlaceId
 	);
 
 	// update creator statistics
@@ -1880,14 +1996,23 @@ const refundPlayers = async (game, player_id) => {
 	const joinGamePriceSetting = await Setting.findOne({
 		key: "JOIN_GAME_PRICE_BRONZE",
 	});
-	const joinGamePrice = joinGamePriceSetting?.value || 2;
+	const joinGamePrice = parseInt(joinGamePriceSetting?.value || 2);
 
 	await User.updateMany(
 		{ _id: { $in: connectedJoinedPlayersIds } },
-		{ $inc: { "assets.coins.bronze": parseInt(joinGamePrice) } }
+		{ $inc: { "assets.coins.bronze": joinGamePrice } }
 	);
 
-	// if creator is still connected, refung create game price
+	for (const connectedJoinedPlayersId of connectedJoinedPlayersIds) {
+		await addCoinTransaction(
+			transactionTypes.INCREASE,
+			"Refund due to canceled game",
+			{ price: joinGamePrice, coin: coinTypes.BRONZE },
+			connectedJoinedPlayersId
+		);
+	}
+
+	// if creator is still connected, refund create game price
 	const creator = game.players.find(
 		(plyr) => plyr.status !== "left" && plyr._id === game.creator._id
 	);
@@ -1896,11 +2021,18 @@ const refundPlayers = async (game, player_id) => {
 		const createGamePriceSetting = await Setting.findOne({
 			key: "CREATE_GAME_PRICE_BRONZE",
 		});
-		const createGamePrice = createGamePriceSetting?.value || 2;
+		const createGamePrice = parseInt(createGamePriceSetting?.value || 2);
 
 		await User.findOneAndUpdate(
 			{ _id: creator._id },
-			{ $inc: { "assets.coins.bronze": parseInt(createGamePrice) } }
+			{ $inc: { "assets.coins.bronze": createGamePrice } }
+		);
+
+		await addCoinTransaction(
+			transactionTypes.INCREASE,
+			"Refund due to canceled game",
+			{ price: createGamePrice, coin: coinTypes.BRONZE },
+			creator._id
 		);
 	}
 };

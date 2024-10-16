@@ -89,3 +89,14 @@ exports.emailTemplates = {
 	INVITE_FRIEND: "invitation",
 	INVITE_GAME: "game invite",
 };
+
+exports.coinTypes = {
+	BRONZE: "bronze",
+	SILVER: "silver",
+	GOLD: "gold",
+};
+
+exports.transactionTypes = {
+	INCREASE: "increase",
+	DECREASE: "decrease",
+};

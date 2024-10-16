@@ -82,13 +82,17 @@ router.get("/init", async (req, res) => {
  *                default: any answer
  */
 router.post("/create", sameUser, async (req, res) => {
-	res.json(
-		await createGame(
-			req.body,
-			req.session.socketId,
-			req.session.user?.preferedLanguage.code || env.defaultLanguage
-		)
+	const createGameResult = await createGame(
+		req.body,
+		req.session.socketId,
+		req.session.user?.preferedLanguage.code || env.defaultLanguage
 	);
+
+	if (createGameResult.status === 1) {
+		req.session.user.assets = createGameResult.newBalance;
+	}
+
+	res.json(createGameResult);
 });
 
 /**
@@ -142,13 +146,17 @@ router.get("/:idOrCode/join", async (req, res) => {
  *                default: any answer
  */
 router.post("/join", sameUser, async (req, res) => {
-	res.json(
-		await joinGame(
-			req.body,
-			req.session.socketId,
-			req.session.user?.preferedLanguage.code || env.defaultLanguage
-		)
+	const joinResult = await joinGame(
+		req.body,
+		req.session.socketId,
+		req.session.user?.preferedLanguage.code || env.defaultLanguage
 	);
+
+	if (joinResult.status === 1) {
+		req.session.user.assets = joinResult.newBalance;
+	}
+
+	res.json(joinResult);
 });
 
 /**
@@ -501,7 +509,13 @@ router.post("/leave", isPlayerInGame, async (req, res) => {
  *                default: 65445678098765456
  */
 router.post("/keepMyScore", isPlayerInGame, async (req, res) => {
-	res.json(await keepMyScore());
+	const keepMyScoreResult = await keepMyScore(req.body);
+
+	if (keepMyScoreResult.status === 1) {
+		req.session.user.assets = keepMyScoreResult.newBalance;
+	}
+
+	res.json(keepMyScoreResult);
 });
 
 /**

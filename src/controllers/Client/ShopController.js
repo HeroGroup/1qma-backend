@@ -1,8 +1,9 @@
-const { shopItemTypes } = require("../../helpers/constants");
+const { shopItemTypes, transactionTypes } = require("../../helpers/constants");
 const { handleException, objectId } = require("../../helpers/utils");
 const ShopItem = require("../../models/ShopItem");
 const Transaction = require("../../models/Transaction");
 const User = require("../../models/User");
+const { addCoinTransaction } = require("./TransactionController");
 
 exports.getShopItems = async (params) => {
 	try {
@@ -81,15 +82,13 @@ exports.shopWithCoin = async (params) => {
 			title += `${detail.count} ${detail.title} `;
 		}
 		title += "with coin credit.";
-		const transaction = new Transaction({
-			type: "buy",
-			title,
-			coinAmount: shopItem.coinPrice,
-			user: user._id,
-			createdAt: moment(),
-		});
 
-		await transaction.save();
+		await addCoinTransaction(
+			transactionTypes.INCREASE,
+			title,
+			shopItem.coinPrice,
+			user._id
+		);
 
 		// assign shop items to user
 		await assignItemsToUser(id, shopItem.details);
