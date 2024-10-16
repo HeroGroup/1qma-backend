@@ -1144,6 +1144,9 @@ exports.googleOAuth = async (profile, userSession, reason) => {
 			}
 		} else if (reason === "login") {
 			if (googleUser) {
+				if (!googleUser.isActive) {
+					return fail("Deactivated Account!");
+				}
 				return success("ok", googleUser);
 			} else if (normalUser) {
 				return fail(
@@ -1175,6 +1178,25 @@ exports.logout = async (id) => {
 		}
 
 		return success("user logged out successfully!");
+	} catch (e) {
+		return handleException(e);
+	}
+};
+
+exports.deactivate = async (id) => {
+	try {
+		if (!id) {
+			return fail("invalid user id!");
+		}
+
+		const user = await User.findById(id);
+		if (!user) {
+			return fail("invalid user!");
+		}
+
+		await User.findByIdAndUpdate(id, { isActive: false });
+
+		return success("user deactivated successfully!");
 	} catch (e) {
 		return handleException(e);
 	}

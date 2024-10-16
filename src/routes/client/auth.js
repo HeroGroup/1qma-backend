@@ -25,6 +25,7 @@ const {
 	answerFurtherQuestions,
 	registerWithInvitationLink,
 	userDetails,
+	deactivate,
 } = require("../../controllers/Client/AuthController");
 const { sameUser } = require("../../middlewares/sameUser");
 const { notLoggedIn } = require("../../middlewares/notLoggedIn");
@@ -679,6 +680,38 @@ router.post("/logout", sameUser, async (req, res) => {
 	});
 
 	res.json(success("user logged out successfully!"));
+});
+
+/**
+ * @openapi
+ * '/auth/deactivate':
+ *  post:
+ *     tags:
+ *     - Authentication
+ *     summary: deactivates user
+ *     requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *           schema:
+ *            type: object
+ *            required:
+ *              - id
+ *            properties:
+ *              id:
+ *                type: string
+ *                default: 6644e9072019def5602933cb
+ */
+router.post("/deactivate", sameUser, async (req, res) => {
+	req.session.user = {};
+
+	req.logout(function (err) {
+		if (err) {
+			res.json(fail(err));
+		}
+	});
+
+	res.json(await deactivate(req.body.id));
 });
 
 /**
