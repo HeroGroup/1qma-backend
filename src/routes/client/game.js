@@ -21,7 +21,7 @@ const {
 	backToCheckpoint,
 	forceCalculateResult,
 } = require("../../controllers/Client/GameController");
-const { hasSeenAllIntros } = require("./src/middlewares/hasSeenAllIntros");
+const { hasSeenAllIntros } = require("../../middlewares/hasSeenAllIntros");
 const { isAdmin } = require("../../middlewares/isAdmin");
 const { isPlayerInGame } = require("../../middlewares/isPlayerInGame");
 const { sameUser } = require("../../middlewares/sameUser");
