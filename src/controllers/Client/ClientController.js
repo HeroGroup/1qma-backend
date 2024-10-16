@@ -363,6 +363,7 @@ exports.userDetails = async (id) => {
 			referer: 1,
 			statistics: 1,
 			games: 1,
+			created_at: 1,
 		});
 
 		if (!user) {
