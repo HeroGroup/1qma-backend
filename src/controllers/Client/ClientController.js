@@ -733,11 +733,33 @@ exports.topQuestions = async (userId, params) => {
 
 exports.questionPerformance = async (userId, questionId, params) => {
 	try {
+		if (!userId) {
+			return fail("invalid user id!");
+		}
+
 		if (!questionId) {
 			return fail("Invalid question id!");
 		}
 
-		const baseQuestion = await Question.findById(questionId);
+		const baseQuestion = await Question.findById(questionId, {
+			question: 1,
+			answer: 1,
+			category: 1,
+			language: 1,
+			user: 1,
+			bookmarks: 1,
+			likes: 1,
+			dislikes: 1,
+			answers: 1,
+			rates: 1,
+			avgRate: 1,
+			createdAt: 1,
+		});
+
+		if (!baseQuestion) {
+			return fail("invalid question!");
+		}
+
 		const liked = baseQuestion.likes.includes(objectId(userId));
 		const disliked = baseQuestion.dislikes.includes(objectId(userId));
 		const bookmarked = baseQuestion.bookmarks.includes(objectId(userId));
