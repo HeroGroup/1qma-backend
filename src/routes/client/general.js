@@ -486,7 +486,9 @@ router.get(
 	"/questions/:id/performance",
 	hasCompletedSignup,
 	async (req, res) => {
-		res.json(await questionPerformance(req.params.id, req.query));
+		res.json(
+			await questionPerformance(req.session.user._id, req.params.id, req.query)
+		);
 	}
 );
 

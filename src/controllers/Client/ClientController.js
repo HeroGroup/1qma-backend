@@ -731,15 +731,19 @@ exports.topQuestions = async (userId, params) => {
 	}
 };
 
-exports.questionPerformance = async (questionId, params) => {
+exports.questionPerformance = async (userId, questionId, params) => {
 	try {
 		if (!questionId) {
 			return fail("Invalid question id!");
 		}
-		const page = params.page || 1;
-		const limit = params.limit || 5;
 
 		const baseQuestion = await Question.findById(questionId);
+		const liked = baseQuestion.likes.includes(objectId(userId));
+		const disliked = baseQuestion.dislikes.includes(objectId(userId));
+		const bookmarked = baseQuestion.bookmarks.includes(objectId(userId));
+
+		const page = params.page || 1;
+		const limit = params.limit || 5;
 
 		const games = await Game.find(
 			{ status: gameStatuses.ENDED, "questions._id": objectId(questionId) },
@@ -754,7 +758,7 @@ exports.questionPerformance = async (questionId, params) => {
 			.skip((page - 1) * limit)
 			.limit(limit);
 
-		const res = games.map((game) => {
+		const performance = games.map((game) => {
 			const question = game.questions.find(
 				(q) => q._id.toString() === questionId
 			);
@@ -777,15 +781,13 @@ exports.questionPerformance = async (questionId, params) => {
 					rate: question.rates.reduce((n, { rate }) => n + rate, 0),
 					answers,
 				},
-				likes: baseQuestion.likes.length || 0,
-				dislikes: baseQuestion.dislikes.length || 0,
-				score: baseQuestion.score || 0,
-				rates: baseQuestion.rates || 0,
-				avgRate: baseQuestion.avgRate || 0,
 			};
 		});
 
-		return success("ok", res);
+		return success("ok", {
+			question: { ...baseQuestion, liked, disliked, bookmarked },
+			performance,
+		});
 	} catch (e) {
 		return handleException(e);
 	}
