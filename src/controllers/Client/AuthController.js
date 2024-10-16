@@ -9,6 +9,7 @@ const {
 } = require("../../helpers/utils");
 const AccountType = require("../../models/AccountType");
 const Category = require("../../models/Category");
+const InvitationLink = require("../../models/InvitationLink");
 const RegisterQuestion = require("../../models/RegisterQuestion");
 const Setting = require("../../models/Setting");
 const Sponsor = require("../../models/Sponsor");
@@ -36,7 +37,6 @@ const {
 	verificationHtml,
 	verificationHtmlFa,
 } = require("../../views/templates/html/verification");
-const InvitationLink = require("../../models/InvitationLink");
 
 exports.init = async () => {
 	const shouldBeActive = { isActive: true };
@@ -1174,6 +1174,24 @@ exports.logout = async (id) => {
 		}
 
 		return success("user logged out successfully!");
+	} catch (e) {
+		return handleException(e);
+	}
+};
+
+exports.userDetails = async (id) => {
+	try {
+		if (!id) {
+			return fail("invalid id!");
+		}
+
+		const user = await User.findById(id);
+
+		if (!user) {
+			return fail("invalid user!");
+		}
+
+		return success("User retrieved successfully!", user);
 	} catch (e) {
 		return handleException(e);
 	}

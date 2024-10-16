@@ -24,6 +24,7 @@ const {
 	loginWithEmail,
 	answerFurtherQuestions,
 	registerWithInvitationLink,
+	userDetails,
 } = require("../../controllers/Client/AuthController");
 const { sameUser } = require("../../middlewares/sameUser");
 const { notLoggedIn } = require("../../middlewares/notLoggedIn");
@@ -779,8 +780,8 @@ router.get(
  *     - Authentication
  *     summary: Get User Details
  */
-router.get("/:id/details", sameUser, (req, res) => {
-	res.json(success("ok", req.session.user));
+router.get("/:id/details", sameUser, async (req, res) => {
+	res.json(await userDetails(req.session.user?._id));
 });
 
 module.exports = router;
