@@ -693,6 +693,7 @@ exports.chooseAccountType = async (params) => {
 					games: false,
 					triviaHub: false,
 					shop: false,
+					tutorial: false,
 				},
 				isActive: true,
 			},

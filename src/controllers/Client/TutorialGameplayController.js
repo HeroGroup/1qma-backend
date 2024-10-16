@@ -580,6 +580,8 @@ exports.rateQuestions = async (params) => {
 
 		calculateResult(gameId);
 
+		await User.findByIdAndUpdate(id, { "hasSeenIntros.tutorial": true });
+
 		return success("Thank you for the rates", ratesCount);
 	} catch (e) {
 		return handleException(e);

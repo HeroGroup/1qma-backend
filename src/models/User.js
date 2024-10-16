@@ -43,6 +43,7 @@ const userSchema = new Schema({
 		games: Boolean,
 		triviaHub: Boolean,
 		shop: Boolean,
+		tutorial: Boolean,
 	},
 	socketId: String,
 });
