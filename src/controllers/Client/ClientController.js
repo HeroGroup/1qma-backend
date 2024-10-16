@@ -1026,6 +1026,8 @@ exports.testLevelUp = async (socketId) => {
 			message: `Congratulations! You have reached level 3!`,
 			icon: "",
 		});
+
+		return success("ok");
 	} catch (e) {
 		return handleException(e);
 	}
