@@ -69,6 +69,11 @@ router.get("/register/init", async (req, res) => {
 router.post(
 	"/loginWithEmail",
 	/*notLoggedIn,*/ async (req, res) => {
+		req.logout(function (err) {
+			if (err) {
+				res.json(fail(err));
+			}
+		});
 		const loginWithEmailResult = await loginWithEmail(req.body);
 		if (loginWithEmailResult.status === 1) {
 			req.session.user = loginWithEmailResult.data;
