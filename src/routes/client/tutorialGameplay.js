@@ -291,7 +291,11 @@ router.post(
 	sameUser,
 	isPlayerInTutorialGame,
 	async (req, res) => {
-		res.json(await rateQuestions(req.body));
+		const rateQuestionResult = await rateQuestions(req.body);
+		if (rateQuestionResult.status === 1) {
+			req.session.user.hasSeenIntros.tutorial = true;
+		}
+		res.json(rateQuestionResult);
 	}
 );
 
