@@ -819,7 +819,8 @@ router.get(
  *     summary: Get User Details
  */
 router.get("/:id/details", sameUser, async (req, res) => {
-	res.json(await userDetails(req.session.user?._id));
+	// res.json(await userDetails(req.session.user?._id));
+	res.json(await userDetails(req.params.id));
 });
 
 module.exports = router;
