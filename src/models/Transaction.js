@@ -8,6 +8,7 @@ const transactionSchema = new Schema({
 	currency: String, // default: $
 	coinAmount: Object,
 	user: mongoose.ObjectId,
+	newCoinBalance: Object,
 	createdAt: Date,
 });
 
