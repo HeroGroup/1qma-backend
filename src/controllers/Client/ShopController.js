@@ -1,7 +1,6 @@
 const { shopItemTypes, transactionTypes } = require("../../helpers/constants");
 const { handleException, objectId } = require("../../helpers/utils");
 const ShopItem = require("../../models/ShopItem");
-const Transaction = require("../../models/Transaction");
 const User = require("../../models/User");
 const { addCoinTransaction } = require("./TransactionController");
 
@@ -84,10 +83,11 @@ exports.shopWithCoin = async (params) => {
 		title += "with coin credit.";
 
 		await addCoinTransaction(
-			transactionTypes.INCREASE,
+			transactionTypes.DECREASE,
 			title,
 			shopItem.coinPrice,
-			user._id
+			user._id,
+			user.assets.coins
 		);
 
 		// assign shop items to user
@@ -103,7 +103,9 @@ const assignItemsToUser = async (userId, details) => {
 	for (const item of details) {
 		const { title, count } = item;
 
-		if (["invitation", "Invitation"].includes(title)) {
+		if (
+			["invitation", "Invitation", "invitations", "Invitations"].includes(title)
+		) {
 			await User.findByIdAndUpdate(userId, {
 				$inc: { maxInvites: count },
 			});
@@ -114,6 +116,13 @@ const assignItemsToUser = async (userId, details) => {
 			await User.findByIdAndUpdate(userId, {
 				"assets.coins": userCoins,
 			});
+			await addCoinTransaction(
+				transactionTypes.INCREASE,
+				title,
+				{ price: count, coin: title },
+				userId,
+				userCoins
+			);
 		}
 	}
 };
