@@ -58,6 +58,9 @@ exports.init = async (userId) => {
 		const answerWordsLimitationSetting = await Setting.findOne({
 			key: "ANSWER_WORDS_LIMITATION",
 		});
+		const frontAppVersionSetting = await Setting.findOne({
+			key: "FRONT_APP_VERSION",
+		});
 
 		let charityProgress = 0;
 		if (user.preferedCharity) {
@@ -93,6 +96,7 @@ exports.init = async (userId) => {
 			user,
 			charityProgress,
 			sponsors,
+			frontAppVersion: frontAppVersionSetting?.value || "1.0.0",
 		});
 	} catch (e) {
 		return handleException(e);
@@ -741,20 +745,7 @@ exports.questionPerformance = async (userId, questionId, params) => {
 			return fail("Invalid question id!");
 		}
 
-		const baseQuestion = await Question.findById(questionId, {
-			question: 1,
-			answer: 1,
-			category: 1,
-			language: 1,
-			user: 1,
-			bookmarks: 1,
-			likes: 1,
-			dislikes: 1,
-			answers: 1,
-			rates: 1,
-			avgRate: 1,
-			createdAt: 1,
-		});
+		const baseQuestion = await Question.findById(questionId);
 
 		if (!baseQuestion) {
 			return fail("invalid question!");
@@ -807,7 +798,10 @@ exports.questionPerformance = async (userId, questionId, params) => {
 		});
 
 		return success("ok", {
-			question: { ...baseQuestion, liked, disliked, bookmarked },
+			question: baseQuestion,
+			liked,
+			disliked,
+			bookmarked,
 			performance,
 		});
 	} catch (e) {
