@@ -1,11 +1,19 @@
 const CharityCategory = require("../../models/CharityCategory");
-const { handleException, removeFile } = require("../../helpers/utils");
+const {
+	handleException,
+	removeFile,
+	objectId,
+} = require("../../helpers/utils");
+const { currencies } = require("../../helpers/constants");
 
 exports.getCharityCategories = async () => {
 	try {
 		const charityCategories = await CharityCategory.find();
 
-		return success("categories retrieved successfully!", charityCategories);
+		return success("categories retrieved successfully!", {
+			charityCategories,
+			currencies,
+		});
 	} catch (e) {
 		return handleException(e);
 	}
@@ -65,6 +73,63 @@ exports.updateCharityCategory = async (params, icon) => {
 		);
 
 		return success("Updated successfully!", charityCategory);
+	} catch (e) {
+		return handleException(e);
+	}
+};
+
+exports.makeCharityCategoryAsDefault = async (params) => {
+	try {
+		const { id } = params;
+		if (!id) {
+			return fail("invalid charity id");
+		}
+
+		let charityCategory = await CharityCategory.findById(id);
+		if (!charityCategory) {
+			return fail("invalid charity category!");
+		}
+
+		// make all charity categories isDefault to false
+		await CharityCategory.updateMany({}, { isDefault: false });
+
+		await CharityCategory.findByIdAndUpdate(id, {
+			isDefault: true,
+		});
+
+		return this.getCharityCategories();
+	} catch (e) {
+		return handleException(e);
+	}
+};
+
+exports.makeCharityActivityAsDefault = async (params) => {
+	try {
+		const { id, activityId } = params;
+		if (!id) {
+			return fail("invalid charity id");
+		}
+		if (!activityId) {
+			return fail("invalid charity activity id");
+		}
+
+		let charityCategory = await CharityCategory.findById(id);
+		if (!charityCategory) {
+			return fail("invalid charity category!");
+		}
+
+		// make all charity category activities isDefault to false
+		await CharityCategory.findByIdAndUpdate(id, {
+			"activities.$[].isDefault": false,
+		});
+
+		charityCategory = await CharityCategory.findByIdAndUpdate(
+			id,
+			{ "activities.$[activity].isDefault": true },
+			{ arrayFilters: [{ "activity._id": objectId(activityId) }], isNew: true }
+		);
+
+		return success("ok", charityCategory);
 	} catch (e) {
 		return handleException(e);
 	}

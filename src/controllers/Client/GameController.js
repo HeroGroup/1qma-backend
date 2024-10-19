@@ -31,6 +31,7 @@ const {
 	inviteGameHtmlFa,
 } = require("../../views/templates/html/inviteGame");
 const { addCoinTransaction } = require("./TransactionController");
+const CharityCategory = require("../../models/CharityCategory");
 
 const nextStepDelay = env.gameNextStepDelay || 1000;
 
@@ -1451,7 +1452,7 @@ exports.exitGame = async (params, socketId) => {
 		);
 
 		if (canceled) {
-			await refundPlayers(game, player_id, gameStatusBeforeUpdates);
+			await refundPlayers(game, gameStatusBeforeUpdates);
 		}
 
 		return success("ok");
@@ -1906,6 +1907,8 @@ const calculateResult = async (gameId, nextStepDelay = 1000) => {
 		{ status: gameStatuses.ENDED, endedAt: moment(), result }
 	);
 
+	updateCharityProgress();
+
 	console.timeEnd("calculate-game-result");
 	setTimeout(() => {
 		io.to(gameId).emit("end game", {});
@@ -2018,7 +2021,88 @@ const updateQuestionStatistics = async (obj) => {
 	);
 };
 
-const refundPlayers = async (game, player_id, gameStatusBeforeUpdates) => {
+const updateCharityProgress = async (players) => {
+	const numberOfPlayers = players.length;
+	// calculate and sum create and join fees
+	const createGamePriceSetting = await Setting.findOne({
+		key: "CREATE_GAME_PRICE_BRONZE",
+	});
+	const createGamePrice = parseInt(createGamePriceSetting?.value || 2);
+
+	const joinGamePriceSetting = await Setting.findOne({
+		key: "JOIN_GAME_PRICE_BRONZE",
+	});
+	const joinGamePrice = parseInt(joinGamePriceSetting?.value || 2);
+
+	const gameTotalInputs =
+		createGamePrice + (numberOfPlayers - 1 * joinGamePrice);
+	joinGamePrice;
+
+	// calculate and sum rewards
+	const winnerRewardSetting = await Setting.findOne({
+		key: "GAME_WINNER_REWARD_BRONZE",
+	});
+
+	const secondPlaceRewardSetting = await Setting.findOne({
+		key: "SECOND_PLACE_REWARD_BRONZE",
+	});
+
+	const thirdPlaceRewardSetting = await Setting.findOne({
+		key: "THIRD_PLACE_REWARD_BRONZE",
+	});
+
+	const shouldConsiderThirdPlaceReward = numberOfPlayers > 2;
+	const rewards =
+		parseInt(winnerRewardSetting?.value || 3) +
+		parseInt(secondPlaceRewardSetting?.value || 2) +
+		(shouldConsiderThirdPlaceReward
+			? parseInt(thirdPlaceRewardSetting?.value || 1)
+			: 0);
+
+	const platformIncome = gameTotalInputs - rewards;
+	console.log("platformIncome", platformIncome);
+	if (platformIncome > 0) {
+		// calculate one third of the platform income
+		const bronzeCoinValueSetting = await Setting.findOne({
+			key: "BRONZE_COIN_VALUE_DOLLAR",
+		});
+		const bronzeCoinValue = parseFloat(bronzeCoinValueSetting?.value || 0.2);
+		const oneThirdOfThePlatformIncome = (platformIncome / 3) * bronzeCoinValue;
+		const eachPlayerShare = oneThirdOfThePlatformIncome / numberOfPlayers;
+		console.log("eachPlayerShare", eachPlayerShare);
+
+		// assign to users charity chosen activity
+		for (const player of players) {
+			const playerUser = await User.findById(player._id);
+			if (playerUser.preferedCharity) {
+				await CharityCategory.findByIdAndUpdate(
+					playerUser.preferedCharity.charity?._id,
+					{
+						$inc: { "activities.$[i].progress": eachPlayerShare },
+					},
+					{
+						arrayFilters: [
+							{ "i._id": playerUser.preferedCharity.activity?._id },
+						],
+					}
+				);
+			} else {
+				// if user has not chosen charity activity, progress the default charity and default activity
+				await CharityCategory.findOneAndUpdate(
+					{ isDefault: true },
+					{
+						$inc: { "activities.$[i].progress": eachPlayerShare },
+					},
+					{
+						arrayFilters: [{ "i.isDefault": true }],
+					}
+				);
+			}
+		}
+	}
+};
+
+const refundPlayers = async (game, gameStatusBeforeUpdates) => {
 	// refund join game price to players rather than who is leaving
 	// and everyone who are connected rather than game creator
 
@@ -2032,7 +2116,6 @@ const refundPlayers = async (game, player_id, gameStatusBeforeUpdates) => {
 	const connectedJoinedPlayers = game.players.filter(
 		(plyr) =>
 			(plyr.status !== "left" &&
-				plyr._id.toString() !== player_id.toString() &&
 				plyr._id.toString() !== game.creator._id.toString()) ||
 			(gameStatusBeforeUpdates === gameStatuses.CREATED &&
 				plyr._id.toString() !== game.creator._id.toString())

@@ -64,7 +64,19 @@ exports.init = async (userId) => {
 
 		let charityProgress = 0;
 		if (user.preferedCharity) {
-			// TODO: calculate charity progress
+			// calculate charity progress
+			const userPreferedCharity = await CharityCategory.findById(
+				user.preferedCharity.charity?._id
+			);
+			const userPreferedCharityActivity = userPreferedCharity.activities.find(
+				(activity) =>
+					activity._id.toString() ===
+					user.preferedCharity.activity?._id.toString()
+			);
+			charityProgress =
+				(userPreferedCharityActivity.progress /
+					userPreferedCharityActivity.neededFund) *
+				100;
 		}
 
 		// manipulate user invitations
