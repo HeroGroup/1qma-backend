@@ -68,14 +68,14 @@ exports.init = async (userId) => {
 			const userPreferedCharity = await CharityCategory.findById(
 				user.preferedCharity.charity?._id
 			);
-			const userPreferedCharityActivity = userPreferedCharity.activities.find(
+			const userPreferedCharityActivity = userPreferedCharity?.activities.find(
 				(activity) =>
 					activity._id.toString() ===
 					user.preferedCharity.activity?._id.toString()
 			);
 			charityProgress =
-				((userPreferedCharityActivity.progress || 0) /
-					(userPreferedCharityActivity.neededFund || 100000)) *
+				((userPreferedCharityActivity?.progress || 0) /
+					(userPreferedCharityActivity?.neededFund || 100000)) *
 				100;
 		}
 
