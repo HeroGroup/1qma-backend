@@ -74,8 +74,8 @@ exports.init = async (userId) => {
 					user.preferedCharity.activity?._id.toString()
 			);
 			charityProgress =
-				(userPreferedCharityActivity.progress /
-					userPreferedCharityActivity.neededFund) *
+				((userPreferedCharityActivity.progress || 0) /
+					(userPreferedCharityActivity.neededFund || 100000)) *
 				100;
 		}
 
