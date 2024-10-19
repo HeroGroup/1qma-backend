@@ -56,4 +56,6 @@ module.exports = {
 		},
 	},
 	emailFrom: process.env.EMAIL_FROM,
+	pilvoId: process.env.PILVO_ID,
+	pilvoAuthToken: process.env.PILVO_AUTH_TOKEN,
 };
