@@ -56,6 +56,10 @@ module.exports = {
 		},
 	},
 	emailFrom: process.env.EMAIL_FROM,
-	pilvoId: process.env.PILVO_ID,
-	pilvoAuthToken: process.env.PILVO_AUTH_TOKEN,
+	plivoId: process.env.PLIVO_ID,
+	plivoAuthToken: process.env.PLIVO_AUTH_TOKEN,
+	plivoSender: process.env.PLIVO_SENDER,
+	openAIApiKey: process.env.OPENAI_API_KEY,
+	paypalClientId: process.env.PAYPAL_CLIENT_ID,
+	paypalClientSecret: process.env.PAYPAL_CLIENT_SECRET,
 };

@@ -1,15 +1,15 @@
 const plivo = require("plivo");
 
 const sendOTP = async (to, code) => {
-	let client = new plivo.Client(env.pilvoId, env.pilvoAuthToken);
+	let client = new plivo.Client(env.plivoId, env.plivoAuthToken);
 	client.messages
 		.create({
-			src: "<sender_id>",
+			src: env.plivoSender,
 			dst: to,
-			text: "Hello, from Node Express!",
+			text: `Verification from 1QMA\n#code: ${code}`,
 		})
 		.then(function (message_created) {
-			console.log(message_created);
+			console.log("sendOTP", message_created);
 		});
 };
 
