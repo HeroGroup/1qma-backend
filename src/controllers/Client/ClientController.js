@@ -751,9 +751,24 @@ exports.questionPerformance = async (userId, questionId, params) => {
 			return fail("invalid question!");
 		}
 
-		const liked = baseQuestion.likes.includes(objectId(userId));
-		const disliked = baseQuestion.dislikes.includes(objectId(userId));
-		const bookmarked = baseQuestion.bookmarks.includes(objectId(userId));
+		const questionResult = {
+			_id: baseQuestion._id,
+			category: baseQuestion.category,
+			question: baseQuestion.question,
+			answer: baseQuestion.answer,
+			user: baseQuestion.user,
+			likes: baseQuestion.likes.length,
+			dislikes: baseQuestion.dislikes.length,
+			liked: baseQuestion.likes.includes(objectId(userId)),
+			disliked: baseQuestion.dislikes.includes(objectId(userId)),
+			bookmarked: baseQuestion.bookmarks.includes(objectId(userId)),
+			score: baseQuestion.score,
+			plays: baseQuestion.plays,
+			answers: baseQuestion.answers,
+			rates: baseQuestion.rates,
+			avgRate: baseQuestion.avgRate,
+			createdAt: baseQuestion.createdAt,
+		};
 
 		const page = params.page || 1;
 		const limit = params.limit || 5;
@@ -797,13 +812,7 @@ exports.questionPerformance = async (userId, questionId, params) => {
 			};
 		});
 
-		return success("ok", {
-			question: baseQuestion,
-			liked,
-			disliked,
-			bookmarked,
-			performance,
-		});
+		return success("ok", { question: questionResult, performance });
 	} catch (e) {
 		return handleException(e);
 	}
