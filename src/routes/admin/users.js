@@ -5,6 +5,8 @@ const {
 	getUsers,
 	toggleActive,
 	deleteUser,
+	addInvitations,
+	addCoins,
 } = require("../../controllers/Admin/UserController");
 
 /**
@@ -46,6 +48,70 @@ router.get("/", async (req, res) => {
  */
 router.post("/toggleActive", async (req, res) => {
 	res.json(await toggleActive(req.body));
+});
+
+/**
+ * @openapi
+ * '/admin/users/addInvitations':
+ *  post:
+ *     tags:
+ *     - Admin
+ *     summary: manipulate user(s) max invites
+ *     requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *           schema:
+ *            type: object
+ *            required:
+ *              - numberOfInvitations
+ *            properties:
+ *              id:
+ *                type: string
+ *                default: 6644e9072019def5602933cb
+ *              numberOfInvitations:
+ *                type: number
+ *                default: 10
+ *              mass:
+ *                type: boolean
+ *                default: false
+ */
+router.post("/addInvitations", async (req, res) => {
+	res.json(await addInvitations(req.body));
+});
+
+/**
+ * @openapi
+ * '/admin/users/addInvitations':
+ *  post:
+ *     tags:
+ *     - Admin
+ *     summary: manipulate user(s) coins
+ *     requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *           schema:
+ *            type: object
+ *            required:
+ *              - coinType
+ *              - numberOfcoins
+ *            properties:
+ *              id:
+ *                type: string
+ *                default: 6644e9072019def5602933cb
+ *              coinType:
+ *                type: string
+ *                default: bronze
+ *              numberOfCoins:
+ *                type: number
+ *                default: 10
+ *              mass:
+ *                type: boolean
+ *                default: false
+ */
+router.post("/addCoins", async (req, res) => {
+	res.json(await addCoins(req.body));
 });
 
 /**

@@ -97,7 +97,7 @@ exports.makeCharityCategoryAsDefault = async (params) => {
 			isDefault: true,
 		});
 
-		return this.getCharityCategories();
+		return await this.getCharityCategories();
 	} catch (e) {
 		return handleException(e);
 	}
