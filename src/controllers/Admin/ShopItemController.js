@@ -4,12 +4,13 @@ const {
 	removeFile,
 	objectId,
 } = require("../../helpers/utils");
+const { currencies } = require("../../helpers/constants");
 
 exports.getShopItems = async () => {
 	try {
 		const shopItems = await ShopItem.find();
 
-		return success("ok", shopItems);
+		return success("ok", { shopItems, currencies });
 	} catch (e) {
 		return handleException(e);
 	}

@@ -100,3 +100,5 @@ exports.transactionTypes = {
 	INCREASE: "increase",
 	DECREASE: "decrease",
 };
+
+exports.currencies = { DOLLAR: "$" };
