@@ -5,6 +5,7 @@ const {
 	shopWithCoin,
 } = require("../../controllers/Client/ShopController");
 const { sameUser } = require("../../middlewares/sameUser");
+const { pay, success } = require("../../services/payment/paypal");
 
 /**
  * @openapi
@@ -62,6 +63,18 @@ router.post("/payWithCoin", sameUser, async (req, res) => {
 		req.session.user.assets.coins = payWithCoinResult.data.newBalance;
 	}
 	res.json(payWithCoinResult);
+});
+
+router.post("/paypal/pay", sameUser, async (req, res) => {
+	res.json(await pay(req.body));
+});
+
+router.get("/paypal/success", async (req, res) => {
+	res.json(await success(req.query));
+});
+
+router.get("/paypal/cancel", (req, res) => {
+	res.send("Cancelled");
 });
 
 module.exports = router;

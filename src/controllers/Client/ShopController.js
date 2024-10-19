@@ -58,10 +58,10 @@ exports.shopWithCoin = async (params) => {
 		}
 
 		const shopItemCoinType = shopItem.coinPrice.coin;
-		const shopItemCoinPrice = shopItem.coinPrice.price;
-		const userAsset = user.assets.coins[shopItemCoinType] || 0;
+		const shopItemCoinPrice = parseInt(shopItem.coinPrice.price);
+		const userAsset = parseInt(user.assets.coins[shopItemCoinType] || 0);
 
-		if (parseInt(userAsset) < parseInt(shopItemCoinPrice)) {
+		if (userAsset < shopItemCoinPrice) {
 			return fail(
 				"Unfortunately you do not have enough coins for this transaction!"
 			);

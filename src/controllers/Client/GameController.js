@@ -268,9 +268,9 @@ exports.createGame = async (params, socketId, language) => {
 		const createGamePriceSetting = await Setting.findOne({
 			key: "CREATE_GAME_PRICE_BRONZE",
 		});
-		const creatorBronzeCoins = creator.assets.coins.bronze;
-		const createGamePrice = createGamePriceSetting?.value || 2;
-		if (parseInt(creatorBronzeCoins) < parseInt(createGamePrice)) {
+		const creatorBronzeCoins = parseInt(creator.assets.coins.bronze);
+		const createGamePrice = parseInt(createGamePriceSetting?.value || 2);
+		if (creatorBronzeCoins < createGamePrice) {
 			return fail(
 				"Unfortunately you do not have enough coins for creating a game!",
 				{ creatorBronzeCoins, createGamePrice }
@@ -516,9 +516,9 @@ exports.joinGame = async (params, socketId, language) => {
 		const joinGamePriceSetting = await Setting.findOne({
 			key: "JOIN_GAME_PRICE_BRONZE",
 		});
-		const playerBronzeCoins = player.assets.coins.bronze;
-		const joinGamePrice = joinGamePriceSetting?.value || 2;
-		if (parseInt(playerBronzeCoins) < parseInt(joinGamePrice)) {
+		const playerBronzeCoins = parseInt(player.assets.coins.bronze);
+		const joinGamePrice = parseInt(joinGamePriceSetting?.value || 2);
+		if (playerBronzeCoins < joinGamePrice) {
 			return fail(
 				"Unfortunately you do not have enough coins for joining this game!",
 				{ playerBronzeCoins, joinGamePrice }
@@ -1576,7 +1576,7 @@ exports.keepMyScore = async (params) => {
 		const keepScorePriceSetting = await Setting.findOne({
 			key: "KEEP_SCORE_PRICE_BRONZE",
 		});
-		const keepScorePrice = keepScorePriceSetting?.value || 5;
+		const keepScorePrice = parseInt(keepScorePriceSetting?.value || 5);
 
 		let user = await User.findById(id);
 
@@ -2123,6 +2123,15 @@ const refundPlayers = async (game, gameStatusBeforeUpdates) => {
 
 	const connectedJoinedPlayersIds = [];
 	for (const i of connectedJoinedPlayers) {
+		connectedJoinedPlayersIds.push(i._id);
+	}
+
+	await User.updateMany(
+		{ _id: { $in: connectedJoinedPlayersIds } },
+		{ $inc: { "assets.coins.bronze": joinGamePrice } }
+	);
+
+	for (const i of connectedJoinedPlayers) {
 		const connectedJoinedPlayerId = i._id;
 
 		const connectedJoinedPlayer = await User.findById(connectedJoinedPlayerId);
@@ -2134,14 +2143,7 @@ const refundPlayers = async (game, gameStatusBeforeUpdates) => {
 			connectedJoinedPlayerId,
 			connectedJoinedPlayer.assets.coins
 		);
-
-		connectedJoinedPlayersIds.push(connectedJoinedPlayerId);
 	}
-
-	await User.updateMany(
-		{ _id: { $in: connectedJoinedPlayersIds } },
-		{ $inc: { "assets.coins.bronze": joinGamePrice } }
-	);
 
 	// refund creator if he/she is still connected, or game has not started yet
 	let creator = game.players.find(
