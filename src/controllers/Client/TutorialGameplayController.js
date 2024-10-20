@@ -131,7 +131,7 @@ exports.createGame = async (params) => {
 		const robotQuestions = [];
 		for (let index = 1; index < playersShouldCount; index++) {
 			const player_id = players[index]._id;
-			const robotQuestion = registerQuestions[index - 1];
+			const robotQuestion = registerQuestions[index - 1]?.question;
 			const answers = [];
 			for (let index = 1; index < playersShouldCount; index++) {
 				const player_id = players[index]._id;
