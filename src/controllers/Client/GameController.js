@@ -1470,7 +1470,7 @@ exports.exitGame = async (params, socketId) => {
 		);
 
 		if (canceled) {
-			await refundPlayers(game, gameStatusBeforeUpdates);
+			await this.refundPlayers(game, gameStatusBeforeUpdates);
 		}
 
 		return success("ok");
@@ -2120,7 +2120,7 @@ const updateCharityProgress = async (players) => {
 	}
 };
 
-const refundPlayers = async (game, gameStatusBeforeUpdates) => {
+exports.refundPlayers = async (game, gameStatusBeforeUpdates) => {
 	// refund join game price to players rather than who is leaving
 	// and everyone who are connected rather than game creator
 

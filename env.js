@@ -42,6 +42,7 @@ module.exports = {
 	anonymousNameLength: process.env.ANONYMOUS_NAME_LENGTH,
 	gameNextStepDelay: process.env.GAME_NEXT_STEP_DELAY_MS,
 	renewAccountsToken: process.env.RENEW_ACCOUNTS_TOKEN,
+	cancelAbandonedGames: process.env.CANCEL_ABANDONED_GAMES_TOKEN,
 	email: {
 		host: process.env.EMAIL_HOST,
 		port: process.env.EMAIL_PORT,

@@ -1,6 +1,9 @@
 const moment = require("moment");
 const { handleException } = require("../../helpers/utils");
 const User = require("../../models/User");
+const Game = require("../../models/Game");
+const { gameStatuses } = require("../../helpers/constants");
+const { refundPlayers } = require("../Client/GameController");
 
 exports.renewBasicAccounts = async (token) => {
 	try {
@@ -38,4 +41,42 @@ exports.renewBasicAccounts = async (token) => {
 	}
 };
 
-exports.cancelAbandonedGames = async (token) => {};
+exports.cancelAbandonedGames = async (token) => {
+	try {
+		if (token !== env.cancelAbandonedGamesToken) {
+			return fail("invalid token!");
+		}
+
+		const liveGames = await Game.find({
+			$in: { status: [gameStatuses.CREATED, gameStatuses.STARTED] },
+		});
+
+		const now = moment();
+		const abandonedGamesIds = [];
+		for (const liveGame of liveGames) {
+			if (
+				(liveGame.status === gameStatuses.CREATED &&
+					moment(liveGame.createdAt).diff(now, "minutes") > 15) ||
+				(liveGame.status === gameStatuses.STARTED &&
+					moment(liveGame.startedAt).diff(now, "hours") > 1)
+			) {
+				const liveGameId = liveGame._id.toString();
+				abandonedGamesIds.push(liveGameId);
+				io.to(liveGameId).emit("cancel game", {});
+				for (const player of liveGame.players) {
+					leaveRoom(player.socketId, liveGameId, player.email);
+				}
+				await refundPlayers(liveGame, liveGame.status);
+			}
+		}
+
+		await Game.updateMany(
+			{ _id: { $in: abandonedGamesIds } },
+			{ status: gameStatuses.CANCELED, canceledAt: now }
+		);
+
+		return success(`${abandonedGamesIds.length} games updated successfully!`);
+	} catch (e) {
+		return handleException(e);
+	}
+};
