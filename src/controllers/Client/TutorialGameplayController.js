@@ -135,7 +135,7 @@ exports.createGame = async (params) => {
 			const answers = [];
 			for (let index = 1; index < playersShouldCount; index++) {
 				const player_id = players[index]._id;
-				const answer = askAI(robotQuestion);
+				const answer = await askAI(robotQuestion);
 				answers.push({
 					user_id: player_id,
 					answer,
@@ -155,7 +155,7 @@ exports.createGame = async (params) => {
 			const player_id = players[index]._id;
 			robotAnswers.push({
 				user_id: player_id,
-				answer: askAI(question),
+				answer: await askAI(question),
 				rates,
 			});
 		}

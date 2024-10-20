@@ -220,7 +220,7 @@ async function main() {
 
 	globalThis.io = io;
 
-	console.log(askAI("what do you think of child labour?"));
+	console.log(await askAI("what do you think of child labour?"));
 	const port = env.app.port;
 	server.listen(port, () => {
 		console.log(
