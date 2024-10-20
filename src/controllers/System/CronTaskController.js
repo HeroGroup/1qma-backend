@@ -37,3 +37,5 @@ exports.renewBasicAccounts = async (token) => {
 		return handleException(e);
 	}
 };
+
+exports.cancelAbandonedGames = async (token) => {};

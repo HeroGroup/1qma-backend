@@ -865,7 +865,7 @@ exports.submitAnswer = async (params, language) => {
 		});
 
 		const numberOfSubmitted =
-			game.questions[questionIndex].answers.filter((a) => !a.isEditing) // a.isEditing === false
+			game.questions[questionIndex].answers.filter((a) => a.isEditing === false)
 				?.length || 0;
 		const numberOfPlayers = game.players.filter(
 			(plyr) => plyr.status === "connected"

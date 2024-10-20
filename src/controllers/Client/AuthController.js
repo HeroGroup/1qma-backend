@@ -29,6 +29,7 @@ const {
 	createUniqueAnonymousName,
 } = require("../../helpers/createUniqueAnonymousName");
 const sendEmail = require("../../services/mail");
+const sendOTP = require("../../services/sms");
 const {
 	forgotPasswordHtml,
 	forgotPasswordHtmlFa,
@@ -1055,10 +1056,11 @@ const createMobileVerification = async (mobile) => {
 		);
 	}
 
+	const verificationCode = "1111"; // getRandomInt(999, 9999)
 	const verification = new Verification({
 		type: "mobile",
 		target: mobile,
-		verificationCode: "1111", // getRandomInt(999, 9999),
+		verificationCode,
 		createdAt: moment(),
 		validUnitl: moment().add(NEXT_VERIFICATION_MINUTES.value, "m"),
 		isVerified: false,
@@ -1066,7 +1068,8 @@ const createMobileVerification = async (mobile) => {
 
 	await verification.save();
 
-	// TODO: send sms
+	// send sms
+	sendOTP(mobile, verificationCode);
 
 	return success("Verification code was sent to you!");
 };

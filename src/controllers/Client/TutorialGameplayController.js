@@ -1,16 +1,22 @@
 const {
+	gameStatuses,
+	registerQuestionTypes,
+} = require("../../helpers/constants");
+const {
 	handleException,
 	createGameCode,
 	objectId,
 	shuffleArray,
 } = require("../../helpers/utils");
-const { gameStatuses } = require("../../helpers/constants");
 
 const Category = require("../../models/Category");
+const RegisterQuestion = require("../../models/RegisterQuestion");
+const Setting = require("../../models/Setting");
 const TutorialGame = require("../../models/TutorialGame");
 const TutorialGamePlayer = require("../../models/TutorialGamePlayer");
-const Setting = require("../../models/Setting");
 const User = require("../../models/User");
+
+const { askAI } = require("../../services/openai");
 
 exports.init = async () => {
 	try {
@@ -71,11 +77,6 @@ exports.createGame = async (params) => {
 			return fail("Answer is not entered!");
 		}
 
-		const numberOfPlayersSetting = await Setting.findOne({
-			key: "TUTORIAL_GAMEPLAY_NUMBER_OF_PLAYERS",
-		});
-		const playersShouldCount = numberOfPlayersSetting?.value || 5;
-
 		const dbCategory = await Category.findById(category);
 		if (!dbCategory) {
 			return fail("Invalid category!");
@@ -96,6 +97,12 @@ exports.createGame = async (params) => {
 
 		const tutorialGamePlayers = await TutorialGamePlayer.find();
 		shuffleArray(tutorialGamePlayers);
+
+		const numberOfPlayersSetting = await Setting.findOne({
+			key: "TUTORIAL_GAMEPLAY_NUMBER_OF_PLAYERS",
+		});
+		const playersShouldCount = numberOfPlayersSetting?.value || 5;
+
 		const players = [
 			{
 				_id: creator_id,
@@ -115,23 +122,40 @@ exports.createGame = async (params) => {
 			});
 		}
 
-		const sampleAnswers = [];
+		const registerQuestions = await RegisterQuestion.find({
+			type: registerQuestionTypes.TEXT,
+			isActive: true,
+		});
+		shuffleArray(registerQuestions);
+
+		const robotQuestions = [];
 		for (let index = 1; index < playersShouldCount; index++) {
 			const player_id = players[index]._id;
-			sampleAnswers.push({
+			const robotQuestion = registerQuestions[index - 1];
+			const answers = [];
+			for (let index = 1; index < playersShouldCount; index++) {
+				const player_id = players[index]._id;
+				const answer = askAI(robotQuestion);
+				answers.push({
+					user_id: player_id,
+					answer,
+					rates,
+				});
+			}
+			robotQuestions.push({
 				user_id: player_id,
-				answer: `sample answer ${index}`,
+				question: robotQuestion,
+				answers,
 				rates,
 			});
 		}
 
-		const sampleQuestions = [];
+		const robotAnswers = [];
 		for (let index = 1; index < playersShouldCount; index++) {
 			const player_id = players[index]._id;
-			sampleQuestions.push({
+			robotAnswers.push({
 				user_id: player_id,
-				question: `sample question ${index}`,
-				answers: sampleAnswers,
+				answer: askAI(question),
 				rates,
 			});
 		}
@@ -146,11 +170,11 @@ exports.createGame = async (params) => {
 						answer,
 						rates,
 					},
-					...sampleAnswers,
+					...robotAnswers,
 				],
 				rates,
 			},
-			...sampleQuestions,
+			...robotQuestions,
 		];
 
 		const tutorialGame = new TutorialGame({

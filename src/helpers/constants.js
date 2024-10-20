@@ -102,3 +102,10 @@ exports.transactionTypes = {
 };
 
 exports.currencies = { DOLLAR: "$" };
+
+exports.registerQuestionTypes = {
+	TEXT: "text",
+	SELECT: "select",
+	MULTIPLE_OPTIONS: "multiple_options",
+	TOGGLE: "toggle",
+};
