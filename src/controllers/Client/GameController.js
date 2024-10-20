@@ -1925,7 +1925,7 @@ const calculateResult = async (gameId, nextStepDelay = 1000) => {
 		{ status: gameStatuses.ENDED, endedAt: moment(), result }
 	);
 
-	updateCharityProgress();
+	updateCharityProgress(game.players);
 
 	console.timeEnd("calculate-game-result");
 	setTimeout(() => {
