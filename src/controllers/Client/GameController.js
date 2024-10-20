@@ -429,6 +429,8 @@ exports.attemptjoin = async (user, code) => {
 			creator: 1,
 			category: 1,
 			gameType: 1,
+			createMode: 1,
+			inviteList: 1,
 			status: 1,
 		};
 		let game = await Game.findOne(
@@ -448,6 +450,14 @@ exports.attemptjoin = async (user, code) => {
 
 		if (game.creator._id.toString() === user._id) {
 			return fail("You are already in this game!");
+		}
+
+		if (
+			["2", "3"].includes(game.createMode.id) &&
+			!game.inviteList.includes(user.email)
+		) {
+			// Players By me OR I'm in full control
+			return fail("Sorry, you are invited to this game!");
 		}
 
 		const joinGamePriceSetting = await Setting.findOne({
@@ -510,6 +520,14 @@ exports.joinGame = async (params, socketId, language) => {
 			)
 		) {
 			return fail("You are already in this game!");
+		}
+
+		if (
+			["2", "3"].includes(game.createMode.id) &&
+			!game.inviteList.includes(player.email)
+		) {
+			// Players By me OR I'm in full control
+			return fail("Sorry, you are invited to this game!");
 		}
 
 		// check if player has enough coins
@@ -1872,7 +1890,7 @@ const calculateResult = async (gameId, nextStepDelay = 1000) => {
 		"Second Place Reward",
 		{ price: secondPlaceReward, coin: coinTypes.BRONZE },
 		secondPlaceId,
-		secondPlaceUser.assets.cois
+		secondPlaceUser.assets.coins
 	);
 
 	// update third place assets
@@ -1889,7 +1907,7 @@ const calculateResult = async (gameId, nextStepDelay = 1000) => {
 	);
 	await addCoinTransaction(
 		transactionTypes.INCREASE,
-		"Second Place Reward",
+		"Third Place Reward",
 		{ price: thirdPlaceReward, coin: coinTypes.BRONZE },
 		thirdPlaceId,
 		thirdPlaceUser.assets.coins
