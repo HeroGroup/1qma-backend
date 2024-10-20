@@ -57,6 +57,7 @@ const {
 	reconnectPlayer,
 } = require("./src/controllers/Client/GameController");
 const User = require("./src/models/User.js");
+const { askAI } = require("./src/services/openai.js");
 
 async function main() {
 	const whiteList = [
@@ -219,6 +220,7 @@ async function main() {
 
 	globalThis.io = io;
 
+	askAI("what do you think of child labour?");
 	const port = env.app.port;
 	server.listen(port, () => {
 		console.log(
