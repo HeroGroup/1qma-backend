@@ -891,10 +891,9 @@ exports.submitAnswer = async (params, language) => {
 
 		if (numberOfSubmitted >= numberOfPlayers) {
 			// emit next question
-			setTimeout(() => {
-				io.to(gameId).emit("next step", {});
-				console.log("next step");
-			}, nextStepDelay);
+			io.to(gameId).emit("next step", {});
+			console.log("next step");
+			// setTimeout(() => {}, nextStepDelay);
 		} else {
 			io.to(gameId).emit("submit answer", {
 				numberOfSubmitted,
@@ -1154,10 +1153,9 @@ exports.rateAnswers = async (params) => {
 		).length;
 		if (ratesCount >= playersCount * playersCount) {
 			// everyone has answered, emit next question
-			setTimeout(() => {
-				io.to(gameId).emit("next step", {});
-				console.log("next step");
-			}, nextStepDelay);
+			io.to(gameId).emit("next step", {});
+			console.log("next step");
+			// setTimeout(() => {}, nextStepDelay);
 		} else {
 			io.to(gameId).emit("submit answer", {
 				numberOfSubmitted: Math.floor(ratesCount / playersCount),
@@ -1905,13 +1903,15 @@ const calculateResult = async (gameId, nextStepDelay = 1000) => {
 		},
 		{ new: true }
 	);
-	await addCoinTransaction(
-		transactionTypes.INCREASE,
-		"Third Place Reward",
-		{ price: thirdPlaceReward, coin: coinTypes.BRONZE },
-		thirdPlaceId,
-		thirdPlaceUser.assets.coins
-	);
+	if (thirdPlaceId) {
+		await addCoinTransaction(
+			transactionTypes.INCREASE,
+			"Third Place Reward",
+			{ price: thirdPlaceReward, coin: coinTypes.BRONZE },
+			thirdPlaceId,
+			thirdPlaceUser?.assets.coins
+		);
+	}
 
 	// update creator statistics
 	await User.findOneAndUpdate(
@@ -1928,15 +1928,14 @@ const calculateResult = async (gameId, nextStepDelay = 1000) => {
 	updateCharityProgress(game.players);
 
 	console.timeEnd("calculate-game-result");
-	setTimeout(() => {
-		io.to(gameId).emit("end game", {});
-		console.log("end game");
+	io.to(gameId).emit("end game", {});
+	console.log("end game");
 
-		// disconnect all players from game room
-		for (const player of players) {
-			leaveRoom(player.socketId, gameId, player.email);
-		}
-	}, nextStepDelay);
+	// disconnect all players from game room
+	for (const player of players) {
+		leaveRoom(player.socketId, gameId, player.email);
+	}
+	// setTimeout(() => {}, nextStepDelay);
 
 	return success("ok", result);
 };
