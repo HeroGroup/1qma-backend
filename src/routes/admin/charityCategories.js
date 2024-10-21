@@ -109,7 +109,7 @@ router.post("/update", imageUpload.single("icon"), async (req, res) => {
  *     requestBody:
  *      required: true
  *      content:
- *        multipart/form-data:
+ *        application/json:
  *           schema:
  *            type: object
  *            required:
@@ -133,7 +133,7 @@ router.post("/makeAsDefault", async (req, res) => {
  *     requestBody:
  *      required: true
  *      content:
- *        multipart/form-data:
+ *        application/json:
  *           schema:
  *            type: object
  *            required:
