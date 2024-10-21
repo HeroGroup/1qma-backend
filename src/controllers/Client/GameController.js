@@ -661,6 +661,7 @@ exports.searchUsers = async (text) => {
 
 		const users = await User.find(
 			{
+				isActive: true,
 				$or: [{ firstName: filter }, { lastName: filter }, { email: filter }],
 			},
 			{ _id: 1, email: 1, firstName: 1, lastName: 1, profilePicture: 1 }
@@ -746,7 +747,7 @@ exports.invitePlayer = async (params) => {
 		}
 
 		const player = await User.findById(id);
-		if (!player) {
+		if (!player || !player.isActive) {
 			return fail("invalid player");
 		}
 
