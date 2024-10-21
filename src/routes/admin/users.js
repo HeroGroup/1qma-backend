@@ -82,7 +82,7 @@ router.post("/addInvitations", async (req, res) => {
 
 /**
  * @openapi
- * '/admin/users/addInvitations':
+ * '/admin/users/addCoins':
  *  post:
  *     tags:
  *     - Admin
