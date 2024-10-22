@@ -51,6 +51,8 @@ exports.cancelAbandonedGames = async (token) => {
 			status: { $in: [gameStatuses.CREATED, gameStatuses.STARTED] },
 		});
 
+		console.log("liveGames", liveGames.length);
+
 		const now = moment();
 		const abandonedGamesIds = [];
 		for (const liveGame of liveGames) {
@@ -61,6 +63,7 @@ exports.cancelAbandonedGames = async (token) => {
 					moment(liveGame.startedAt).diff(now, "hours") > 1)
 			) {
 				const liveGameId = liveGame._id.toString();
+				console.log(liveGameId, liveGame.status);
 				abandonedGamesIds.push(liveGame._id);
 				io.to(liveGameId).emit("cancel game", {});
 				for (const player of liveGame.players) {
