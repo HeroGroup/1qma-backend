@@ -56,6 +56,7 @@ exports.cancelAbandonedGames = async (token) => {
 		const now = moment();
 		const abandonedGamesIds = [];
 		for (const liveGame of liveGames) {
+			console.log(moment(liveGame.startedAt).diff(now, "hours"));
 			if (
 				(liveGame.status === gameStatuses.CREATED &&
 					moment(liveGame.createdAt).diff(now, "minutes") > 15) ||
