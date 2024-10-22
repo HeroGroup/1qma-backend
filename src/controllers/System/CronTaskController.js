@@ -1,5 +1,5 @@
 const moment = require("moment");
-const { handleException } = require("../../helpers/utils");
+const { handleException, leaveRoom } = require("../../helpers/utils");
 const User = require("../../models/User");
 const Game = require("../../models/Game");
 const { gameStatuses } = require("../../helpers/constants");
