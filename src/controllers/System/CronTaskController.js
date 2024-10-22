@@ -51,20 +51,16 @@ exports.cancelAbandonedGames = async (token) => {
 			status: { $in: [gameStatuses.CREATED, gameStatuses.STARTED] },
 		});
 
-		console.log("liveGames", liveGames.length);
-
 		const now = moment();
 		const abandonedGamesIds = [];
 		for (const liveGame of liveGames) {
-			console.log(moment(liveGame.startedAt).diff(now, "hours"));
 			if (
 				(liveGame.status === gameStatuses.CREATED &&
-					moment(liveGame.createdAt).diff(now, "minutes") > 15) ||
+					now.diff(moment(liveGame.createdAt), "minutes") > 15) ||
 				(liveGame.status === gameStatuses.STARTED &&
-					moment(liveGame.startedAt).diff(now, "hours") > 1)
+					now.diff(moment(liveGame.startedAt), "hours") > 1)
 			) {
 				const liveGameId = liveGame._id.toString();
-				console.log(liveGameId, liveGame.status);
 				abandonedGamesIds.push(liveGame._id);
 				io.to(liveGameId).emit("cancel game", {});
 				for (const player of liveGame.players) {
