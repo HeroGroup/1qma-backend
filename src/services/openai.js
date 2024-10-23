@@ -29,6 +29,7 @@ exports.askAI = async (question) => {
 			max_tokens: 50,
 			// stop: ["\n"],
 		});
+		console.log(response);
 		if (response && response.choices && response.choices.length > 0) {
 			console.log(response.choices);
 			const answer = response.choices[0]; // .text.trim();
