@@ -17,10 +17,10 @@ exports.askAI = async (question) => {
 		// console.log(response.data.choices[0].text.trim());
 		// return response.data.choices[0].text.trim();
 		const response = await openai.completions.create({
-			model: "davinci-002", // Adjust to the latest model as necessary
-			prompt: `Q: ${question}\nA:`,
-			temperature: 0.5,
-			max_tokens: 150,
+			model: "gpt-4o-mini", // Adjust to the latest model as necessary
+			prompt: `به این سوال به عنوان یک انسان پاسخ بده:\n${question}`,
+			// temperature: 0.5,
+			max_tokens: 50,
 			stop: ["\n"],
 		});
 		if (response && response.choices && response.choices.length > 0) {
