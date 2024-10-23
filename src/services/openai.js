@@ -16,7 +16,7 @@ exports.askAI = async (question) => {
 		// });
 		// console.log(response.data.choices[0].text.trim());
 		// return response.data.choices[0].text.trim();
-		const response = await openai.completions.create({
+		const response = await openai.chat.completions.create({
 			model: "gpt-4o-mini", // Adjust to the latest model as necessary
 			prompt: `به این سوال به عنوان یک انسان پاسخ بده:\n${question}`,
 			// temperature: 0.5,
