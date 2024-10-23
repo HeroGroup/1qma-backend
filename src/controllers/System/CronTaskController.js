@@ -1,7 +1,8 @@
 const moment = require("moment");
 const { handleException, leaveRoom } = require("../../helpers/utils");
-const User = require("../../models/User");
 const Game = require("../../models/Game");
+const Setting = require("../../models/Setting");
+const User = require("../../models/User");
 const { gameStatuses } = require("../../helpers/constants");
 const { refundPlayers } = require("../Client/GameController");
 
@@ -78,6 +79,40 @@ exports.cancelAbandonedGames = async (token) => {
 		);
 
 		return success(`${abandonedGamesIds.length} games updated successfully!`);
+	} catch (e) {
+		return handleException(e);
+	}
+};
+
+exports.cancelPendingInvitations = async (token) => {
+	try {
+		if (token !== env.cancelPendingInvitationsToken) {
+			return fail("invalid token!");
+		}
+
+		const invitationLinkValiditySetting = await Setting.findOne({
+			key: "INVITATION_LINK_VALIDITY_DAYS",
+		});
+		const invitationLinkValidityMiliseconds =
+			parseInt(invitationLinkValiditySetting?.value || 2) * 24 * 60 * 60 * 1000;
+
+		const updateResult = await User.updateMany(
+			{},
+			{
+				$pull: {
+					invitations: {
+						status: "pending",
+						createdAt: {
+							$gt: new Date(
+								Date.now() - invitationLinkValidityMiliseconds
+							).toISOString(),
+						},
+					},
+				},
+			}
+		);
+
+		return success(`${updateResult.modifiedCount} updated successfully!`);
 	} catch (e) {
 		return handleException(e);
 	}

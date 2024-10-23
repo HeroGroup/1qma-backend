@@ -43,6 +43,7 @@ module.exports = {
 	gameNextStepDelay: process.env.GAME_NEXT_STEP_DELAY_MS,
 	renewAccountsToken: process.env.RENEW_ACCOUNTS_TOKEN,
 	cancelAbandonedGamesToken: process.env.CANCEL_ABANDONED_GAMES_TOKEN,
+	cancelPendingInvitationsToken: process.env.CANCEL_PENDING_INVITATIONS_TOKEN,
 	email: {
 		host: process.env.EMAIL_HOST,
 		port: process.env.EMAIL_PORT,

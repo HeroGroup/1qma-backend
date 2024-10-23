@@ -306,7 +306,10 @@ exports.invite = async (params, lang = "en") => {
 				}
 			}
 		}
-		if (me.maxInvites <= me.invitations.length) {
+		if (
+			me.maxInvites <=
+			me.invitations.filter((i) => i.status === "expired").length
+		) {
 			return fail("You have exceeded your invite limit!");
 		}
 
