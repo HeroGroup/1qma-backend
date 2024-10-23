@@ -29,10 +29,10 @@ exports.askAI = async (question) => {
 			max_tokens: 50,
 			// stop: ["\n"],
 		});
-		console.log(response);
+		// console.log(response);
 		if (response && response.choices && response.choices.length > 0) {
-			console.log(response.choices);
-			const answer = response.choices[0]; // .text.trim();
+			// console.log(response.choices);
+			const answer = response.choices[0]?.message?.content; // .text.trim();
 			return answer;
 		} else {
 			return "The model did not return a valid response.";
