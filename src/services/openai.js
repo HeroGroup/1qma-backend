@@ -31,7 +31,7 @@ exports.askAI = async (question) => {
 		});
 		if (response && response.choices && response.choices.length > 0) {
 			console.log(response.choices);
-			const answer = response.choices[0].text.trim();
+			const answer = response.choices[0]; // .text.trim();
 			return answer;
 		} else {
 			return "The model did not return a valid response.";
