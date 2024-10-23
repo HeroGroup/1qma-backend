@@ -1000,18 +1000,17 @@ exports.getQuestion = async (userId, gameId, step) => {
 			);
 		}
 
-		// const questionObject = game.questions[step - 1];
-		shuffleArray(game.questions);
-		const questionObject = game.questions.find((q) => !q.passed);
-		if (!questionObject) {
-			return fail("no more questions are found!");
-		}
-
-		await Game.findByIdAndUpdate(
-			gameId,
-			{ "questions.$[q].passed": true },
-			{ arrayFilters: [{ "q._id": questionObject._id }] }
-		);
+		const questionObject = game.questions[step - 1];
+		// shuffleArray(game.questions);
+		// const questionObject = game.questions.find((q) => !q.passed);
+		// if (!questionObject) {
+		// 	return fail("no more questions are found!");
+		// }
+		// await Game.findByIdAndUpdate(
+		// 	gameId,
+		// 	{ "questions.$[q].passed": true },
+		// 	{ arrayFilters: [{ "q._id": questionObject._id }] }
+		// );
 
 		const answers = questionObject.answers;
 
