@@ -18,10 +18,16 @@ exports.askAI = async (question) => {
 		// return response.data.choices[0].text.trim();
 		const response = await openai.chat.completions.create({
 			model: "gpt-4o-mini", // Adjust to the latest model as necessary
-			prompt: `به این سوال به عنوان یک انسان پاسخ بده:\n${question}`,
+			// prompt: `به این سوال به عنوان یک انسان پاسخ بده:\n${question}`,
+			messages: [
+				{
+					role: "user",
+					content: `به این سوال به عنوان یک انسان پاسخ بده:\n${question}`,
+				},
+			],
 			// temperature: 0.5,
 			max_tokens: 50,
-			stop: ["\n"],
+			// stop: ["\n"],
 		});
 		if (response && response.choices && response.choices.length > 0) {
 			const answer = response.choices[0].text.trim();
