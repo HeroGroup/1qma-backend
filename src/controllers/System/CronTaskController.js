@@ -25,9 +25,11 @@ exports.renewBasicAccounts = async (token) => {
 					.diff(now, "days", true) < 1
 		);
 
+		let message = "";
 		const filteredUsersIds = [];
 		for (const user of filteredUsers) {
 			filteredUsersIds.push(user._id);
+			message += `${user.email} \n`;
 		}
 
 		await User.updateMany(
@@ -35,7 +37,7 @@ exports.renewBasicAccounts = async (token) => {
 			{ $inc: { "accountType.expireDays": 30 } }
 		);
 
-		return success(`${filteredUsers.length} accounts updated successfully!`);
+		return success(`${message} accounts updated successfully!`);
 	} catch (e) {
 		return handleException(e);
 	}
