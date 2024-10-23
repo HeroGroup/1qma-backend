@@ -22,7 +22,7 @@ exports.askAI = async (question) => {
 			messages: [
 				{
 					role: "user",
-					content: `به این سوال به عنوان یک انسان پاسخ بده:\n${question}`,
+					content: `به این سوال به عنوان یک انسان حداکثر در ۳۰ کلمه پاسخ بده:\n${question}`,
 				},
 			],
 			// temperature: 0.5,
