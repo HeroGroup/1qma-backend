@@ -30,6 +30,7 @@ exports.askAI = async (question) => {
 			// stop: ["\n"],
 		});
 		if (response && response.choices && response.choices.length > 0) {
+			console.log(response.choices);
 			const answer = response.choices[0].text.trim();
 			return answer;
 		} else {
