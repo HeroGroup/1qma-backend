@@ -26,7 +26,7 @@ exports.askAI = async (question) => {
 				},
 			],
 			// temperature: 0.5,
-			max_tokens: 50,
+			max_tokens: 100,
 			// stop: ["\n"],
 		});
 		// console.log(response);
