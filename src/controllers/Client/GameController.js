@@ -283,6 +283,8 @@ exports.createGame = async (params, socketId, language) => {
 			lastName,
 			email,
 			profilePicture,
+			playAnonymously,
+			anonymousName,
 		} = creator;
 
 		const {
@@ -305,7 +307,13 @@ exports.createGame = async (params, socketId, language) => {
 
 		const game = new Game({
 			code: `G-${createGameCode()}`,
-			creator: { _id: creator_id, firstName, lastName, email, profilePicture },
+			creator: {
+				_id: creator_id,
+				firstName: playAnonymously ? anonymousName : firstName,
+				lastName: playAnonymously ? "" : lastName,
+				email: playAnonymously ? anonymousName : email,
+				profilePicture: playAnonymously ? "" : profilePicture,
+			},
 			createMode: createModes.find((element) => element.id === createMode),
 			gameType: gameTypes.find((element) => element.id === gameType),
 			category: dbCategory,
@@ -314,10 +322,10 @@ exports.createGame = async (params, socketId, language) => {
 			players: [
 				{
 					_id: creator_id,
-					firstName,
-					lastName,
-					email,
-					profilePicture,
+					firstName: playAnonymously ? anonymousName : firstName,
+					lastName: playAnonymously ? "" : lastName,
+					email: playAnonymously ? anonymousName : email,
+					profilePicture: playAnonymously ? "" : profilePicture,
 					socketId,
 					status: "connected",
 				},
@@ -373,33 +381,39 @@ exports.createGame = async (params, socketId, language) => {
 
 			// Notification
 			for (const invitedEmail of players) {
-				let invitedUser = await User.findOne({ email: invitedEmail });
-				let title = "New Game!";
-				let message = `you have been invited to play this game created by ${creator.email}`;
-				let data = { type: notificationDataTypes.GAME_INVITE, gameId };
+				let invitedUser = await User.findOne({
+					email: invitedEmail,
+					isActive: true,
+				});
 
-				await sendNotification(
-					invitedUser.socketId,
-					notificationTypes.NOTIFICATION,
-					{ id: gameId, title, message, data },
-					invitedUser._id,
-					true
-				);
+				if (invitedUser) {
+					let title = "New Game!";
+					let message = `you have been invited to play this game created by ${creator.email}`;
+					let data = { type: notificationDataTypes.GAME_INVITE, gameId };
 
-				// email
-				sendEmail(
-					invitedEmail,
-					"game invitation",
-					language === "fa"
-						? inviteGameHtmlFa(
-								`${env.frontAppUrl}/game/join?code=${game.code}`,
-								`${firstName} ${lastName}`
-						  )
-						: inviteGameHtml(
-								`${env.frontAppUrl}/game/join?code=${game.code}`,
-								`${firstName} ${lastName}`
-						  )
-				);
+					await sendNotification(
+						invitedUser.socketId,
+						notificationTypes.NOTIFICATION,
+						{ id: gameId, title, message, data },
+						invitedUser._id,
+						true
+					);
+
+					// email
+					sendEmail(
+						invitedEmail,
+						"game invitation",
+						language === "fa"
+							? inviteGameHtmlFa(
+									`${env.frontAppUrl}/game/join?code=${game.code}`,
+									`${firstName} ${lastName}`
+							  )
+							: inviteGameHtml(
+									`${env.frontAppUrl}/game/join?code=${game.code}`,
+									`${firstName} ${lastName}`
+							  )
+					);
+				}
 			}
 		} else {
 			// TODO: find players who match game criteria and send proper notification
@@ -528,7 +542,7 @@ exports.joinGame = async (params, socketId, language) => {
 			!game.inviteList.includes(player.email)
 		) {
 			// Players By me OR I'm in full control
-			return fail("Sorry, you are invited to this game!");
+			return fail("Sorry, you are not invited to this game!");
 		}
 
 		// check if player has enough coins
@@ -550,6 +564,8 @@ exports.joinGame = async (params, socketId, language) => {
 			lastName,
 			email,
 			profilePicture,
+			playAnonymously,
+			anonymousName,
 		} = player;
 
 		const {
@@ -588,10 +604,10 @@ exports.joinGame = async (params, socketId, language) => {
 		joinUserToGameRoom(socketId, gameRoom, email);
 		io.to(gameRoom).emit("player added", {
 			_id: player_id,
-			firstName,
-			lastName,
-			email,
-			profilePicture,
+			firstName: playAnonymously ? anonymousName : firstName,
+			lastName: playAnonymously ? "" : lastName,
+			email: playAnonymously ? anonymousName : email,
+			profilePicture: playAnonymously ? anonymousName : profilePicture,
 		});
 
 		const currentPlayersCount = game.players.length;
@@ -606,10 +622,10 @@ exports.joinGame = async (params, socketId, language) => {
 				$push: {
 					players: {
 						_id: player_id,
-						firstName,
-						lastName,
-						email,
-						profilePicture,
+						firstName: playAnonymously ? anonymousName : firstName,
+						lastName: playAnonymously ? "" : lastName,
+						email: playAnonymously ? anonymousName : email,
+						profilePicture: playAnonymously ? anonymousName : profilePicture,
 						socketId,
 						status: "connected",
 					},
@@ -686,6 +702,7 @@ exports.findFriendGames = async (email, page, limit) => {
 				email: { $regex: email, $options: "i" },
 				emailVerified: true,
 				hasCompletedSignup: true,
+				isActive: true,
 			},
 			{ _id: 1, firstName: 1, lastName: 1, profilePicture: 1 }
 		);

@@ -45,6 +45,7 @@ const userSchema = new Schema({
 		shop: Boolean,
 		tutorial: Boolean,
 	},
+	playAnonymously: Boolean,
 	socketId: String,
 });
 

@@ -186,7 +186,7 @@ exports.updateProfile = async (params) => {
 
 exports.updateUserSettings = async (params) => {
 	try {
-		const { id, language, font } = params;
+		const { id, language, font, playAnonymously, anonymousName } = params;
 		if (!id) {
 			return fail("invalid user id!");
 		}
@@ -209,6 +209,8 @@ exports.updateUserSettings = async (params) => {
 				preferedLanguage: selectedLanguage,
 				preferedFont: font,
 				defaultHomePage: params.defaultHomePage,
+				playAnonymously,
+				// anonymousName,
 			},
 			{
 				new: true,

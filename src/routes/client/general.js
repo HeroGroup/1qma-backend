@@ -117,6 +117,8 @@ router.post("/profile/update", sameUser, async (req, res) => {
  *              - id
  *              - language
  *              - defaultHomePage
+ *              - playAnonymously
+ *              - anonymousName
  *            properties:
  *              id:
  *                type: string
@@ -124,9 +126,12 @@ router.post("/profile/update", sameUser, async (req, res) => {
  *              language:
  *                type: string
  *                default: 0
- *              defaultHomePage:
+ *              playAnonymously:
+ *                type: boolean
+ *                default: false
+ *              anonymousName:
  *                type: string
- *                default: /dashboard
+ *                default: hFye9s
  */
 router.post("/settings/update", sameUser, async (req, res) => {
 	const updateUserSettingsResult = await updateUserSettings(req.body);
