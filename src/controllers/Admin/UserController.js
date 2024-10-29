@@ -35,14 +35,14 @@ exports.toggleActive = async (params) => {
 
 exports.addInvitations = async (params) => {
 	try {
-		const { id, numberOfInvitations, type, mass } = params;
+		const { id, numberOfInvitations, transactionType, mass } = params;
 
 		if (!numberOfInvitations || numberOfInvitations < 1) {
 			return fail("invalid numberOfInvitations");
 		}
 
 		let inc = 0;
-		switch (type) {
+		switch (transactionType) {
 			case transactionTypes.INCREASE:
 				inc = parseInt(numberOfInvitations);
 				break;
@@ -74,14 +74,14 @@ exports.addInvitations = async (params) => {
 
 exports.addCoins = async (params) => {
 	try {
-		const { id, coinType, numberOfCoins, type, mass } = params;
+		const { id, coinType, numberOfCoins, transactionType, mass } = params;
 
 		if (!coinType || !numberOfCoins || numberOfCoins < 1) {
 			return fail("invalid input parameters!");
 		}
 
 		let inc = 0;
-		switch (type) {
+		switch (transactionType) {
 			case transactionTypes.INCREASE:
 				inc = parseInt(numberOfCoins);
 				break;
@@ -105,7 +105,7 @@ exports.addCoins = async (params) => {
 			});
 
 			await addCoinTransaction(
-				type,
+				transactionType,
 				"Updated by Admin",
 				{ price: inc, coin: coinType },
 				id,
