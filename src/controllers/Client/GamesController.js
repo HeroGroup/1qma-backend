@@ -148,6 +148,7 @@ exports.survivalScoreboard = async () => {
 		const users = await User.find(
 			{
 				"statistics.survival.adjustedScore": { $gt: 0 },
+				isActive: true,
 			},
 			{ firstName: 1, lastName: 1, profilePicture: 1, statistics: 1 }
 		)

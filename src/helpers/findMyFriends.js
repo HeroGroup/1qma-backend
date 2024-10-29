@@ -22,6 +22,7 @@ exports.findMyFriends = async (userId) => {
 			{
 				"referer._id": { $in: friendsIds },
 				hasCompletedSignup: true,
+				isActive: true,
 			},
 			{ _id: 1 }
 		);
