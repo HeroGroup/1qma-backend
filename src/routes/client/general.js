@@ -126,6 +126,9 @@ router.post("/profile/update", sameUser, async (req, res) => {
  *              language:
  *                type: string
  *                default: 0
+ *              defaultHomePage:
+ *                type: string
+ *                default: /dashboard
  *              playAnonymously:
  *                type: boolean
  *                default: false
