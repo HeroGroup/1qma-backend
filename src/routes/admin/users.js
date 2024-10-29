@@ -64,7 +64,9 @@ router.post("/toggleActive", async (req, res) => {
  *           schema:
  *            type: object
  *            required:
+ *              - id
  *              - numberOfInvitations
+ *              - transactionType
  *            properties:
  *              id:
  *                type: string
@@ -72,6 +74,9 @@ router.post("/toggleActive", async (req, res) => {
  *              numberOfInvitations:
  *                type: number
  *                default: 10
+ *              transactionType:
+ *                type: string
+ *                default: increase
  *              mass:
  *                type: boolean
  *                default: false
@@ -94,8 +99,10 @@ router.post("/addInvitations", async (req, res) => {
  *           schema:
  *            type: object
  *            required:
+ *              - id
  *              - coinType
  *              - numberOfcoins
+ *              - transactionType
  *            properties:
  *              id:
  *                type: string
@@ -106,6 +113,9 @@ router.post("/addInvitations", async (req, res) => {
  *              numberOfCoins:
  *                type: number
  *                default: 10
+ *              transactionType:
+ *                type: string
+ *                default: increase
  *              mass:
  *                type: boolean
  *                default: false
