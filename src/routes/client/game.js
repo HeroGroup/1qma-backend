@@ -21,7 +21,7 @@ const {
 	backToCheckpoint,
 	forceCalculateResult,
 } = require("../../controllers/Client/GameController");
-// const { hasSeenAllIntros } = require("../../middlewares/hasSeenAllIntros");
+const { hasSeenAllIntros } = require("../../middlewares/hasSeenAllIntros");
 const { isAdmin } = require("../../middlewares/isAdmin");
 const { isPlayerInGame } = require("../../middlewares/isPlayerInGame");
 const { sameUser } = require("../../middlewares/sameUser");
@@ -81,7 +81,7 @@ router.get("/init", async (req, res) => {
  *                type: string
  *                default: any answer
  */
-router.post("/create", sameUser, async (req, res) => {
+router.post("/create", sameUser, hasSeenAllIntros, async (req, res) => {
 	const createGameResult = await createGame(
 		req.body,
 		req.session.socketId,
@@ -109,7 +109,7 @@ router.post("/create", sameUser, async (req, res) => {
  *           type: string
  *         required: true
  */
-router.get("/:idOrCode/join", async (req, res) => {
+router.get("/:idOrCode/join", hasSeenAllIntros, async (req, res) => {
 	res.json(await attemptjoin(req.session.user, req.params.idOrCode));
 });
 
@@ -145,7 +145,7 @@ router.get("/:idOrCode/join", async (req, res) => {
  *                type: string
  *                default: any answer
  */
-router.post("/join", sameUser, async (req, res) => {
+router.post("/join", sameUser, hasSeenAllIntros, async (req, res) => {
 	const joinResult = await joinGame(
 		req.body,
 		req.session.socketId,

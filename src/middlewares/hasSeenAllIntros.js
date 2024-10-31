@@ -4,19 +4,20 @@ exports.hasSeenAllIntros = async (req, res, next) => {
 	} else if (req.session.user?._id) {
 		const hasSeenIntros = req.session.user.hasSeenIntros;
 		const hasSeenIntrosKeys = Object.keys(hasSeenIntros);
-		let hasSeenAllIntros = true;
+		const notSeen = [];
 		hasSeenIntrosKeys.forEach((elm) => {
 			if (!hasSeenIntros[elm]) {
-				hasSeenAllIntros = false;
+				notSeen.push(elm);
 			}
 		});
-		if (hasSeenAllIntros) {
+		if (notSeen.length === 0) {
 			next();
 		} else {
 			res.json({
 				status: -1,
-				message:
-					"Before playing games, you need to see all introductions and play tutorial game!",
+				message: `Before playing games, you need to see introduction of ${notSeen.join(
+					", "
+				)}.`,
 			});
 		}
 	} else {

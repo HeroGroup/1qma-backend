@@ -607,7 +607,7 @@ exports.joinGame = async (params, socketId, language) => {
 			firstName: playAnonymously ? anonymousName : firstName,
 			lastName: playAnonymously ? "" : lastName,
 			email: playAnonymously ? anonymousName : email,
-			profilePicture: playAnonymously ? anonymousName : profilePicture,
+			profilePicture: playAnonymously ? "" : profilePicture,
 		});
 
 		const currentPlayersCount = game.players.length;
@@ -820,6 +820,75 @@ exports.invitePlayer = async (params) => {
 	}
 };
 
+exports.getQuestion = async (userId, gameId, step) => {
+	try {
+		if (!userId) {
+			return fail("invalid user id!");
+		}
+		if (!gameId) {
+			return fail("invalid game id!");
+		}
+		if (!step) {
+			return fail("invalid step!");
+		}
+
+		const player = await User.findById(userId);
+		if (!player) {
+			return fail("invalid player");
+		}
+
+		const game = await Game.findById(gameId);
+		if (!game) {
+			return fail("invalid game");
+		}
+
+		if (game.status !== gameStatuses.STARTED) {
+			return fail("game is not started yet!");
+		}
+
+		if (parseInt(step) > game.players.length) {
+			return fail(
+				"questions are finished!",
+				{
+					step,
+					nop: game.players.length,
+				},
+				-2 // status
+			);
+		}
+
+		// ========== shuffle questions ============
+		// shuffleArray(game.questions);
+		// const questionObject = game.questions.find((q) => !q.passed);
+		// if (!questionObject) {
+		// 	return fail("no more questions are found!");
+		// }
+		// await Game.findByIdAndUpdate(
+		// 	gameId,
+		// 	{ "questions.$[q].passed": true },
+		// 	{ arrayFilters: [{ "q._id": questionObject._id }] }
+		// );
+		// ========== shuffle questions ============
+
+		const questionObject = game.questions[step - 1];
+		const answers = questionObject.answers;
+
+		const myAnswer = answers.find((answerObj) => {
+			return answerObj.user_id.toString() === player._id.toString();
+		})?.answer;
+
+		return success("ok", {
+			step,
+			_id: questionObject.user_id,
+			question: questionObject.question,
+			language: questionObject.language || env.defaultLanguage,
+			myAnswer,
+		});
+	} catch (e) {
+		return handleException(e);
+	}
+};
+
 exports.submitAnswer = async (params, language) => {
 	try {
 		const { id, gameId, questionId, answer } = params;
@@ -975,73 +1044,6 @@ exports.editAnswer = async (params) => {
 		);
 
 		return success("ok");
-	} catch (e) {
-		return handleException(e);
-	}
-};
-
-exports.getQuestion = async (userId, gameId, step) => {
-	try {
-		if (!userId) {
-			return fail("invalid user id!");
-		}
-		if (!gameId) {
-			return fail("invalid game id!");
-		}
-		if (!step) {
-			return fail("invalid step!");
-		}
-
-		const player = await User.findById(userId);
-		if (!player) {
-			return fail("invalid player");
-		}
-
-		const game = await Game.findById(gameId);
-		if (!game) {
-			return fail("invalid game");
-		}
-
-		if (game.status !== gameStatuses.STARTED) {
-			return fail("game is not started yet!");
-		}
-
-		if (parseInt(step) > game.players.length) {
-			return fail(
-				"questions are finished!",
-				{
-					step,
-					nop: game.players.length,
-				},
-				-2 // status
-			);
-		}
-
-		const questionObject = game.questions[step - 1];
-		// shuffleArray(game.questions);
-		// const questionObject = game.questions.find((q) => !q.passed);
-		// if (!questionObject) {
-		// 	return fail("no more questions are found!");
-		// }
-		// await Game.findByIdAndUpdate(
-		// 	gameId,
-		// 	{ "questions.$[q].passed": true },
-		// 	{ arrayFilters: [{ "q._id": questionObject._id }] }
-		// );
-
-		const answers = questionObject.answers;
-
-		const myAnswer = answers.find((answerObj) => {
-			return answerObj.user_id.toString() === player._id.toString();
-		})?.answer;
-
-		return success("ok", {
-			step,
-			_id: questionObject.user_id,
-			question: questionObject.question,
-			language: questionObject.language || env.defaultLanguage,
-			myAnswer,
-		});
 	} catch (e) {
 		return handleException(e);
 	}
