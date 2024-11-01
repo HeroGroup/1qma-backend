@@ -203,6 +203,23 @@ exports.updateUserSettings = async (params) => {
 			(element) => element._id === language
 		);
 
+		if (!selectedLanguage) {
+			return fail("invalid language!");
+		}
+
+		if (anonymousName.length > 12) {
+			return fail(
+				"anonymous name should be less than or equal to 12 characters!"
+			);
+		}
+
+		// check anonymous name uniquesness
+		const anonymousNameCount = await User.countDocuments({ anonymousName });
+
+		if (anonymousNameCount > 0) {
+			return fail("This anonymous name already exists! Please pick another.");
+		}
+
 		const user = await User.findOneAndUpdate(
 			{ _id: id },
 			{
@@ -210,7 +227,7 @@ exports.updateUserSettings = async (params) => {
 				preferedFont: font,
 				defaultHomePage: params.defaultHomePage,
 				playAnonymously,
-				// anonymousName,
+				anonymousName,
 			},
 			{
 				new: true,
