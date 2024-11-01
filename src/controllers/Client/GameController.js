@@ -2128,6 +2128,7 @@ const updateCharityProgress = async (players) => {
 		// assign to users charity chosen activity
 		for (const player of players) {
 			const playerUser = await User.findById(player._id);
+			console.log(playerUser.preferedCharity);
 			if (playerUser.preferedCharity) {
 				await CharityCategory.findByIdAndUpdate(
 					playerUser.preferedCharity.charity?._id,
