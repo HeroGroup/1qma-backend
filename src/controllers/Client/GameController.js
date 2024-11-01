@@ -2090,8 +2090,7 @@ const updateCharityProgress = async (players) => {
 	const joinGamePrice = parseInt(joinGamePriceSetting?.value || 2);
 
 	const gameTotalInputs =
-		createGamePrice + (numberOfPlayers - 1 * joinGamePrice);
-	joinGamePrice;
+		createGamePrice + (numberOfPlayers - 1) * joinGamePrice;
 
 	// calculate and sum rewards
 	const winnerRewardSetting = await Setting.findOne({
