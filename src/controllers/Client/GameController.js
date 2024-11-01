@@ -311,7 +311,7 @@ exports.createGame = async (params, socketId, language) => {
 				_id: creator_id,
 				firstName: playAnonymously ? anonymousName : firstName,
 				lastName: playAnonymously ? "" : lastName,
-				email: playAnonymously ? anonymousName : email,
+				email,
 				profilePicture: playAnonymously ? "" : profilePicture,
 			},
 			createMode: createModes.find((element) => element.id === createMode),
@@ -324,7 +324,7 @@ exports.createGame = async (params, socketId, language) => {
 					_id: creator_id,
 					firstName: playAnonymously ? anonymousName : firstName,
 					lastName: playAnonymously ? "" : lastName,
-					email: playAnonymously ? anonymousName : email,
+					email,
 					profilePicture: playAnonymously ? "" : profilePicture,
 					socketId,
 					status: "connected",
@@ -606,7 +606,7 @@ exports.joinGame = async (params, socketId, language) => {
 			_id: player_id,
 			firstName: playAnonymously ? anonymousName : firstName,
 			lastName: playAnonymously ? "" : lastName,
-			email: playAnonymously ? anonymousName : email,
+			email,
 			profilePicture: playAnonymously ? "" : profilePicture,
 		});
 
@@ -624,7 +624,7 @@ exports.joinGame = async (params, socketId, language) => {
 						_id: player_id,
 						firstName: playAnonymously ? anonymousName : firstName,
 						lastName: playAnonymously ? "" : lastName,
-						email: playAnonymously ? anonymousName : email,
+						email,
 						profilePicture: playAnonymously ? anonymousName : profilePicture,
 						socketId,
 						status: "connected",
@@ -655,6 +655,11 @@ exports.joinGame = async (params, socketId, language) => {
 		);
 
 		if (game.status === gameStatuses.STARTED) {
+			// shuffle question
+			const gameQuestions = game.questions;
+			shuffleArray(gameQuestions);
+			await Game.findByIdAndUpdate(game.id, { questions: gameQuestions });
+
 			// emit game is started
 			io.to(gameRoom).emit("start game", {});
 			console.log("start game");
