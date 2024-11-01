@@ -1069,7 +1069,7 @@ const createMobileVerification = async (mobile) => {
 	await verification.save();
 
 	// send sms
-	sendOTP(mobile, verificationCode);
+	// sendOTP(mobile, verificationCode);
 
 	return success("Verification code was sent to you!");
 };
