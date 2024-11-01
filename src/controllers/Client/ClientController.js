@@ -214,7 +214,10 @@ exports.updateUserSettings = async (params) => {
 		}
 
 		// check anonymous name uniquesness
-		const anonymousNameCount = await User.countDocuments({ anonymousName });
+		const anonymousNameCount = await User.countDocuments({
+			_id: { $ne: id },
+			anonymousName,
+		});
 
 		if (anonymousNameCount > 0) {
 			return fail("This anonymous name already exists! Please pick another.");
