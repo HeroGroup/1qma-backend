@@ -193,17 +193,17 @@ async function main() {
 	});
 
 	io.on("connection", async (socket) => {
+		const socketId = socket.id;
 		let userId = "";
 		const sessionId = socket.request?.sessionID;
 		if (sessionId) {
 			sess.store.get(sessionId, async (error, sessionData) => {
 				if (sessionData) {
 					userId = sessionData.user?._id;
-					sessionData.socketId = socket.id;
+					sessionData.socketId = socketId;
 					sess.store.set(sessionId, sessionData);
-					await User.findByIdAndUpdate(userId, { socketId: socket.id });
-
-					await reconnectPlayer(userId, socket.id);
+					await User.findByIdAndUpdate(userId, { socketId });
+					await reconnectPlayer(userId, socketId);
 				}
 			});
 		}

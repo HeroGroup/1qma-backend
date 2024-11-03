@@ -45,7 +45,6 @@ exports.markAllNotificationsAsRead = async (userId) => {
 };
 
 exports.sendNotification = async (to, type, data, userId, save = false) => {
-	console.log(`send notification to ${to}`);
 	io.to(to).emit(type, data);
 
 	if (save) {

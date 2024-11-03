@@ -818,25 +818,29 @@ exports.invitePlayer = async (params) => {
 			);
 		}
 
-		await Game.findOneAndUpdate(
-			{ _id: objectId(gameId) },
-			{ $push: { inviteList: email } }
-		);
+		let playerUser = await User.findOne({ email, isActive: true });
+		if (playerUser) {
+			await Game.findOneAndUpdate(
+				{ _id: objectId(gameId) },
+				{ $push: { inviteList: email } }
+			);
 
-		let playerUser = await User.findOne({ email });
-		let title = "New Game!";
-		let message = `you have been invited to play this game created by ${game.creator.email}`;
-		let data = { type: "GAME_INVITE", gameId };
+			let title = "New Game!";
+			let message = `you have been invited to play this game created by ${game.creator.email}`;
+			let data = { type: "GAME_INVITE", gameId };
 
-		await sendNotification(
-			playerUser.socketId,
-			notificationTypes.NOTIFICATION,
-			{ id: gameId, title, message, data },
-			playerUser._id,
-			true
-		);
+			await sendNotification(
+				playerUser.socketId,
+				notificationTypes.NOTIFICATION,
+				{ id: gameId, title, message, data },
+				playerUser._id,
+				true
+			);
 
-		return success(`Invitation was sent to ${email} successfully!`);
+			return success(`Invitation was sent to ${email} successfully!`);
+		} else {
+			return fail("Invalid player");
+		}
 	} catch (e) {
 		return handleException(e);
 	}
@@ -1580,6 +1584,11 @@ exports.playerDisconnected = async (params) => {
 exports.reconnectPlayer = async (userId, socketId) => {
 	if (!userId) {
 		console.log("invalid user id!");
+		return;
+	}
+
+	if (!socketId) {
+		console.log("invalid socket id!");
 		return;
 	}
 
