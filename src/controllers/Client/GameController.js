@@ -1536,19 +1536,23 @@ exports.playerDisconnected = async (params) => {
 	const { id, gameId } = params;
 	if (!id) {
 		console.log("invalid user id!");
+		return;
 	}
 
 	if (!gameId) {
 		console.log("invalid game id!");
+		return;
 	}
 	let game = await Game.findById(gameId);
 	if (!game) {
 		console.log("invalid game!");
+		return;
 	}
 
 	const player = await User.findById(id);
 	if (!player) {
 		console.log("invalid player!");
+		return;
 	}
 
 	const { _id: player_id, firstName, lastName, email, profilePicture } = player;
@@ -1576,6 +1580,7 @@ exports.playerDisconnected = async (params) => {
 exports.reconnectPlayer = async (userId, socketId) => {
 	if (!userId) {
 		console.log("invalid user id!");
+		return;
 	}
 
 	const userGamesFilter = {
@@ -2145,7 +2150,6 @@ const updateCharityProgress = async (players) => {
 		// assign to users charity chosen activity
 		for (const player of players) {
 			const playerUser = await User.findById(player._id);
-			console.log(playerUser.preferedCharity);
 			if (playerUser.preferedCharity) {
 				await CharityCategory.findByIdAndUpdate(
 					playerUser.preferedCharity.charity?._id,
