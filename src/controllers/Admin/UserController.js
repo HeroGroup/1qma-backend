@@ -35,33 +35,22 @@ exports.toggleActive = async (params) => {
 
 exports.addInvitations = async (params) => {
 	try {
-		const { id, numberOfInvitations, transactionType, mass } = params;
+		const { id, numberOfInvitations, mass } = params;
 
-		if (!numberOfInvitations || numberOfInvitations < 1) {
+		const _numberOfInvitations = parseInt(numberOfInvitations);
+		if (!numberOfInvitations || _numberOfInvitations === 0) {
 			return fail("invalid numberOfInvitations");
-		}
-
-		let inc = 0;
-		switch (transactionType) {
-			case transactionTypes.INCREASE:
-				inc = parseInt(numberOfInvitations);
-				break;
-			case transactionTypes.DECREASE:
-				inc = -parseInt(numberOfInvitations);
-				break;
-			default:
-				break;
 		}
 
 		if (id) {
 			await User.findByIdAndUpdate(id, {
-				$inc: { maxInvites: inc },
+				$inc: { maxInvites: _numberOfInvitations },
 			});
 		} else if (mass) {
 			await User.updateMany(
 				{},
 				{
-					$inc: { maxInvites: inc },
+					$inc: { maxInvites: _numberOfInvitations },
 				}
 			);
 		}
@@ -74,22 +63,11 @@ exports.addInvitations = async (params) => {
 
 exports.addCoins = async (params) => {
 	try {
-		const { id, coinType, numberOfCoins, transactionType, mass } = params;
+		const { id, coinType, numberOfCoins, mass } = params;
 
-		if (!coinType || !numberOfCoins || numberOfCoins < 1) {
+		const _numberOfCoins = parseInt(numberOfCoins);
+		if (!coinType || !numberOfCoins || _numberOfCoins === 0) {
 			return fail("invalid input parameters!");
-		}
-
-		let inc = 0;
-		switch (transactionType) {
-			case transactionTypes.INCREASE:
-				inc = parseInt(numberOfCoins);
-				break;
-			case transactionTypes.DECREASE:
-				inc = -parseInt(numberOfCoins);
-				break;
-			default:
-				break;
 		}
 
 		if (id) {
@@ -99,15 +77,20 @@ exports.addCoins = async (params) => {
 			}
 
 			const userCoins = user.assets.coins;
-			userCoins[coinType] += inc;
+			userCoins[coinType] += _numberOfCoins;
 			await User.findByIdAndUpdate(id, {
 				"assets.coins": userCoins,
 			});
 
+			const transactionType =
+				_numberOfCoins > 0
+					? transactionTypes.INCREASE
+					: transactionTypes.DECREASE;
+
 			await addCoinTransaction(
 				transactionType,
 				"Updated by Admin",
-				{ price: inc, coin: coinType },
+				{ price: Math.abs(_numberOfCoins), coin: coinType },
 				id,
 				userCoins
 			);

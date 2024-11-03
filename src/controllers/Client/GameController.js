@@ -88,7 +88,15 @@ const createOrGetQuestion = async (
 		}
 
 		// create question first
-		const { _id, firstName, lastName, email, profilePicture } = user;
+		const {
+			_id,
+			firstName,
+			lastName,
+			email,
+			profilePicture,
+			playAnonymously,
+			anonymousName,
+		} = user;
 
 		const questionObject = new Question({
 			category: {
@@ -101,10 +109,10 @@ const createOrGetQuestion = async (
 			answer,
 			user: {
 				_id,
-				firstName,
-				lastName,
+				firstName: playAnonymously ? anonymousName : firstName,
+				lastName: playAnonymously ? "" : lastName,
 				email,
-				profilePicture,
+				profilePicture: playAnonymously ? "" : profilePicture,
 			},
 			score: 0,
 			plays: 0,
@@ -682,7 +690,7 @@ exports.joinGame = async (params, socketId, language) => {
 	}
 };
 
-exports.searchUsers = async (text) => {
+exports.searchUsers = async (text, myId) => {
 	try {
 		if (!text || text.length < 3) {
 			return fail("Enter at least 3 characters");
@@ -692,6 +700,7 @@ exports.searchUsers = async (text) => {
 
 		const users = await User.find(
 			{
+				_id: { $ne: objectId(myId) },
 				isActive: true,
 				$or: [{ firstName: filter }, { lastName: filter }, { email: filter }],
 			},

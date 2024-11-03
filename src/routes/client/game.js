@@ -173,7 +173,7 @@ router.post("/join", sameUser, hasSeenAllIntros, async (req, res) => {
  *           type: string
  */
 router.get("/searchUsers", async (req, res) => {
-	res.json(await searchUsers(req.query.search));
+	res.json(await searchUsers(req.query.search, req.session.user?._id));
 });
 
 /**
