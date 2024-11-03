@@ -213,6 +213,11 @@ exports.createGame = async (params, socketId, language) => {
 
 		let { players } = params;
 
+		if (!socketId) {
+			return fail(
+				"Unable to create connection. please refresh the page and try again!"
+			);
+		}
 		if (!id) {
 			return fail("Invalid creator id!");
 		}
@@ -355,6 +360,13 @@ exports.createGame = async (params, socketId, language) => {
 
 		await game.save();
 
+		const gameId = game._id.toString();
+
+		if (!(await joinUserToGameRoom(socketId, gameId, email))) {
+			await Game.findOneAndDelete(gameId);
+			return fail("unable to create connection, please try again!");
+		}
+
 		// decrease creator coins
 		creator = await User.findOneAndUpdate(
 			{ _id: creator_id },
@@ -371,10 +383,6 @@ exports.createGame = async (params, socketId, language) => {
 			creator_id,
 			creator.assets.coins
 		);
-
-		const gameId = game._id.toString();
-
-		joinUserToGameRoom(socketId, gameId, email);
 
 		if (players) {
 			// send invites to players via notification and email

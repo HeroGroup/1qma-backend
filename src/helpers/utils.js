@@ -65,7 +65,11 @@ exports.joinUserToGameRoom = async (socketId, room, email = "unknown") => {
 	if (socket) {
 		socket.join(room);
 		console.log(`${email} with socket id ${socketId} joined to ${room}`);
+
+		return true;
 	}
+
+	return false;
 };
 
 exports.leaveRoom = async (socketId, room, email = "unknown") => {
