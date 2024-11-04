@@ -5,3 +5,4 @@ public/uploads
 google_OAuth.json
 env.development.js
 game.json
+src/controllers/Client/TutorialGameplayController.old.js

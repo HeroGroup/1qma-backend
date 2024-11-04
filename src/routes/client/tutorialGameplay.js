@@ -19,7 +19,7 @@ const {
 	rateQuestions,
 	showResult,
 	exitGame,
-} = require("../../controllers/Client/TutorialGameplayController.new");
+} = require("../../controllers/Client/TutorialGameplayController");
 
 /**
  * @openapi

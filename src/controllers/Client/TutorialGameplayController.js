@@ -114,14 +114,6 @@ exports.createGame = async (params) => {
 			...tutorialGamePlayers.slice(0, playersShouldCount - 1),
 		];
 
-		const rates = [];
-		for (let index = 1; index < playersShouldCount; index++) {
-			rates.push({
-				user_id: players[index]._id,
-				rate: index,
-			});
-		}
-
 		const registerQuestions = await RegisterQuestion.find({
 			type: registerQuestionTypes.TEXT,
 			isActive: true,
@@ -132,31 +124,15 @@ exports.createGame = async (params) => {
 		for (let index = 1; index < playersShouldCount; index++) {
 			const player_id = players[index]._id;
 			const robotQuestion = registerQuestions[index - 1]?.question;
-			const answers = [];
-			for (let index = 1; index < playersShouldCount; index++) {
-				const player_id = players[index]._id;
-				const answer = await askAI(robotQuestion);
-				answers.push({
-					user_id: player_id,
-					answer,
-					rates,
-				});
-			}
 			robotQuestions.push({
 				user_id: player_id,
 				question: robotQuestion,
-				answers,
-				rates,
-			});
-		}
-
-		const robotAnswers = [];
-		for (let index = 1; index < playersShouldCount; index++) {
-			const player_id = players[index]._id;
-			robotAnswers.push({
-				user_id: player_id,
-				answer: await askAI(question),
-				rates,
+				answers: [
+					{
+						user_id: player_id,
+						answer: await askAI(robotQuestion),
+					},
+				],
 			});
 		}
 
@@ -168,14 +144,13 @@ exports.createGame = async (params) => {
 					{
 						user_id: creator_id,
 						answer,
-						rates,
 					},
-					...robotAnswers,
 				],
-				rates,
 			},
 			...robotQuestions,
 		];
+
+		shuffleArray(questions);
 
 		const tutorialGame = new TutorialGame({
 			code: `G-${createGameCode()}`,
@@ -358,8 +333,27 @@ exports.submitAnswer = async (params, language) => {
 
 		await TutorialGame.findOneAndUpdate(findQuery, updateQuery, {
 			arrayFilters,
-			new: true,
 		});
+
+		const question = game.questions[questionIndex]?.question;
+		for (let i = 1; i < players.length - 1; i++) {
+			const robot = players[i];
+
+			await TutorialGame.findOneAndUpdate(
+				findQuery,
+				{
+					$push: {
+						"questions.$[i].answers": {
+							user_id: robot._id,
+							answer: await askAI(question),
+							isEditing: false,
+							language,
+						},
+					},
+				},
+				{ arrayFilters: [{ "i.user_id": objectId(questionId) }] }
+			);
+		}
 
 		return success("Thank you for the answer.");
 	} catch (e) {
@@ -478,7 +472,7 @@ exports.rateAnswers = async (params) => {
 				ratesCount +=
 					game.questions[questionIndex].answers[answerIndex].rates.length;
 			} else {
-				await TutorialGame.findOneAndUpdate(
+				game = await TutorialGame.findOneAndUpdate(
 					{ _id: objectId(gameId) },
 					{
 						"questions.$[i].answers.$[j].rates.$[k].rate": element.rate,
@@ -497,6 +491,48 @@ exports.rateAnswers = async (params) => {
 					game.questions[questionIndex].answers[answerIndex].rates.length;
 			}
 		}
+
+		// robots rate answer here
+		const players = game.players;
+		const playersShouldCount = game.numberOfPlayers;
+		const _rates = [
+			{
+				answer_id: players[0]._id,
+				rate: playersShouldCount,
+			},
+		];
+		for (let index = 1; index < playersShouldCount - 1; index++) {
+			_rates.push({
+				answer_id: players[index]._id,
+				rate: index,
+			});
+		}
+
+		for (let i = 1; i < players.length - 1; i++) {
+			const player = players[i];
+
+			for (const element of _rates) {
+				game = await TutorialGame.findOneAndUpdate(
+					{ _id: objectId(gameId) },
+					{
+						$push: {
+							"questions.$[i].answers.$[j].rates": {
+								user_id: player._id,
+								rate: element.rate,
+							},
+						},
+					},
+					{
+						arrayFilters: [
+							{ "i.user_id": objectId(questionId) },
+							{ "j.user_id": objectId(element.answer_id) },
+						],
+						new: true,
+					}
+				);
+			}
+		}
+		// end robots rating
 
 		return success("Thank you for the rates", ratesCount);
 	} catch (e) {
@@ -601,6 +637,44 @@ exports.rateQuestions = async (params) => {
 				ratesCount += game.questions[questionIndex].rates.length;
 			}
 		}
+
+		// robots rate questions here
+		const players = game.players;
+		const playersShouldCount = game.numberOfPlayers;
+		const _rates = [
+			{
+				question_id: players[0]._id,
+				rate: playersShouldCount,
+			},
+		];
+		for (let index = 1; index < playersShouldCount - 1; index++) {
+			_rates.push({
+				question_id: players[index]._id,
+				rate: index,
+			});
+		}
+
+		for (let i = 1; i < players.length; i++) {
+			const player = players[i];
+
+			for (const element of _rates) {
+				await TutorialGame.findOneAndUpdate(
+					{ _id: objectId(gameId) },
+					{
+						$push: {
+							"questions.$[i].rates": {
+								user_id: player._id,
+								rate: element.rate,
+							},
+						},
+					},
+					{
+						arrayFilters: [{ "i.user_id": objectId(element.question_id) }],
+					}
+				);
+			}
+		}
+		// end robots rating
 
 		calculateResult(gameId);
 
