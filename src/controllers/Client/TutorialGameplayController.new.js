@@ -639,6 +639,8 @@ exports.rateQuestions = async (params) => {
 		}
 
 		// robots rate questions here
+		const players = game.players;
+		const playersShouldCount = game.numberOfPlayers;
 		const _rates = [
 			{
 				question_id: players[0]._id,
@@ -652,9 +654,8 @@ exports.rateQuestions = async (params) => {
 			});
 		}
 
-		const gamePlayers = game.players;
-		for (let i = 1; i < gamePlayers.length; i++) {
-			const player = gamePlayers[i];
+		for (let i = 1; i < players.length; i++) {
+			const player = players[i];
 
 			for (const element of _rates) {
 				await TutorialGame.findOneAndUpdate(
