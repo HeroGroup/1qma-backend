@@ -291,15 +291,6 @@ exports.submitAnswer = async (params, language) => {
 			}
 		);
 
-		const players = game.players;
-		const rates = [];
-		for (let index = 1; index < players.length - 1; index++) {
-			rates.push({
-				user_id: players[index]._id,
-				rate: index,
-			});
-		}
-
 		const findQuery = { _id: objectId(gameId) };
 		let updateQuery = {};
 		let arrayFilters = [];
@@ -313,7 +304,6 @@ exports.submitAnswer = async (params, language) => {
 						answer,
 						isEditing: false,
 						language,
-						rates,
 					},
 				},
 			};
@@ -331,15 +321,18 @@ exports.submitAnswer = async (params, language) => {
 			];
 		}
 
-		await TutorialGame.findOneAndUpdate(findQuery, updateQuery, {
+		game = await TutorialGame.findOneAndUpdate(findQuery, updateQuery, {
 			arrayFilters,
+			new: true,
 		});
 
 		const question = game.questions[questionIndex]?.question;
+		const players = game.players;
+
 		for (let i = 1; i < players.length - 1; i++) {
 			const robot = players[i];
 
-			await TutorialGame.findOneAndUpdate(
+			game = await TutorialGame.findOneAndUpdate(
 				findQuery,
 				{
 					$push: {
@@ -351,7 +344,10 @@ exports.submitAnswer = async (params, language) => {
 						},
 					},
 				},
-				{ arrayFilters: [{ "i.user_id": objectId(questionId) }] }
+				{
+					arrayFilters: [{ "i.user_id": objectId(questionId) }],
+					new: true,
+				}
 			);
 		}
 
