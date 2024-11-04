@@ -494,6 +494,7 @@ exports.rateAnswers = async (params) => {
 
 		// robots rate answer here
 		const players = game.players;
+		const playersShouldCount = game.numberOfPlayers;
 		const _rates = [
 			{
 				answer_id: players[0]._id,
