@@ -336,7 +336,7 @@ exports.submitAnswer = async (params, language) => {
 		});
 
 		const question = game.questions[questionIndex]?.question;
-		for (let i = 1; i < players.length; i++) {
+		for (let i = 1; i < players.length - 1; i++) {
 			const robot = players[i];
 
 			await TutorialGame.findOneAndUpdate(
@@ -508,7 +508,7 @@ exports.rateAnswers = async (params) => {
 			});
 		}
 
-		for (let i = 1; i < players.length; i++) {
+		for (let i = 1; i < players.length - 1; i++) {
 			const player = players[i];
 
 			for (const element of _rates) {
