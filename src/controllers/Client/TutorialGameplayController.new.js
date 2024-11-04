@@ -339,16 +339,20 @@ exports.submitAnswer = async (params, language) => {
 		for (let i = 1; i < players.length; i++) {
 			const robot = players[i];
 
-			await TutorialGame.findOneAndUpdate(findQuery, {
-				$push: {
-					"questions.$[i].answers": {
-						user_id: robot._id,
-						answer: await askAI(question),
-						isEditing: false,
-						language,
+			await TutorialGame.findOneAndUpdate(
+				findQuery,
+				{
+					$push: {
+						"questions.$[i].answers": {
+							user_id: robot._id,
+							answer: await askAI(question),
+							isEditing: false,
+							language,
+						},
 					},
 				},
-			});
+				{ arrayFilters: [{ "i.user_id": objectId(questionId) }] }
+			);
 		}
 
 		return success("Thank you for the answer.");
@@ -489,6 +493,7 @@ exports.rateAnswers = async (params) => {
 		}
 
 		// robots rate answer here
+		const players = game.players;
 		const _rates = [
 			{
 				answer_id: players[0]._id,
@@ -502,9 +507,8 @@ exports.rateAnswers = async (params) => {
 			});
 		}
 
-		const gamePlayers = game.players;
-		for (let i = 1; i < gamePlayers.length; i++) {
-			const player = gamePlayers[i];
+		for (let i = 1; i < players.length; i++) {
+			const player = players[i];
 
 			for (const element of _rates) {
 				game = await TutorialGame.findOneAndUpdate(
