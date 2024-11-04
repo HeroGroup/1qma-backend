@@ -210,7 +210,7 @@ exports.updateProfile = async (params) => {
 
 exports.updateUserSettings = async (params) => {
 	try {
-		const { id, language, font, playAnonymously, anonymousName } = params;
+		const { id, language, font } = params;
 		if (!id) {
 			return fail("invalid user id!");
 		}
@@ -231,29 +231,12 @@ exports.updateUserSettings = async (params) => {
 			return fail("invalid language!");
 		}
 
-		if (anonymousName.length > 12) {
-			return fail(
-				"anonymous name should be less than or equal to 12 characters!"
-			);
-		}
-		// check anonymous name uniquesness
-		const anonymousNameCount = await User.countDocuments({
-			_id: { $ne: id },
-			anonymousName,
-		});
-
-		if (anonymousNameCount > 0) {
-			return fail("This anonymous name already exists! Please pick another.");
-		}
-
 		const user = await User.findOneAndUpdate(
 			{ _id: id },
 			{
 				preferedLanguage: selectedLanguage,
 				preferedFont: font,
 				defaultHomePage: params.defaultHomePage,
-				playAnonymously,
-				anonymousName,
 			},
 			{
 				new: true,
