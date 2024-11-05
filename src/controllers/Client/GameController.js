@@ -325,7 +325,7 @@ exports.createGame = async (params, socketId, language) => {
 				firstName: playAnonymously ? anonymousName : firstName,
 				lastName: playAnonymously ? "" : lastName,
 				email: playAnonymously ? anonymousName : email,
-				profilePicture: playAnonymously ? "" : profilePicture,
+				profilePicture,
 			},
 			createMode: createModes.find((element) => element.id === createMode),
 			gameType: gameTypes.find((element) => element.id === gameType),
@@ -338,7 +338,7 @@ exports.createGame = async (params, socketId, language) => {
 					firstName: playAnonymously ? anonymousName : firstName,
 					lastName: playAnonymously ? "" : lastName,
 					email: playAnonymously ? anonymousName : email,
-					profilePicture: playAnonymously ? "" : profilePicture,
+					profilePicture,
 					socketId,
 					status: "connected",
 				},
@@ -623,7 +623,7 @@ exports.joinGame = async (params, socketId, language) => {
 			firstName: playAnonymously ? anonymousName : firstName,
 			lastName: playAnonymously ? "" : lastName,
 			email: playAnonymously ? anonymousName : email,
-			profilePicture: playAnonymously ? "" : profilePicture,
+			profilePicture,
 		});
 
 		const currentPlayersCount = game.players.length;
