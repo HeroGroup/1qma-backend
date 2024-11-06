@@ -77,10 +77,6 @@ const createOrGetQuestion = async (
 						updatedUser.assets.coins
 					);
 				}
-				console.log({
-					question_id: objectId(questionId),
-					question_language: questionObject.language,
-				});
 
 				return success("ok", {
 					question_id: objectId(questionId),
@@ -124,10 +120,7 @@ const createOrGetQuestion = async (
 			createdAt: moment(),
 		});
 		await questionObject.save();
-		console.log({
-			question_id: questionObject._id,
-			question_language: language,
-		});
+
 		return success("ok", {
 			question_id: questionObject._id,
 			question_language: language,
@@ -402,44 +395,46 @@ exports.createGame = async (params, socketId, language) => {
 
 			let invitedListHasChanged = false;
 			// Notification
-			for (let index = 0; index < players.length - 1; index++) {
+			for (let index = 0; index < players.length; index++) {
 				const invitedEmail = players[index];
-				let invitedUser = await User.findOne({
-					email: invitedEmail,
-					isActive: true,
-				});
+				if (validateEmail(invitedEmail)) {
+					let invitedUser = await User.findOne({
+						email: invitedEmail,
+						isActive: true,
+					});
 
-				if (invitedUser) {
-					let title = "New Game!";
-					let message = `you have been invited to play this game created by ${creator.email}`;
-					let data = { type: notificationDataTypes.GAME_INVITE, gameId };
+					if (invitedUser) {
+						let title = "New Game!";
+						let message = `you have been invited to play this game created by ${creator.email}`;
+						let data = { type: notificationDataTypes.GAME_INVITE, gameId };
 
-					await sendNotification(
-						invitedUser.socketId,
-						notificationTypes.NOTIFICATION,
-						{ id: gameId, title, message, data },
-						invitedUser._id,
-						true
-					);
+						await sendNotification(
+							invitedUser.socketId,
+							notificationTypes.NOTIFICATION,
+							{ id: gameId, title, message, data },
+							invitedUser._id,
+							true
+						);
 
-					// email
-					sendEmail(
-						invitedEmail,
-						"game invitation",
-						language === "fa"
-							? inviteGameHtmlFa(
-									`${env.frontAppUrl}/game/join?code=${game.code}`,
-									`${firstName} ${lastName}`
-							  )
-							: inviteGameHtml(
-									`${env.frontAppUrl}/game/join?code=${game.code}`,
-									`${firstName} ${lastName}`
-							  )
-					);
+						// email
+						sendEmail(
+							invitedEmail,
+							"game invitation",
+							language === "fa"
+								? inviteGameHtmlFa(
+										`${env.frontAppUrl}/game/join?code=${game.code}`,
+										`${firstName} ${lastName}`
+								  )
+								: inviteGameHtml(
+										`${env.frontAppUrl}/game/join?code=${game.code}`,
+										`${firstName} ${lastName}`
+								  )
+						);
 
-					if (invitedUser.playAnonymously) {
-						players[index] = invitedUser.anonymousName;
-						invitedListHasChanged = true;
+						if (invitedUser.playAnonymously) {
+							players[index] = invitedUser.anonymousName;
+							invitedListHasChanged = true;
+						}
 					}
 				}
 			}
@@ -572,12 +567,17 @@ exports.joinGame = async (params, socketId, language) => {
 			return fail("You are already in this game!");
 		}
 
+		const emailOrAnonymousName = player.playAnonymously
+			? anonymousName
+			: player.email;
 		if (
 			["2", "3"].includes(game.createMode.id) &&
-			!game.inviteList.includes(player.email)
+			!game.inviteList.includes(emailOrAnonymousName)
 		) {
 			// Players By me OR I'm in full control
-			return fail("Sorry, you are not invited to this game!");
+			return fail(
+				`Sorry, you (${emailOrAnonymousName}) are not invited to this game!`
+			);
 		}
 
 		// check if player has enough coins
@@ -641,7 +641,7 @@ exports.joinGame = async (params, socketId, language) => {
 			_id: player_id,
 			firstName: playAnonymously ? anonymousName : firstName,
 			lastName: playAnonymously ? "" : lastName,
-			email: playAnonymously ? anonymousName : email,
+			email: emailOrAnonymousName,
 			profilePicture,
 		});
 
@@ -659,7 +659,7 @@ exports.joinGame = async (params, socketId, language) => {
 						_id: player_id,
 						firstName: playAnonymously ? anonymousName : firstName,
 						lastName: playAnonymously ? "" : lastName,
-						email: playAnonymously ? anonymousName : email,
+						email: emailOrAnonymousName,
 						profilePicture: playAnonymously ? "" : profilePicture,
 						socketId,
 						status: "connected",
