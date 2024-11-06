@@ -497,12 +497,17 @@ exports.attemptjoin = async (user, code) => {
 			return fail("You are already in this game!");
 		}
 
+		const emailOrAnonymousName = user.playAnonymously
+			? anonymousName
+			: user.email;
 		if (
 			["2", "3"].includes(game.createMode.id) &&
-			!game.inviteList.includes(user.email)
+			!game.inviteList.includes(emailOrAnonymousName)
 		) {
 			// Players By me OR I'm in full control
-			return fail("Sorry, you are invited to this game!");
+			return fail(
+				`Sorry, you (${emailOrAnonymousName}) are not invited to this game!`
+			);
 		}
 
 		const joinGamePriceSetting = await Setting.findOne({
