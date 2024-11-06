@@ -316,7 +316,7 @@ exports.createGame = async (params, socketId, language) => {
 			return fail(questionMessage);
 		}
 
-		const game = new Game({
+		let game = new Game({
 			code: `G-${createGameCode()}`,
 			creator: {
 				_id: creator_id,
