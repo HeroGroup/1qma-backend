@@ -665,7 +665,7 @@ exports.joinGame = async (params, socketId, language) => {
 						firstName: playAnonymously ? anonymousName : firstName,
 						lastName: playAnonymously ? "" : lastName,
 						email: emailOrAnonymousName,
-						profilePicture: playAnonymously ? "" : profilePicture,
+						profilePicture: profilePicture,
 						socketId,
 						status: "connected",
 					},
