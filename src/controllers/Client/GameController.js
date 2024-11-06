@@ -33,8 +33,6 @@ const {
 const { addCoinTransaction } = require("./TransactionController");
 const CharityCategory = require("../../models/CharityCategory");
 
-const nextStepDelay = env.gameNextStepDelay || 1000;
-
 const createOrGetQuestion = async (
 	questionId,
 	user,
@@ -395,8 +393,10 @@ exports.createGame = async (params, socketId, language) => {
 		if (players) {
 			// send invites to players via notification and email
 
+			let invitedListHasChanged = false;
 			// Notification
-			for (const invitedEmail of players) {
+			for (let index = 0; index < players.length - 1; index++) {
+				const invitedEmail = players[index];
 				let invitedUser = await User.findOne({
 					email: invitedEmail,
 					isActive: true,
@@ -429,7 +429,19 @@ exports.createGame = async (params, socketId, language) => {
 									`${firstName} ${lastName}`
 							  )
 					);
+
+					if (invitedUser.playAnonymously) {
+						players[index] = invitedUser.anonymousName;
+						invitedListHasChanged = true;
+					}
 				}
+			}
+			if (invitedListHasChanged) {
+				game = await Game.findByIdAndUpdate(
+					gameId,
+					{ inviteList: players },
+					{ new: true }
+				);
 			}
 		} else {
 			// TODO: find players who match game criteria and send proper notification
@@ -617,7 +629,7 @@ exports.joinGame = async (params, socketId, language) => {
 		);
 
 		const gameRoom = game._id.toString();
-		joinUserToGameRoom(socketId, gameRoom, email);
+		await joinUserToGameRoom(socketId, gameRoom, email);
 		io.to(gameRoom).emit("player added", {
 			_id: player_id,
 			firstName: playAnonymously ? anonymousName : firstName,
@@ -872,7 +884,11 @@ exports.getQuestion = async (userId, gameId, step) => {
 			return fail("game is not started yet!");
 		}
 
-		if (parseInt(step) > game.players.length) {
+		const notLeftPlayers = game.players.filter(
+			(plyr) => plyr.status !== "left"
+		);
+
+		if (parseInt(step) > notLeftPlayers.length) {
 			return fail(
 				"questions are finished!",
 				{
@@ -882,19 +898,6 @@ exports.getQuestion = async (userId, gameId, step) => {
 				-2 // status
 			);
 		}
-
-		// ========== shuffle questions ============
-		// shuffleArray(game.questions);
-		// const questionObject = game.questions.find((q) => !q.passed);
-		// if (!questionObject) {
-		// 	return fail("no more questions are found!");
-		// }
-		// await Game.findByIdAndUpdate(
-		// 	gameId,
-		// 	{ "questions.$[q].passed": true },
-		// 	{ arrayFilters: [{ "q._id": questionObject._id }] }
-		// );
-		// ========== shuffle questions ============
 
 		const questionObject = game.questions[step - 1];
 		const answers = questionObject.answers;
@@ -1008,7 +1011,6 @@ exports.submitAnswer = async (params, language) => {
 			// emit next question
 			io.to(gameId).emit("next step", {});
 			console.log("next step");
-			// setTimeout(() => {}, nextStepDelay);
 		} else {
 			io.to(gameId).emit("submit answer", {
 				numberOfSubmitted,
@@ -1214,7 +1216,6 @@ exports.rateAnswers = async (params) => {
 			// everyone has answered, emit next question
 			io.to(gameId).emit("next step", {});
 			console.log("next step");
-			// setTimeout(() => {}, nextStepDelay);
 		} else {
 			io.to(gameId).emit("submit answer", {
 				numberOfSubmitted: Math.floor(ratesCount / playersCount),
@@ -1333,7 +1334,7 @@ exports.rateQuestions = async (params) => {
 		).length;
 		if (ratesCount === playersCount * playersCount) {
 			// everyone has answered, calculate and emit result!
-			calculateResult(gameId, nextStepDelay);
+			calculateResult(gameId);
 		} else {
 			io.to(gameId).emit("submit answer", {
 				numberOfSubmitted: Math.floor(ratesCount / playersCount),
@@ -1625,7 +1626,7 @@ exports.reconnectPlayer = async (userId, socketId) => {
 		// join user to still existing game rooms
 		for (const game of games) {
 			const room = game._id.toString();
-			joinUserToGameRoom(socketId, room, email);
+			await joinUserToGameRoom(socketId, room, email);
 			// emit player connected
 			io.to(room).emit("player connected", {
 				_id: player_id,
@@ -1717,7 +1718,7 @@ exports.forceCalculateResult = async (gameId) => {
 	}
 };
 
-const calculateResult = async (gameId, nextStepDelay = 1000) => {
+const calculateResult = async (gameId) => {
 	console.time("calculate-game-result");
 
 	if (!gameId) {
@@ -2004,7 +2005,6 @@ const calculateResult = async (gameId, nextStepDelay = 1000) => {
 	for (const player of players) {
 		leaveRoom(player.socketId, gameId, player.email);
 	}
-	// setTimeout(() => {}, nextStepDelay);
 
 	return success("ok", result);
 };
