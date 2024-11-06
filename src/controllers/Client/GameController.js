@@ -498,7 +498,7 @@ exports.attemptjoin = async (user, code) => {
 		}
 
 		const emailOrAnonymousName = user.playAnonymously
-			? anonymousName
+			? user.anonymousName
 			: user.email;
 		if (
 			["2", "3"].includes(game.createMode.id) &&
@@ -573,7 +573,7 @@ exports.joinGame = async (params, socketId, language) => {
 		}
 
 		const emailOrAnonymousName = player.playAnonymously
-			? anonymousName
+			? player.anonymousName
 			: player.email;
 		if (
 			["2", "3"].includes(game.createMode.id) &&
