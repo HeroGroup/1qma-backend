@@ -77,6 +77,10 @@ const createOrGetQuestion = async (
 						updatedUser.assets.coins
 					);
 				}
+				console.log({
+					question_id: objectId(questionId),
+					question_language: questionObject.language,
+				});
 
 				return success("ok", {
 					question_id: objectId(questionId),
@@ -120,7 +124,10 @@ const createOrGetQuestion = async (
 			createdAt: moment(),
 		});
 		await questionObject.save();
-
+		console.log({
+			question_id: questionObject._id,
+			question_language: language,
+		});
 		return success("ok", {
 			question_id: questionObject._id,
 			question_language: language,
@@ -299,7 +306,7 @@ exports.createGame = async (params, socketId, language) => {
 		} = creator;
 
 		const {
-			tatus: questionStatus,
+			status: questionStatus,
 			message: questionMessage,
 			data: questionData,
 		} = await createOrGetQuestion(
