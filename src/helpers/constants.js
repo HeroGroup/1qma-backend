@@ -21,7 +21,6 @@ exports.gameTypes = [
 
 exports.languages = [
 	{ _id: "0", code: "en", title: "English" },
-	{ _id: "1", code: "de", title: "Deutsch" },
 	{ _id: "2", code: "fa", title: "فارسی" },
 ];
 
