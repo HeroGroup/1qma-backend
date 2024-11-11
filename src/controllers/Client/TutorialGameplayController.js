@@ -93,6 +93,8 @@ exports.createGame = async (params) => {
 			lastName,
 			email,
 			profilePicture,
+			playAnonymously,
+			anonymousName,
 		} = creator;
 
 		const tutorialGamePlayers = await TutorialGamePlayer.find();
@@ -106,9 +108,9 @@ exports.createGame = async (params) => {
 		const players = [
 			{
 				_id: creator_id,
-				firstName,
-				lastName,
-				email,
+				firstName: playAnonymously ? anonymousName : firstName,
+				lastName: playAnonymously ? "" : lastName,
+				email: playAnonymously ? anonymousName : email,
 				profilePicture,
 			},
 			...tutorialGamePlayers.slice(0, playersShouldCount - 1),
@@ -154,7 +156,13 @@ exports.createGame = async (params) => {
 
 		const tutorialGame = new TutorialGame({
 			code: `G-${createGameCode()}`,
-			creator: { _id: creator_id, firstName, lastName, email, profilePicture },
+			creator: {
+				_id: creator_id,
+				firstName: playAnonymously ? anonymousName : firstName,
+				lastName: playAnonymously ? "" : lastName,
+				email: playAnonymously ? anonymousName : email,
+				profilePicture,
+			},
 			category: dbCategory,
 			numberOfPlayers: playersShouldCount,
 			players,
