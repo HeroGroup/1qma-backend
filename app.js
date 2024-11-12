@@ -57,6 +57,7 @@ const {
 	reconnectPlayer,
 } = require("./src/controllers/Client/GameController");
 const User = require("./src/models/User.js");
+const { askAI } = require("./src/services/openai.js");
 
 async function main() {
 	const whiteList = [
@@ -216,6 +217,8 @@ async function main() {
 			}
 		});
 	});
+
+	await askAI("آیا فردی که برای خانواده اش نان بدزدد فرد بدی است؟", 3);
 
 	globalThis.io = io;
 
