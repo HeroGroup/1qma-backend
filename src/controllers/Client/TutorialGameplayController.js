@@ -318,15 +318,15 @@ exports.submitAnswer = async (params, language) => {
 			arrayFilters = [{ "i.user_id": objectId(questionId) }];
 		} else {
 			// edit answer
-			// updateQuery = {
-			// 	$set: {
-			// 		"questions.$[i].answers.$[j].answer": answer,
-			// 	},
-			// };
-			// arrayFilters = [
-			// 	{ "i.user_id": objectId(questionId) },
-			// 	{ "j.user_id": objectId(id) },
-			// ];
+			updateQuery = {
+				$set: {
+					"questions.$[i].answers.$[j].answer": answer,
+				},
+			};
+			arrayFilters = [
+				{ "i.user_id": objectId(questionId) },
+				{ "j.user_id": objectId(id) },
+			];
 		}
 
 		game = await TutorialGame.findOneAndUpdate(findQuery, updateQuery, {
@@ -337,7 +337,7 @@ exports.submitAnswer = async (params, language) => {
 		const question = game.questions[questionIndex]?.question;
 		const players = game.players;
 
-		for (let i = 1; i < players.length - 1; i++) {
+		for (let i = 1; i < game.numberOfPlayers - 1; i++) {
 			const robot = players[i];
 
 			game = await TutorialGame.findOneAndUpdate(
