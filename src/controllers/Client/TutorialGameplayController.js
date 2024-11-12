@@ -130,10 +130,10 @@ exports.createGame = async (params) => {
 				user_id: player_id,
 				question: robotQuestion,
 				answers: [
-					{
-						user_id: player_id,
-						answer: "", // await askAI(robotQuestion),
-					},
+					// {
+					// 	user_id: player_id,
+					// 	answer: await askAI(robotQuestion),
+					// },
 				],
 			});
 		}
