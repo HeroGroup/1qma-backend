@@ -129,12 +129,7 @@ exports.createGame = async (params) => {
 			robotQuestions.push({
 				user_id: player_id,
 				question: robotQuestion,
-				answers: [
-					// {
-					// 	user_id: player_id,
-					// 	answer: await askAI(robotQuestion),
-					// },
-				],
+				answers: [],
 			});
 		}
 
