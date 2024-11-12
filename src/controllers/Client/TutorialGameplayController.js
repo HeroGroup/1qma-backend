@@ -318,15 +318,15 @@ exports.submitAnswer = async (params, language) => {
 			arrayFilters = [{ "i.user_id": objectId(questionId) }];
 		} else {
 			// edit answer
-			updateQuery = {
-				$set: {
-					"questions.$[i].answers.$[j].answer": answer,
-				},
-			};
-			arrayFilters = [
-				{ "i.user_id": objectId(questionId) },
-				{ "j.user_id": objectId(id) },
-			];
+			// updateQuery = {
+			// 	$set: {
+			// 		"questions.$[i].answers.$[j].answer": answer,
+			// 	},
+			// };
+			// arrayFilters = [
+			// 	{ "i.user_id": objectId(questionId) },
+			// 	{ "j.user_id": objectId(id) },
+			// ];
 		}
 
 		game = await TutorialGame.findOneAndUpdate(findQuery, updateQuery, {
