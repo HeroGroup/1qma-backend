@@ -59,7 +59,12 @@ exports.validateEmail = (email) => {
 };
 
 exports.validateMobile = (mobile) => {
-	if (!mobile || !mobile.startsWith("+") || mobile.length !== 13) {
+	if (
+		!mobile ||
+		!mobile.startsWith("+") ||
+		mobile.length !== 13 ||
+		mobile.length !== 12
+	) {
 		return false;
 	}
 
