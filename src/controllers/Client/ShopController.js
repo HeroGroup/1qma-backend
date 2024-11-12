@@ -102,24 +102,24 @@ exports.shopWithCoin = async (params) => {
 const assignItemsToUser = async (userId, details) => {
 	for (const item of details) {
 		const { title, count } = item;
-
+		const _count = parseInt(count);
 		if (
 			["invitation", "Invitation", "invitations", "Invitations"].includes(title)
 		) {
 			await User.findByIdAndUpdate(userId, {
-				$inc: { maxInvites: count },
+				$inc: { maxInvites: _count },
 			});
 		} else {
 			const user = await User.findById(userId);
 			const userCoins = user.assets.coins;
-			userCoins[title] = userCoins[title] + count;
+			userCoins[title] = userCoins[title] + _count;
 			await User.findByIdAndUpdate(userId, {
 				"assets.coins": userCoins,
 			});
 			await addCoinTransaction(
 				transactionTypes.INCREASE,
 				title,
-				{ price: count, coin: title },
+				{ price: _count, coin: title },
 				userId,
 				userCoins
 			);
