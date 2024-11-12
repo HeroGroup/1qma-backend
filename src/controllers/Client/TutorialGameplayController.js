@@ -330,9 +330,12 @@ exports.submitAnswer = async (params, language) => {
 		});
 
 		const question = game.questions[questionIndex]?.question;
+		const playersShouldCount = game.numberOfPlayers;
 		const players = game.players;
+		const aiAnswer = await askAI(question);
+		const aiAnswersSplited = aiAnswer.split("-!-");
 
-		for (let i = 1; i < game.numberOfPlayers; i++) {
+		for (let i = 1; i < playersShouldCount; i++) {
 			const robot = players[i];
 
 			game = await TutorialGame.findOneAndUpdate(
@@ -341,7 +344,7 @@ exports.submitAnswer = async (params, language) => {
 					$push: {
 						"questions.$[i].answers": {
 							user_id: robot._id,
-							answer: await askAI(question),
+							answer: aiAnswersSplited[i - 1],
 							isEditing: false,
 							language,
 						},

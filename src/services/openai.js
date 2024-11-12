@@ -20,7 +20,7 @@ exports.askAI = async (question, numberOfAnswers = 3) => {
 		});
 
 		if (response && response.choices && response.choices.length > 0) {
-			console.log("choices", response.choices);
+			// console.log("choices", response.choices);
 			const answer = response.choices[0]?.message?.content; // .text.trim();
 			return answer;
 		} else {
