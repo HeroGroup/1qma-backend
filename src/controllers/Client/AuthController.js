@@ -21,6 +21,7 @@ const {
 	genders,
 	educations,
 	emailTemplates,
+	homePages,
 } = require("../../helpers/constants");
 const {
 	createUniqueReferCode,
@@ -697,6 +698,7 @@ exports.chooseAccountType = async (params) => {
 					tutorial: false,
 				},
 				isActive: true,
+				defaultHomePage: homePages[0].id,
 			},
 			{ new: true }
 		);
