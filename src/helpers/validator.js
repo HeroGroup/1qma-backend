@@ -59,11 +59,11 @@ exports.validateEmail = (email) => {
 };
 
 exports.validateMobile = (mobile) => {
+	const validLengths = [12, 13];
 	if (
 		!mobile ||
 		!mobile.startsWith("+") ||
-		mobile.length !== 13 ||
-		mobile.length !== 12
+		!validLengths.includes(mobile.length)
 	) {
 		return false;
 	}
