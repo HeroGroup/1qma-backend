@@ -132,7 +132,7 @@ exports.createGame = async (params) => {
 				answers: [
 					{
 						user_id: player_id,
-						answer: await askAI(robotQuestion),
+						answer: "", // await askAI(robotQuestion),
 					},
 				],
 			});
@@ -337,7 +337,7 @@ exports.submitAnswer = async (params, language) => {
 		const question = game.questions[questionIndex]?.question;
 		const players = game.players;
 
-		for (let i = 1; i < game.numberOfPlayers - 1; i++) {
+		for (let i = 1; i < game.numberOfPlayers; i++) {
 			const robot = players[i];
 
 			game = await TutorialGame.findOneAndUpdate(
