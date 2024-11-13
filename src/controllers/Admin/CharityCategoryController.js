@@ -66,9 +66,9 @@ exports.updateCharityCategory = async (params, icon) => {
 			? icon.path.replace("public/", "")
 			: charityCategory?.icon;
 
-		charityCategory = await CharityCategory.findOneAndUpdate(
-			{ _id: id },
-			{ title, activities, icon: iconPath, order, isActive },
+		charityCategory = await CharityCategory.findByIdAndUpdate(
+			id,
+			{ title, icon: iconPath, order, isActive },
 			{ new: true }
 		);
 

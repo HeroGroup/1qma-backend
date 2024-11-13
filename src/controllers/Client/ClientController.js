@@ -1016,7 +1016,7 @@ exports.chooseCharityCategory = async (params) => {
 		{ new: true }
 	);
 
-	return success("Thank you for making world a better place.", user);
+	return success("Thank you for making the world a better place.", user);
 };
 
 exports.getFAQs = async () => {
