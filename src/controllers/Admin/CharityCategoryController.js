@@ -57,9 +57,29 @@ exports.updateCharityCategory = async (params, icon) => {
 
 		let charityCategory = await CharityCategory.findById(id);
 
+		if (!charityCategory) {
+			return fail("invalid charity category!");
+		}
+
 		if (icon && charityCategory.icon) {
 			// new icon available, remove and unlink current icon
 			removeFile(`${__basedir}/public/${charityCategory.icon}`);
+		}
+
+		const charityActivities = charityCategory.activities;
+		for (const activity of activities) {
+			const activityIndex = charityActivities.findIndex(
+				(elm) => elm._id.toString() === activity._id.toString()
+			);
+			if (activityIndex === -1) {
+				charityActivities.push(activity);
+			} else {
+				const charityActivity = charityActivities[activityIndex];
+				charityActivity.title = activity.title;
+				charityActivity.neededFund = activity.neededFund;
+				charityActivity.currency = activity.currency;
+				charityActivity.isDefault = activity.isDefault;
+			}
 		}
 
 		const iconPath = icon
@@ -68,7 +88,7 @@ exports.updateCharityCategory = async (params, icon) => {
 
 		charityCategory = await CharityCategory.findByIdAndUpdate(
 			id,
-			{ title, icon: iconPath, order, isActive },
+			{ title, activities: charityActivities, icon: iconPath, order, isActive },
 			{ new: true }
 		);
 
