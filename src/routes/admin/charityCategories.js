@@ -84,7 +84,7 @@ router.post("/add", imageUpload.single("icon"), async (req, res) => {
  *                default: Aid Children
  *              activities:
  *                type: array
- *                default: [{title: "Building Schools", neededFund: 100000, currency: $}]
+ *                default: [{_id: 664ef9c67e591d53fdf65f0b, title: "Building Schools", neededFund: 100000, currency: $}]
  *              icon:
  *                type: string
  *                format: binary

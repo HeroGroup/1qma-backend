@@ -9,7 +9,8 @@ exports.handleException = (e) => {
 		e = new Error(e);
 	}
 
-	return fail(e.message);
+	console.error(e.message);
+	return fail("Server Error");
 };
 
 exports.getRandomInt = (min, max) => {
