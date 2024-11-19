@@ -69,7 +69,7 @@ exports.updateCharityCategory = async (params, icon) => {
 		const charityActivities = charityCategory.activities;
 		for (const activity of activities) {
 			const activityIndex = charityActivities.findIndex(
-				(elm) => elm._id.toString() === activity._id.toString()
+				(elm) => elm._id.toString() === activity.id.toString()
 			);
 			if (activityIndex === -1) {
 				charityActivities.push(activity);
