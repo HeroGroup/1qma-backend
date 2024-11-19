@@ -1,4 +1,5 @@
 const CharityCategory = require("../../models/CharityCategory");
+const User = require("../../models/User");
 const {
 	handleException,
 	removeFile,
@@ -169,6 +170,36 @@ exports.deleteCharityCategory = async (params) => {
 		}
 
 		await CharityCategory.deleteOne({ _id: id });
+
+		await User.updateMany(
+			{ "preferedCharity.charity._id": objectId(id) },
+			{ $unset: { preferedCharity: 1 } }
+		);
+
+		return success("Deleted successfully!");
+	} catch (e) {
+		return handleException(e);
+	}
+};
+
+exports.deleteCharityCategoryActivity = async (params) => {
+	try {
+		const { id, activityId } = params;
+		if (!id || !activityId) {
+			return fail("invalid input parameters!");
+		}
+
+		await CharityCategory.findByIdAndUpdate(id, {
+			$pull: { activities: { _id: objectId(activityId) } },
+		});
+
+		await User.updateMany(
+			{
+				"preferedCharity.charity._id": objectId(id),
+				"preferedCharity.activity._id": objectId(activityId),
+			},
+			{ $unset: { preferedCharity: 1 } }
+		);
 
 		return success("Deleted successfully!");
 	} catch (e) {

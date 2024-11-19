@@ -7,6 +7,7 @@ const {
 	deleteCharityCategory,
 	makeCharityCategoryAsDefault,
 	makeCharityActivityAsDefault,
+	deleteCharityCategoryActivity,
 } = require("../../controllers/Admin/CharityCategoryController");
 const imageUpload = require("../../services/imageUpload");
 
@@ -173,6 +174,34 @@ router.post("/activity/makeAsDefault", async (req, res) => {
  */
 router.post("/delete", async (req, res) => {
 	res.json(await deleteCharityCategory(req.body));
+});
+
+/**
+ * @openapi
+ * '/admin/charityCategories/delete':
+ *  post:
+ *     tags:
+ *     - Admin
+ *     summary: delete charity category
+ *     requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *           schema:
+ *            type: object
+ *            required:
+ *              - id
+ *              - activityId
+ *            properties:
+ *              id:
+ *                type: string
+ *                default: 664ef9c67e591d53fdf65f0b
+ *              activityId:
+ *                type: string
+ *                default: 664ef9c67e591d53fdf65f0b
+ */
+router.post("/activity/delete", async (req, res) => {
+	res.json(await deleteCharityCategoryActivity(req.body));
 });
 
 module.exports = router;
