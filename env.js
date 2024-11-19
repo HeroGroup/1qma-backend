@@ -64,4 +64,6 @@ module.exports = {
 	openAIApiKey: process.env.OPENAI_API_KEY,
 	paypalClientId: process.env.PAYPAL_CLIENT_ID,
 	paypalClientSecret: process.env.PAYPAL_CLIENT_SECRET,
+	sinchAppKey: process.env.SINCH_APP_KEY,
+	sinchAppSecret: process.env.SINCH_APP_SECRET,
 };

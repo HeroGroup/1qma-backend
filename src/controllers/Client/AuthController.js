@@ -30,7 +30,7 @@ const {
 	createUniqueAnonymousName,
 } = require("../../helpers/createUniqueAnonymousName");
 const sendEmail = require("../../services/mail");
-const sendOTP = require("../../services/sms");
+const { sendOTP, verifyOTP } = require("../../services/sms/sinch");
 const {
 	forgotPasswordHtml,
 	forgotPasswordHtmlFa,
@@ -761,36 +761,40 @@ exports.verifyEmail = async (params, updateUser = true) => {
 
 exports.verifyMobile = async (params, updateUser = true) => {
 	try {
-		const { mobile } = params;
+		const { mobile, verificationCode } = params;
 		// check mobile is valid
 		if (!validateMobile(mobile)) {
 			return fail("invalid mobile number!", params);
 		}
 
-		if (!params.verificationCode) {
+		if (!verificationCode) {
 			return fail("invalid verification code!", params);
 		}
 
-		const verifications = await Verification.find({
-			type: "mobile",
-			target: mobile,
-			verificationCode: params.verificationCode,
-			isVerified: false,
-		})
-			.sort({ createdAt: -1 })
-			.allowDiskUse();
+		// const verifications = await Verification.find({
+		// 	type: "mobile",
+		// 	target: mobile,
+		// 	verificationCode,
+		// 	isVerified: false,
+		// })
+		// 	.sort({ createdAt: -1 })
+		// 	.allowDiskUse();
 
-		if (
-			verifications.length === 0 ||
-			moment().isAfter(verifications[0].validUnitl)
-		) {
+		// if (
+		// 	verifications.length === 0 ||
+		// 	moment().isAfter(verifications[0].validUnitl)
+		// ) {
+		// 	return fail("The verification code you provided is incorrect!", params);
+		// }
+
+		// await Verification.findOneAndUpdate(
+		// 	{ _id: verifications[0]._id },
+		// 	{ isVerified: true }
+		// );
+
+		if (!verifyOTP(mobile, verificationCode)) {
 			return fail("The verification code you provided is incorrect!", params);
 		}
-
-		await Verification.findOneAndUpdate(
-			{ _id: verifications[0]._id },
-			{ isVerified: true }
-		);
 
 		if (updateUser) {
 			const users = await User.find({ mobile })
@@ -1071,7 +1075,7 @@ const createMobileVerification = async (mobile) => {
 	await verification.save();
 
 	// send sms
-	// sendOTP(mobile, verificationCode);
+	sendOTP(mobile);
 
 	return success("Verification code was sent to you!");
 };
