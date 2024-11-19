@@ -357,7 +357,6 @@ exports.createGame = async (params, socketId, language) => {
 						},
 					],
 					rates: [],
-					passed: false,
 				},
 			],
 			status: gameStatuses.CREATED,
@@ -684,7 +683,6 @@ exports.joinGame = async (params, socketId, language) => {
 							},
 						],
 						rates: [],
-						passed: false,
 					},
 				},
 				...(isStarted
