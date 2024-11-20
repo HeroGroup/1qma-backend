@@ -314,7 +314,7 @@ router.post(
  *         required: true
  */
 router.get("/:gameId/result", hasCompletedSignup, async (req, res) => {
-	res.json(await showResult(req.params.gameId));
+	res.json(await showResult(req.params.gameId, req.session.user?._id));
 });
 
 /**

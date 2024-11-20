@@ -7,6 +7,7 @@ const {
 	createGameCode,
 	objectId,
 	shuffleArray,
+	xpNeededForNextLevel,
 } = require("../../helpers/utils");
 
 const Category = require("../../models/Category");
@@ -688,7 +689,7 @@ exports.rateQuestions = async (params) => {
 	}
 };
 
-exports.showResult = async (gameId) => {
+exports.showResult = async (gameId, userId) => {
 	try {
 		if (!gameId) {
 			return fail("invalid game id!");
@@ -704,12 +705,28 @@ exports.showResult = async (gameId) => {
 		if (game.result) {
 			const { creator, category, startedAt, endedAt, result } = game;
 
+			const gameScoreboard = game.result.scoreboard;
+			const playerIndexInScoreboard = gameScoreboard.findIndex((elm) => {
+				return elm._id.toString() === userId.toString();
+			});
+			const playerScoreboard = gameScoreboard[playerIndexInScoreboard];
+
+			const statistics = {
+				level: 0,
+				currentLevelXP: 0,
+				xpNeededForNextLevel: xpNeededForNextLevel(0),
+				score: playerScoreboard?.totalScore,
+				xp: playerScoreboard?.totalXP,
+				reward: playerScoreboard?.reward,
+			};
+
 			return success("ok", {
 				creator,
 				category,
 				startedAt,
 				endedAt,
 				result,
+				statistics,
 			});
 		} else {
 			return fail("Result is not ready yet!");
