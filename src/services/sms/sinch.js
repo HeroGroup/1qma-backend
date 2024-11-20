@@ -98,6 +98,7 @@ exports.verifyOTP = (number, code) => {
 	axios
 		.put(SINCH_URL, payload, { headers })
 		.then((response) => {
+			console.log("ax", response.data.status === "SUCCESSFUL");
 			return response.data.status === "SUCCESSFUL";
 		})
 		.catch((error) => {
