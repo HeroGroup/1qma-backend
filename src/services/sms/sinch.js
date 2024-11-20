@@ -1,10 +1,10 @@
 const axios = require("axios");
 const crypto = require("crypto");
-const hash = crypto.createHash("md5");
 const https = require("https");
 const utf8 = require("utf8");
 
 exports.sendOTP = (to) => {
+	const hash = crypto.createHash("md5");
 	const application = {
 		key: env.sinchAppKey,
 		secret: env.sinchAppSecret,
