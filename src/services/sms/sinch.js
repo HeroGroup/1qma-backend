@@ -76,7 +76,6 @@ exports.sendOTP = (to) => {
 };
 
 exports.verifyOTP = (number, code) => {
-	let result = false;
 	const SINCH_URL =
 		"https://verification.api.sinch.com/verification/v1/verifications/number/" +
 		number;
@@ -99,11 +98,10 @@ exports.verifyOTP = (number, code) => {
 	axios
 		.put(SINCH_URL, payload, { headers })
 		.then((response) => {
-			result = response.data.status === "SUCCESSFUL";
-			console.log("result 1", result);
+			return response.data.status === "SUCCESSFUL";
 		})
-		.catch((error) => console.error("There was an error!", error));
-
-	console.log("result 2", result);
-	return result;
+		.catch((error) => {
+			console.error("There was an error!", error);
+			return false;
+		});
 };
