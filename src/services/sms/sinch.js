@@ -98,8 +98,12 @@ exports.verifyOTP = (number, code) => {
 
 	axios
 		.put(SINCH_URL, payload, { headers })
-		.then((response) => (result = response.data.status === "SUCCESSFUL"))
+		.then((response) => {
+			result = response.data.status === "SUCCESSFUL";
+			console.log("result 1", result);
+		})
 		.catch((error) => console.error("There was an error!", error));
 
+	console.log("result 2", result);
 	return result;
 };
