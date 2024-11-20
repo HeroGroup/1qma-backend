@@ -1075,7 +1075,7 @@ const createMobileVerification = async (mobile) => {
 	await verification.save();
 
 	// send sms
-	console.log("res", sendOTP(mobile));
+	sendOTP(mobile);
 
 	return success("Verification code was sent to you!");
 };
