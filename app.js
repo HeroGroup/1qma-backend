@@ -60,12 +60,9 @@ const User = require("./src/models/User.js");
 
 async function main() {
 	const whiteList = [
-		"https://api.staging.1qma.games",
-		"http://localhost:3000", // local backend
-		"https://staging.1qma.games",
-		"https://admin.staging.1qma.games",
-		"http://localhost:4200", // local client
-		"http://localhost:4400", // local admin
+		"https://api.1qma.games",
+		"https://1qma.games",
+		"https://admin.1qma.games",
 		"https://admin.socket.io", // socket io admin UI
 	];
 
@@ -139,7 +136,7 @@ async function main() {
 
 	if (app.get("env") === "production") {
 		app.set("trust proxy", 1);
-		// sess.cookie.domain = env.app.domain;
+		sess.cookie.domain = env.app.domain;
 		sess.cookie.sameSite = "none";
 		sess.cookie.secure = true;
 	}
