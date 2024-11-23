@@ -615,7 +615,7 @@ router.post("/bugReports/add", sameUser, async (req, res) => {
 router.post("/charity", sameUser, async (req, res) => {
 	const updateUserCharityResult = await chooseCharityCategory(req.body);
 	if (updateUserCharityResult.status === 1) {
-		req.session.user = updateUserCharityResult.data;
+		req.session.user = updateUserCharityResult.data.user;
 	}
 	res.json(updateUserCharityResult);
 });
