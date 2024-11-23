@@ -1676,14 +1676,16 @@ exports.keepMyScore = async (params) => {
 
 		let user = await User.findById(id);
 
-		const { avgRank, userTotalScore, userCheckpoint } =
-			user.statistics.survival;
-		const score = game.result.scoreboard.find((s) => s._id === user._id);
-		const newTotalScore = userTotalScore + score;
+		const { avgRank, totalScore, checkpoint } = user.statistics.survival;
+		const playerScoreborad = game.result.scoreboard.find(
+			(s) => s._id === user._id
+		);
+		const thisGameScore = playerScoreborad?.totalScore || 0;
+		const newTotalScore = totalScore + thisGameScore;
 		let updateCheckpoint = false;
 		// update checkpoint if applicable
 		const _scoreNeededForNextCheckpoint =
-			scoreNeededForNextCheckpoint(userCheckpoint);
+			scoreNeededForNextCheckpoint(checkpoint);
 		if (newTotalScore > _scoreNeededForNextCheckpoint) {
 			updateCheckpoint = true;
 		}
@@ -1695,7 +1697,7 @@ exports.keepMyScore = async (params) => {
 					(1.2 - avgRank / 25) * newTotalScore,
 				$inc: {
 					"assets.coins.bronze": -keepScorePrice,
-					"statistics.survival.totalScore": score,
+					"statistics.survival.totalScore": thisGameScore,
 					"statistics.survival.rebuys": 1,
 					...(updateCheckpoint ? { "statistics.survival.checkpoint": 1 } : {}),
 				},
