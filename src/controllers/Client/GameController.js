@@ -1014,7 +1014,7 @@ exports.submitAnswer = async (params, language) => {
 			game.questions[questionIndex].answers.filter((a) => a.isEditing === false)
 				?.length || 0;
 		const numberOfPlayers = game.players.filter(
-			(plyr) => plyr.status === "connected"
+			(plyr) => plyr.status !== "left"
 		).length;
 
 		if (numberOfSubmitted >= numberOfPlayers) {
@@ -1220,7 +1220,7 @@ exports.rateAnswers = async (params) => {
 
 		// check if all users has rated, go to the next step
 		const playersCount = game.players.filter(
-			(plyr) => plyr.status === "connected"
+			(plyr) => plyr.status !== "left"
 		).length;
 		if (ratesCount >= playersCount * playersCount) {
 			// everyone has answered, emit next question
