@@ -1340,7 +1340,7 @@ exports.rateQuestions = async (params) => {
 
 		// check if all users has rated, end the game
 		const playersCount = game.players.filter(
-			(plyr) => plyr.status === "connected"
+			(plyr) => plyr.status !== "left"
 		).length;
 		if (ratesCount === playersCount * playersCount) {
 			// everyone has answered, calculate and emit result!
