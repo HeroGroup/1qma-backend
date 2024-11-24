@@ -1016,9 +1016,14 @@ exports.chooseCharityCategory = async (params) => {
 		{ new: true }
 	);
 
+	const progress =
+		((charityActivity?.progress || 0) /
+			(charityActivity?.neededFund || 100000)) *
+		100;
+
 	return success("Thank you for making the world a better place.", {
 		user,
-		progress: charityActivity.progress,
+		progress,
 	});
 };
 
