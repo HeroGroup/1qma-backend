@@ -18,6 +18,7 @@ const {
 	notificationDataTypes,
 	coinTypes,
 	transactionTypes,
+	gameTypeNames,
 } = require("../../helpers/constants");
 const Category = require("../../models/Category");
 const Game = require("../../models/Game");
@@ -32,6 +33,7 @@ const {
 } = require("../../views/templates/html/inviteGame");
 const { addCoinTransaction } = require("./TransactionController");
 const CharityCategory = require("../../models/CharityCategory");
+const SurvivalLeague = require("../../models/SurvivalLeague");
 
 const createOrGetQuestion = async (
 	questionId,
@@ -190,9 +192,15 @@ exports.init = async () => {
 			order: 1,
 		});
 
+		const activeSurvivalLeague = await SurvivalLeague.findOne({
+			isActive: true,
+		});
+
 		return success("initialize game parameters", {
 			createModes,
-			gameTypes,
+			gameTypes: activeSurvivalLeague
+				? gameTypes
+				: [{ id: "normal", text: "Normal" }],
 			numberOfPlayers: numberOfPlayers?.value || 5,
 			gamePrice: { coin: coinTypes.BRONZE, count: createGamePrice?.value || 2 },
 			eachStepDurationSeconds: eachStepDurationSetting?.value || 120,
@@ -230,6 +238,18 @@ exports.createGame = async (params, socketId, language) => {
 
 		if (!gameType || !gameTypes.find((element) => element.id === gameType)) {
 			return fail("Invalid game type!");
+		}
+
+		if (gameType === gameTypeNames.SURVIVAL) {
+			// check there is an active survival league
+			const activeSurvivalLeague = await SurvivalLeague.findOne({
+				isActive: true,
+			});
+			if (!activeSurvivalLeague) {
+				return fail(
+					"Unfortunately there are no active survival leagues right now!"
+				);
+			}
 		}
 
 		if (

@@ -14,6 +14,11 @@ exports.createModes = [
 	{ id: "3", text: "I'm in Full Control" },
 ];
 
+exports.gameTypeNames = {
+	NORMAL: "normal",
+	SURVIVAL: "survival",
+};
+
 exports.gameTypes = [
 	{ id: "normal", text: "Normal" },
 	{ id: "survival", text: "Survival" },

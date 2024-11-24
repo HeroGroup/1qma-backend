@@ -5,6 +5,7 @@ const Setting = require("../../models/Setting");
 const User = require("../../models/User");
 const { gameStatuses } = require("../../helpers/constants");
 const { refundPlayers } = require("../Client/GameController");
+const SurvivalLeague = require("../../models/SurvivalLeague");
 
 exports.renewBasicAccounts = async (token) => {
 	try {
@@ -113,6 +114,60 @@ exports.cancelPendingInvitations = async (token) => {
 		);
 
 		return success(`${updateResult.modifiedCount} updated successfully!`);
+	} catch (e) {
+		return handleException(e);
+	}
+};
+
+exports.endSurvivalLeague = async (token) => {
+	try {
+		if (token !== env.endSurvivalToken) {
+			return fail("invalid token!");
+		}
+
+		const survivalLeague = await SurvivalLeague.findOne({ isActive: true });
+
+		if (!survivalLeague) {
+			return fail("There are no active survival leagues!");
+		}
+
+		const survivalLeagueEndDate = survivalLeague.endDate;
+		const survivalLeagueTotalGames = survivalLeague.totalGames;
+		const survivalLeagueTotalScore = survivalLeague.totalScore;
+
+		let passed = false;
+
+		if (survivalLeagueEndDate && moment().isAfter(survivalLeague.endDate)) {
+			passed = true;
+		} else if (survivalLeagueTotalGames > 0) {
+			const usersMaxTotalSurvivalGamesPlayed = await User.find()
+				.sort({ "games.survivalGamesPlayed": -1 })
+				.limit(1);
+
+			const usersMaxTotalSurvivalGamesPlayedValue =
+				usersMaxTotalSurvivalGamesPlayed[0]?.games.survivalGamesPlayed || 0;
+
+			if (usersMaxTotalSurvivalGamesPlayedValue > survivalLeagueTotalGames) {
+				passed = true;
+			}
+		} else if (survivalLeagueTotalScore) {
+			const usersMaxSurvivalTotalScore = await User.find()
+				.sort({ "statistics.survival.totalScore": -1 })
+				.limit(1);
+
+			const usersMaxSurvivalTotalScoreValue =
+				usersMaxSurvivalTotalScore[0]?.statistics.survival.totalScore || 0;
+
+			if (usersMaxSurvivalTotalScoreValue > survivalLeagueTotalScore) {
+				passed = true;
+			}
+		}
+
+		if (passed) {
+			await SurvivalLeague.findByIdAndUpdate(survivalLeague._id, {
+				isActive: false,
+			});
+		}
 	} catch (e) {
 		return handleException(e);
 	}

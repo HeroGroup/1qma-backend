@@ -66,4 +66,5 @@ module.exports = {
 	paypalClientSecret: process.env.PAYPAL_CLIENT_SECRET,
 	sinchAppKey: process.env.SINCH_APP_KEY,
 	sinchAppSecret: process.env.SINCH_APP_SECRET,
+	endSurvivalToken: process.env.END_SURVIVAL_TOKEN,
 };
