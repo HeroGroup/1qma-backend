@@ -276,12 +276,7 @@ router.get("/:gameId/question/:step", isPlayerInGame, async (req, res) => {
  *                default: any answer
  */
 router.post("/submitAnswer", sameUser, isPlayerInGame, async (req, res) => {
-	res.json(
-		await submitAnswer(
-			req.body,
-			req.session.user?.preferedLanguage.code || env.defaultLanguage
-		)
-	);
+	res.json(await submitAnswer(req.body));
 });
 
 /**

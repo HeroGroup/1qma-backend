@@ -947,7 +947,7 @@ exports.getQuestion = async (userId, gameId, step) => {
 	}
 };
 
-exports.submitAnswer = async (params, language) => {
+exports.submitAnswer = async (params) => {
 	try {
 		const { id, gameId, questionId, answer } = params;
 
@@ -1004,7 +1004,7 @@ exports.submitAnswer = async (params, language) => {
 						user_id: player._id,
 						answer,
 						isEditing: false,
-						language,
+						language: await detectLanguage(answer),
 						rates: [],
 					},
 				},
