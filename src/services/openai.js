@@ -30,3 +30,27 @@ exports.askAI = async (question, numberOfAnswers = 3) => {
 		console.error(error);
 	}
 };
+
+exports.detectLanguage = async (input) => {
+	try {
+		const response = await openai.chat.completions.create({
+			model: "gpt-4o-mini",
+			messages: [
+				{
+					role: "user",
+					content: `return only the language code of the following text between "fa" or "en". ${input}`,
+				},
+			],
+		});
+
+		if (response && response.choices && response.choices.length > 0) {
+			const answer = response.choices[0]?.message?.content;
+			return answer;
+		} else {
+			return "The model did not return a valid response.";
+		}
+	} catch (error) {
+		console.error(error);
+		return "The model did not return a valid response.";
+	}
+};

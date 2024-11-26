@@ -57,6 +57,7 @@ const {
 	reconnectPlayer,
 } = require("./src/controllers/Client/GameController");
 const User = require("./src/models/User.js");
+const { detectLanguage } = require("./src/services/openai.js");
 
 async function main() {
 	const isProduction = env.environment === "production";
@@ -231,6 +232,10 @@ async function main() {
 	});
 
 	globalThis.io = io;
+
+	console.log(
+		await detectLanguage("بکاپ گیری خوبه ولی انتشار..... نه زیاد !!")
+	);
 
 	const port = env.app.port;
 	server.listen(port, () => {
