@@ -98,13 +98,14 @@ const createOrGetQuestion = async (
 			anonymousName,
 		} = user;
 
+		const language = await detectLanguage(question);
 		const questionObject = new Question({
 			category: {
 				_id: category._id,
 				name: category.name,
 				icon: category.icon,
 			},
-			language: await detectLanguage(question),
+			language,
 			question,
 			answer,
 			user: {
