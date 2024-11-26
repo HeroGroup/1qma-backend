@@ -44,13 +44,12 @@ exports.detectLanguage = async (input) => {
 		});
 
 		if (response && response.choices && response.choices.length > 0) {
-			const answer = response.choices[0]?.message?.content;
-			return answer;
+			return response.choices[0]?.message?.content;
 		} else {
-			return "The model did not return a valid response.";
+			return "";
 		}
 	} catch (error) {
 		console.error(error);
-		return "The model did not return a valid response.";
+		return "";
 	}
 };

@@ -34,12 +34,12 @@ const {
 const { addCoinTransaction } = require("./TransactionController");
 const CharityCategory = require("../../models/CharityCategory");
 const SurvivalLeague = require("../../models/SurvivalLeague");
+const { detectLanguage } = require("../../services/openai");
 
 const createOrGetQuestion = async (
 	questionId,
 	user,
 	category,
-	language,
 	question,
 	answer,
 	currentBalance
@@ -104,7 +104,7 @@ const createOrGetQuestion = async (
 				name: category.name,
 				icon: category.icon,
 			},
-			language,
+			language: await detectLanguage(question),
 			question,
 			answer,
 			user: {
@@ -220,7 +220,7 @@ exports.init = async () => {
 	}
 };
 
-exports.createGame = async (params, socketId, language) => {
+exports.createGame = async (params, socketId) => {
 	try {
 		const { id, gameType, createMode, category, questionId, question, answer } =
 			params;
@@ -326,7 +326,6 @@ exports.createGame = async (params, socketId, language) => {
 			questionId,
 			creator,
 			dbCategory,
-			language,
 			question,
 			answer,
 			creatorBronzeCoins - createGamePrice // current balance
@@ -371,7 +370,7 @@ exports.createGame = async (params, socketId, language) => {
 						{
 							user_id: creator_id,
 							answer,
-							language,
+							language: await detectLanguage(answer),
 							rates: [],
 							isEditing: false,
 						},
@@ -439,7 +438,7 @@ exports.createGame = async (params, socketId, language) => {
 						sendEmail(
 							invitedEmail,
 							"game invitation",
-							language === "fa"
+							invitedUser.preferedLanguage === "fa"
 								? inviteGameHtmlFa(
 										`${env.frontAppUrl}/game/join?code=${game.code}`,
 										`${firstName} ${lastName}`
@@ -543,7 +542,7 @@ exports.attemptjoin = async (user, code) => {
 	}
 };
 
-exports.joinGame = async (params, socketId, language) => {
+exports.joinGame = async (params, socketId) => {
 	try {
 		const { id, gameId, questionId, question, answer } = params;
 
@@ -635,7 +634,6 @@ exports.joinGame = async (params, socketId, language) => {
 			questionId,
 			player,
 			game.category,
-			language,
 			question,
 			answer,
 			playerBronzeCoins - joinGamePrice // current balance
@@ -697,7 +695,7 @@ exports.joinGame = async (params, socketId, language) => {
 							{
 								user_id: player_id,
 								answer,
-								language,
+								language: await detectLanguage(answer),
 								rates: [],
 								isEditing: false,
 							},
