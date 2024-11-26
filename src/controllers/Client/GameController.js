@@ -1036,15 +1036,19 @@ exports.submitAnswer = async (params, language) => {
 		const numberOfPlayers = game.players.filter(
 			(plyr) => plyr.status !== "left"
 		).length;
+		const numberOfConnectedPlayers = game.players.filter(
+			(plyr) => plyr.status === "connected"
+		).length;
 
-		if (numberOfSubmitted >= numberOfPlayers) {
+		if (numberOfSubmitted >= numberOfConnectedPlayers) {
 			// emit next question
 			io.to(gameId).emit("next step", {});
-			console.log("next step");
+			console.log("next step: rate answers");
 		} else {
 			io.to(gameId).emit("submit answer", {
 				numberOfSubmitted,
 				numberOfPlayers,
+				numberOfConnectedPlayers,
 			});
 			console.log("submit answer");
 		}
@@ -1242,14 +1246,20 @@ exports.rateAnswers = async (params) => {
 		const playersCount = game.players.filter(
 			(plyr) => plyr.status !== "left"
 		).length;
-		if (ratesCount >= playersCount * playersCount) {
+		const connectedPlayersCount = game.players.filter(
+			(plyr) => plyr.status === "connected"
+		).length;
+
+		// if (ratesCount >= playersCount * playersCount) {
+		if (ratesCount >= connectedPlayersCount * connectedPlayersCount) {
 			// everyone has answered, emit next question
 			io.to(gameId).emit("next step", {});
-			console.log("next step");
+			console.log("next step: next question");
 		} else {
 			io.to(gameId).emit("submit answer", {
 				numberOfSubmitted: Math.floor(ratesCount / playersCount),
 				numberOfPlayers: playersCount,
+				numberOfConnectedPlayers: connectedPlayersCount,
 			});
 			console.log("submit answer rates");
 		}
@@ -1362,13 +1372,19 @@ exports.rateQuestions = async (params) => {
 		const playersCount = game.players.filter(
 			(plyr) => plyr.status !== "left"
 		).length;
-		if (ratesCount === playersCount * playersCount) {
+		const connectedPlayersCount = game.players.filter(
+			(plyr) => plyr.status === "connected"
+		).length;
+
+		// if (ratesCount === playersCount * playersCount) {
+		if (ratesCount >= connectedPlayersCount * connectedPlayersCount) {
 			// everyone has answered, calculate and emit result!
 			calculateResult(gameId);
 		} else {
 			io.to(gameId).emit("submit answer", {
 				numberOfSubmitted: Math.floor(ratesCount / playersCount),
 				numberOfPlayers: playersCount,
+				numberOfConnectedPlayers: connectedPlayersCount,
 			});
 			console.log("submit question rates");
 		}
