@@ -1145,6 +1145,7 @@ exports.getAnswers = async (gameId, questionId) => {
 		return success("ok", {
 			questionId,
 			question: gameQuestions[questionIndex]?.question,
+			questionLanguage: gameQuestions[questionIndex]?.language,
 			answers,
 		});
 	} catch (e) {
