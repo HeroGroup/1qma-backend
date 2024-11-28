@@ -189,6 +189,10 @@ exports.init = async () => {
 			key: "RATE_QUESTIONS_DURATION_SECONDS",
 		});
 
+		const publicQuestionFeeSetting = await Setting.findOne({
+			key: "PUBLIC_QUESTION_USAGE_FEE",
+		});
+
 		const categories = await Category.find({ isActive: true }).sort({
 			order: 1,
 		});
@@ -213,6 +217,7 @@ exports.init = async () => {
 				coin: coinTypes.BRONZE,
 				count: keepScorePriceSetting?.value || 5,
 			},
+			publicQuestionFee: publicQuestionFeeSetting?.value || 5,
 			answerWordsLimitation: answerWordsLimitationSetting?.value || 100,
 			categories,
 		});
