@@ -240,11 +240,10 @@ async function main() {
 		);
 	});
 
-	const questions = ["I don't know", "Greek", "I dont know..."];
+	const questions = ["salam khoobi?", "نظر قطعی ندا"];
 
 	console.log(questions[0], await detectLanguage(questions[0]));
 	console.log(questions[1], await detectLanguage(questions[1]));
-	console.log(questions[2], await detectLanguage(questions[2]));
 }
 
 main();
