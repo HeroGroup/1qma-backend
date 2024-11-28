@@ -57,7 +57,6 @@ const {
 	reconnectPlayer,
 } = require("./src/controllers/Client/GameController");
 const User = require("./src/models/User.js");
-const { detectLanguage } = require("./src/services/openai.js");
 
 async function main() {
 	const isProduction = env.environment === "production";
