@@ -7,14 +7,16 @@ exports.addCoinTransaction = async (
 	user,
 	newCoinBalance
 ) => {
-	const transaction = new Transaction({
-		type,
-		title,
-		coinAmount,
-		user,
-		newCoinBalance,
-		createdAt: moment(),
-	});
+	if (coinAmount.price > 0) {
+		const transaction = new Transaction({
+			type,
+			title,
+			coinAmount,
+			user,
+			newCoinBalance,
+			createdAt: moment(),
+		});
 
-	await transaction.save();
+		await transaction.save();
+	}
 };
