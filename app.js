@@ -239,11 +239,6 @@ async function main() {
 			`${env.app.name} app is listening on port ${port} in ${app.get("env")}`
 		);
 	});
-
-	const questions = ["salam khoobi?", "نظر قطعی ندا"];
-
-	console.log(questions[0], await detectLanguage(questions[0]));
-	console.log(questions[1], await detectLanguage(questions[1]));
 }
 
 main();
