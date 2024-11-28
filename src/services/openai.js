@@ -33,12 +33,16 @@ exports.askAI = async (question, numberOfAnswers = 3) => {
 
 exports.detectLanguage = async (input) => {
 	try {
+		if (!input || input.length < 2) {
+			return "";
+		}
+
 		const response = await openai.chat.completions.create({
 			model: "gpt-4o-mini",
 			messages: [
 				{
 					role: "user",
-					content: `return only the language code of the following text between "fa" or "en". ${input}`,
+					content: `Detect language of "${input}". Return only "en" or "fa"`,
 				},
 			],
 		});

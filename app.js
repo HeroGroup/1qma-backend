@@ -57,6 +57,7 @@ const {
 	reconnectPlayer,
 } = require("./src/controllers/Client/GameController");
 const User = require("./src/models/User.js");
+const { detectLanguage } = require("./src/services/openai.js");
 
 async function main() {
 	const isProduction = env.environment === "production";
@@ -238,6 +239,12 @@ async function main() {
 			`${env.app.name} app is listening on port ${port} in ${app.get("env")}`
 		);
 	});
+
+	const questions = ["I don't know", "Greek", "I dont know..."];
+
+	console.log(questions[0], await detectLanguage(questions[0]));
+	console.log(questions[1], await detectLanguage(questions[1]));
+	console.log(questions[2], await detectLanguage(questions[2]));
 }
 
 main();
