@@ -1037,27 +1037,29 @@ exports.getFAQs = async () => {
 	}
 };
 
-exports.getTermsOfService = async () => {
+exports.getTermsOfService = async (lang) => {
 	try {
-		const terms = await Setting.findOne(
-			{ key: "TERMS_OF_SERVICE" },
-			{ value: 1 }
-		);
+		const faLangCondition = lang?.code === "fa";
+		const key = faLangCondition ? "TERMS_OF_SERVICE_FA" : "TERMS_OF_SERVICE";
+		const alt = faLangCondition ? "شرایط خدمات" : "Terms of Service";
 
-		return success("ok", terms?.value || "Terms of Service");
+		const terms = await Setting.findOne({ key }, { value: 1 });
+		return success("ok", terms?.value || alt);
 	} catch (e) {
 		return handleException(e);
 	}
 };
 
-exports.getPrivacyPolicies = async () => {
+exports.getPrivacyPolicies = async (lang) => {
 	try {
-		const privacyPolicies = await Setting.findOne(
-			{ key: "PRIVACY_POLICIES" },
-			{ value: 1 }
-		);
+		const faLangCondition = lang?.code === "fa";
+		const key = faLangCondition ? "PRIVACY_POLICIES_FA" : "PRIVACY_POLICIES";
+		const alt = faLangCondition
+			? "سیاست های حفظ حریم خصوصی"
+			: "Privacy Policies";
 
-		return success("ok", privacyPolicies?.value || "Privacy Policies");
+		const privacyPolicies = await Setting.findOne({ key }, { value: 1 });
+		return success("ok", privacyPolicies?.value || alt);
 	} catch (e) {
 		return handleException(e);
 	}
