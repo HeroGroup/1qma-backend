@@ -178,7 +178,7 @@ router.post("/delete", async (req, res) => {
 
 /**
  * @openapi
- * '/admin/charityCategories/delete':
+ * '/admin/charityCategories/activity/delete':
  *  post:
  *     tags:
  *     - Admin
