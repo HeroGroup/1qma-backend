@@ -144,9 +144,13 @@ exports.friendsRecentGames = async (userId) => {
 	}
 };
 
-exports.survivalScoreboard = async () => {
+exports.survivalScoreboard = async (lang) => {
 	try {
 		const survivalLeague = await SurvivalLeague.findOne({ isActive: true });
+		const faLangCondition = lang?.code === "fa";
+		const survivalTitle = faLangCondition
+			? survivalLeague?.titleFa || "بقا"
+			: survivalLeague?.title || "Survival";
 
 		const users = await User.find(
 			{
@@ -160,7 +164,7 @@ exports.survivalScoreboard = async () => {
 
 		return success("ok", {
 			users,
-			survivalTitle: survivalLeague?.title || "Survival",
+			survivalTitle,
 		});
 	} catch (e) {
 		return handleException(e);

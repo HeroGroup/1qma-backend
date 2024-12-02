@@ -110,7 +110,7 @@ router.get("/friendsRecent", async (req, res) => {
  *     summary: Survival games global scoreboard
  */
 router.get("/scoreboard/survival", async (req, res) => {
-	res.json(await survivalScoreboard());
+	res.json(await survivalScoreboard(req.session.user?.preferedLanguage));
 });
 
 /**
