@@ -41,6 +41,8 @@ router.get("/", async (req, res) => {
  *              - details
  *              - coinPrice
  *              - realPrice
+ *              - description
+ *              - descriptionFa
  *              - icon
  *            properties:
  *              type:
@@ -55,6 +57,12 @@ router.get("/", async (req, res) => {
  *              realPrice:
  *                type: number
  *                default: 3
+ *              description:
+ *                type: string
+ *                default: description of the item
+ *              descriptionFa:
+ *                type: string
+ *                default: توضیحات محصول
  *              icon:
  *                type: string
  *                format: binary
@@ -82,6 +90,8 @@ router.post("/add", imageUpload.single("icon"), async (req, res) => {
  *              - details
  *              - coinPrice
  *              - realPrice
+ *              - description
+ *              - descriptionFa
  *              - icon
  *            properties:
  *              id:
@@ -99,6 +109,12 @@ router.post("/add", imageUpload.single("icon"), async (req, res) => {
  *              realPrice:
  *                type: number
  *                default: 3
+ *              description:
+ *                type: string
+ *                default: description of the item
+ *              descriptionFa:
+ *                type: string
+ *                default: توضیحات محصول
  *              icon:
  *                type: string
  *                format: binary
