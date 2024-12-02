@@ -2,7 +2,9 @@ exports.sanitizeInputExceptions = [
 	"password",
 	"passwordConfirmation",
 	"terms",
+	"termsFa",
 	"privacyPolicies",
+	"privacyPoliciesFa",
 ];
 
 exports.authReasons = ["register", "login", "join_to_wait_list"];
