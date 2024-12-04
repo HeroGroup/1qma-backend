@@ -1798,8 +1798,7 @@ const calculateResult = async (gameId) => {
 				return element.user_id.toString() === player._id.toString();
 			});
 
-			const answersRates = [];
-			const answersRatesRaw = [];
+			// ================ new aproach ================
 			for (let i = 0; i < questions.length; i++) {
 				const question = questions[i];
 				const questionWeight =
@@ -1809,17 +1808,38 @@ const calculateResult = async (gameId) => {
 					)?.rate || 1) /
 						100; // 1 => 1.01, 5 => 1.05
 
+				for (const qAnswer of question.answers) {
+					for (const aRate of qAnswer.rates) {
+						if (aRate.user_id.toString() === player._id.toString()) {
+							aRate.weightedRate = (aRate.rate || 1.01) * questionWeight;
+						} else {
+							aRate.weightedRate = aRate.rate || 1.01;
+						}
+					}
+				}
+			}
+
+			const answersRates = [];
+			const answersRatesRaw = [];
+			for (let i = 0; i < questions.length; i++) {
+				const question = questions[i];
+
 				const answer = question.answers.find(
 					(elm) => elm.user_id.toString() === player._id.toString()
 				);
 				const sumRates =
 					answer?.rates.reduce((n, { rate }) => n + rate, 0) || numberOfPlayers;
 				answersRatesRaw.push(sumRates);
-				answersRates.push(sumRates * questionWeight);
 
-				// loop on question.answers
-				// loop on answer.rates
-				// find rate.user_id and multiply with questionWeight
+				// ================ Old aproach ================
+				// answersRates.push(sumRates * questionWeight);
+
+				// ================ new aproach ================
+				const sumWeightedRates =
+					answer?.rates.reduce((n, { weightedRate }) => n + weightedRate, 0) ||
+					numberOfPlayers;
+
+				answersRates.push(sumWeightedRates);
 			}
 
 			const questionRate = questions[ownQuestionIndex].rates.reduce(
