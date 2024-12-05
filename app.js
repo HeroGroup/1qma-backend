@@ -59,12 +59,24 @@ const {
 const User = require("./src/models/User.js");
 
 async function main() {
-	const whiteList = [
+	const isProduction = env.environment === "production";
+	const devWhiteList = [
+		"https://api.staging.1qma.games",
+		"http://localhost:3000", // local backend
+		"https://staging.1qma.games",
+		"https://admin.staging.1qma.games",
+		"http://localhost:4200", // local client
+		"http://localhost:4400", // local admin
+		"https://admin.socket.io", // socket io admin UI
+	];
+	const mainWhiteList = [
 		"https://api.1qma.games",
 		"https://1qma.games",
 		"https://admin.1qma.games",
 		"https://admin.socket.io", // socket io admin UI
 	];
+
+	const whiteList = isProduction ? mainWhiteList : devWhiteList;
 
 	const corsOptions = {
 		credentials: true,
@@ -136,7 +148,9 @@ async function main() {
 
 	if (app.get("env") === "production") {
 		app.set("trust proxy", 1);
-		sess.cookie.domain = env.app.domain;
+		if (isProduction) {
+			sess.cookie.domain = env.app.domain;
+		}
 		sess.cookie.sameSite = "none";
 		sess.cookie.secure = true;
 	}
@@ -176,11 +190,13 @@ async function main() {
 
 	app.use(express.static("public"));
 
-	app.use(
-		"/api-docs",
-		swaggerUI.serve,
-		swaggerUI.setup(swaggerSpec, { explorer: true })
-	);
+	if (!isProduction) {
+		app.use(
+			"/api-docs",
+			swaggerUI.serve,
+			swaggerUI.setup(swaggerSpec, { explorer: true })
+		);
+	}
 
 	// Sharing the session context
 	io.engine.use(session(sess));

@@ -40,6 +40,8 @@ router.get("/", async (req, res) => {
  *            required:
  *              - question
  *              - answer
+ *              - questionFa
+ *              - answerFa
  *              - order
  *            properties:
  *              question:
@@ -48,6 +50,12 @@ router.get("/", async (req, res) => {
  *              answer:
  *                type: string
  *                default: simply share your referal code with them.
+ *              questionFa:
+ *                type: string
+ *                default: چطور می توانم دوستانم را دعوت کنم؟
+ *              answerFa:
+ *                type: string
+ *                default: به سادگی کد دعوت را در اختیار آنان قرار دهید
  *              order:
  *                type: number
  *                default: 1
@@ -74,6 +82,8 @@ router.post("/add", async (req, res) => {
  *              - id
  *              - question
  *              - answer
+ *              - questionFa
+ *              - answerFa
  *              - order
  *              - isActive
  *            properties:
@@ -86,6 +96,12 @@ router.post("/add", async (req, res) => {
  *              answer:
  *                type: string
  *                default: simply share your referal code with them.
+ *              questionFa:
+ *                type: string
+ *                default: چطور می توانم دوستانم را دعوت کنم؟
+ *              answerFa:
+ *                type: string
+ *                default: به سادگی کد دعوت را در اختیار آنان قرار دهید
  *              order:
  *                type: number
  *                default: 1
@@ -160,10 +176,14 @@ router.get("/privacyPolicies", async (req, res) => {
  *            type: object
  *            required:
  *              - terms
+ *              - termsFa
  *            properties:
  *              terms:
  *                type: string
  *                default: Terms of Service
+ *              termsFa:
+ *                type: string
+ *                default: شرایط استفاده از خدمات
  */
 router.post("/updateTermsOfService", async (req, res) => {
 	res.json(await updateTermsOfService(req.body));
@@ -184,10 +204,14 @@ router.post("/updateTermsOfService", async (req, res) => {
  *            type: object
  *            required:
  *              - privacyPolicies
+ *              - privacyPoliciesFa
  *            properties:
  *              privacyPolicies:
  *                type: string
  *                default: privacy policies
+ *              privacyPoliciesFa:
+ *                type: string
+ *                default: سیاست های حریم شخصی
  */
 router.post("/updatePrivacyPolicies", async (req, res) => {
 	res.json(await updatePrivacyPolicies(req.body));

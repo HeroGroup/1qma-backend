@@ -2,7 +2,9 @@ exports.sanitizeInputExceptions = [
 	"password",
 	"passwordConfirmation",
 	"terms",
+	"termsFa",
 	"privacyPolicies",
+	"privacyPoliciesFa",
 ];
 
 exports.authReasons = ["register", "login", "join_to_wait_list"];
@@ -14,9 +16,14 @@ exports.createModes = [
 	{ id: "3", text: "I'm in Full Control" },
 ];
 
+exports.gameTypeNames = {
+	NORMAL: "normal",
+	SURVIVAL: "survival",
+};
+
 exports.gameTypes = [
-	{ id: "normal", text: "Normal" },
-	{ id: "survival", text: "Survival" },
+	{ id: "normal", text: "Normal", textFa: "عادی" },
+	{ id: "survival", text: "Survival", textFa: "بقا" },
 ];
 
 exports.languages = [
@@ -25,27 +32,31 @@ exports.languages = [
 ];
 
 exports.genders = [
-	{ _id: "0", title: "Male" },
-	{ _id: "1", title: "Female" },
-	{ _id: "2", title: "prefer not to say" },
+	{ _id: "0", title: "Male", titleFa: "مرد" },
+	{ _id: "1", title: "Female", titleFa: "زن" },
+	{ _id: "2", title: "prefer not to say", titleFa: "ترجیح میدهم نگم" },
 ];
 
 exports.educations = [
 	{
 		_id: "0",
 		title: "Uneducated",
+		titleFa: "بی سواد",
 	},
 	{
 		_id: "1",
 		title: "Bachelor Degree",
+		titleFa: "لیسانس",
 	},
 	{
 		_id: "2",
 		title: "Masters Degree",
+		titleFa: "فوق لیسانس",
 	},
 	{
 		_id: "3",
 		title: "Phd",
+		titleFa: "دکتری",
 	},
 ];
 

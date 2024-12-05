@@ -82,11 +82,7 @@ router.get("/init", async (req, res) => {
  *                default: any answer
  */
 router.post("/create", sameUser, hasSeenAllIntros, async (req, res) => {
-	const createGameResult = await createGame(
-		req.body,
-		req.session.socketId,
-		req.session.user?.preferedLanguage.code || env.defaultLanguage
-	);
+	const createGameResult = await createGame(req.body, req.session.socketId);
 
 	if (createGameResult.status === 1) {
 		req.session.user.assets = createGameResult.newBalance;
@@ -146,11 +142,7 @@ router.get("/:idOrCode/join", hasSeenAllIntros, async (req, res) => {
  *                default: any answer
  */
 router.post("/join", sameUser, hasSeenAllIntros, async (req, res) => {
-	const joinResult = await joinGame(
-		req.body,
-		req.session.socketId,
-		req.session.user?.preferedLanguage.code || env.defaultLanguage
-	);
+	const joinResult = await joinGame(req.body, req.session.socketId);
 
 	if (joinResult.status === 1) {
 		req.session.user.assets = joinResult.newBalance;
@@ -284,12 +276,7 @@ router.get("/:gameId/question/:step", isPlayerInGame, async (req, res) => {
  *                default: any answer
  */
 router.post("/submitAnswer", sameUser, isPlayerInGame, async (req, res) => {
-	res.json(
-		await submitAnswer(
-			req.body,
-			req.session.user?.preferedLanguage.code || env.defaultLanguage
-		)
-	);
+	res.json(await submitAnswer(req.body));
 });
 
 /**

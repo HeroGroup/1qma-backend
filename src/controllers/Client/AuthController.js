@@ -63,11 +63,17 @@ exports.init = async () => {
 	const normalGameExplanationSetting = await Setting.findOne({
 		key: "NORMAL_GAME_EXPLANATION",
 	});
+	const normalGameExplanationFaSetting = await Setting.findOne({
+		key: "NORMAL_GAME_EXPLANATION_FA",
+	});
 	const survivalGameVideoLinkSetting = await Setting.findOne({
 		key: "SURVIVAL_GAME_VIDEO_LINK",
 	});
 	const survivalGameExplanationSetting = await Setting.findOne({
 		key: "SURVIVAL_GAME_EXPLANATION",
+	});
+	const survivalGameExplanationFaSetting = await Setting.findOne({
+		key: "SURVIVAL_GAME_EXPLANATION_FA",
 	});
 
 	return success("initialize parameters", {
@@ -82,13 +88,17 @@ exports.init = async () => {
 		gameExplanations: [
 			{
 				gameType: "Normal Game",
+				gameTypeFa: "بازی عادی",
 				link: normalGameVideoLinkSetting?.value || "",
 				explanation: normalGameExplanationSetting?.value || "",
+				explanationFa: normalGameExplanationFaSetting?.value || "",
 			},
 			{
 				gameType: "Survival Game",
+				gameTypeFa: "بازی بقا",
 				link: survivalGameVideoLinkSetting?.value || "",
 				explanation: survivalGameExplanationSetting?.value || "",
+				explanationFa: survivalGameExplanationFaSetting?.value || "",
 			},
 		],
 	});

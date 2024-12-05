@@ -18,6 +18,7 @@ const {
 	notificationDataTypes,
 	coinTypes,
 	transactionTypes,
+	gameTypeNames,
 } = require("../../helpers/constants");
 const Category = require("../../models/Category");
 const Game = require("../../models/Game");
@@ -32,12 +33,13 @@ const {
 } = require("../../views/templates/html/inviteGame");
 const { addCoinTransaction } = require("./TransactionController");
 const CharityCategory = require("../../models/CharityCategory");
+const SurvivalLeague = require("../../models/SurvivalLeague");
+const { detectLanguage } = require("../../services/openai");
 
 const createOrGetQuestion = async (
 	questionId,
 	user,
 	category,
-	language,
 	question,
 	answer,
 	currentBalance
@@ -96,6 +98,7 @@ const createOrGetQuestion = async (
 			anonymousName,
 		} = user;
 
+		const language = await detectLanguage(question);
 		const questionObject = new Question({
 			category: {
 				_id: category._id,
@@ -186,13 +189,23 @@ exports.init = async () => {
 			key: "RATE_QUESTIONS_DURATION_SECONDS",
 		});
 
+		const publicQuestionFeeSetting = await Setting.findOne({
+			key: "PUBLIC_QUESTION_USAGE_FEE",
+		});
+
 		const categories = await Category.find({ isActive: true }).sort({
 			order: 1,
 		});
 
+		const activeSurvivalLeague = await SurvivalLeague.findOne({
+			isActive: true,
+		});
+
 		return success("initialize game parameters", {
 			createModes,
-			gameTypes,
+			gameTypes: activeSurvivalLeague
+				? gameTypes
+				: [{ id: "normal", text: "Normal" }],
 			numberOfPlayers: numberOfPlayers?.value || 5,
 			gamePrice: { coin: coinTypes.BRONZE, count: createGamePrice?.value || 2 },
 			eachStepDurationSeconds: eachStepDurationSetting?.value || 120,
@@ -204,6 +217,7 @@ exports.init = async () => {
 				coin: coinTypes.BRONZE,
 				count: keepScorePriceSetting?.value || 5,
 			},
+			publicQuestionFee: publicQuestionFeeSetting?.value || 5,
 			answerWordsLimitation: answerWordsLimitationSetting?.value || 100,
 			categories,
 		});
@@ -212,7 +226,7 @@ exports.init = async () => {
 	}
 };
 
-exports.createGame = async (params, socketId, language) => {
+exports.createGame = async (params, socketId) => {
 	try {
 		const { id, gameType, createMode, category, questionId, question, answer } =
 			params;
@@ -230,6 +244,18 @@ exports.createGame = async (params, socketId, language) => {
 
 		if (!gameType || !gameTypes.find((element) => element.id === gameType)) {
 			return fail("Invalid game type!");
+		}
+
+		if (gameType === gameTypeNames.SURVIVAL) {
+			// check there is an active survival league
+			const activeSurvivalLeague = await SurvivalLeague.findOne({
+				isActive: true,
+			});
+			if (!activeSurvivalLeague) {
+				return fail(
+					"Unfortunately there are no active survival leagues right now!"
+				);
+			}
 		}
 
 		if (
@@ -306,7 +332,6 @@ exports.createGame = async (params, socketId, language) => {
 			questionId,
 			creator,
 			dbCategory,
-			language,
 			question,
 			answer,
 			creatorBronzeCoins - createGamePrice // current balance
@@ -351,7 +376,7 @@ exports.createGame = async (params, socketId, language) => {
 						{
 							user_id: creator_id,
 							answer,
-							language,
+							language: await detectLanguage(answer),
 							rates: [],
 							isEditing: false,
 						},
@@ -419,7 +444,7 @@ exports.createGame = async (params, socketId, language) => {
 						sendEmail(
 							invitedEmail,
 							"game invitation",
-							language === "fa"
+							invitedUser.preferedLanguage === "fa"
 								? inviteGameHtmlFa(
 										`${env.frontAppUrl}/game/join?code=${game.code}`,
 										`${firstName} ${lastName}`
@@ -523,7 +548,7 @@ exports.attemptjoin = async (user, code) => {
 	}
 };
 
-exports.joinGame = async (params, socketId, language) => {
+exports.joinGame = async (params, socketId) => {
 	try {
 		const { id, gameId, questionId, question, answer } = params;
 
@@ -615,7 +640,6 @@ exports.joinGame = async (params, socketId, language) => {
 			questionId,
 			player,
 			game.category,
-			language,
 			question,
 			answer,
 			playerBronzeCoins - joinGamePrice // current balance
@@ -677,7 +701,7 @@ exports.joinGame = async (params, socketId, language) => {
 							{
 								user_id: player_id,
 								answer,
-								language,
+								language: await detectLanguage(answer),
 								rates: [],
 								isEditing: false,
 							},
@@ -928,7 +952,7 @@ exports.getQuestion = async (userId, gameId, step) => {
 	}
 };
 
-exports.submitAnswer = async (params, language) => {
+exports.submitAnswer = async (params) => {
 	try {
 		const { id, gameId, questionId, answer } = params;
 
@@ -985,7 +1009,7 @@ exports.submitAnswer = async (params, language) => {
 						user_id: player._id,
 						answer,
 						isEditing: false,
-						language,
+						language: await detectLanguage(answer),
 						rates: [],
 					},
 				},
@@ -1014,17 +1038,21 @@ exports.submitAnswer = async (params, language) => {
 			game.questions[questionIndex].answers.filter((a) => a.isEditing === false)
 				?.length || 0;
 		const numberOfPlayers = game.players.filter(
+			(plyr) => plyr.status !== "left"
+		).length;
+		const numberOfConnectedPlayers = game.players.filter(
 			(plyr) => plyr.status === "connected"
 		).length;
 
-		if (numberOfSubmitted >= numberOfPlayers) {
+		if (numberOfSubmitted >= numberOfConnectedPlayers) {
 			// emit next question
 			io.to(gameId).emit("next step", {});
-			console.log("next step");
+			console.log("next step: rate answers");
 		} else {
 			io.to(gameId).emit("submit answer", {
 				numberOfSubmitted,
 				numberOfPlayers,
+				numberOfConnectedPlayers,
 			});
 			console.log("submit answer");
 		}
@@ -1122,6 +1150,7 @@ exports.getAnswers = async (gameId, questionId) => {
 		return success("ok", {
 			questionId,
 			question: gameQuestions[questionIndex]?.question,
+			questionLanguage: gameQuestions[questionIndex]?.language,
 			answers,
 		});
 	} catch (e) {
@@ -1220,16 +1249,22 @@ exports.rateAnswers = async (params) => {
 
 		// check if all users has rated, go to the next step
 		const playersCount = game.players.filter(
+			(plyr) => plyr.status !== "left"
+		).length;
+		const connectedPlayersCount = game.players.filter(
 			(plyr) => plyr.status === "connected"
 		).length;
-		if (ratesCount >= playersCount * playersCount) {
+
+		// if (ratesCount >= playersCount * playersCount) {
+		if (ratesCount >= connectedPlayersCount * connectedPlayersCount) {
 			// everyone has answered, emit next question
 			io.to(gameId).emit("next step", {});
-			console.log("next step");
+			console.log("next step: next question");
 		} else {
 			io.to(gameId).emit("submit answer", {
 				numberOfSubmitted: Math.floor(ratesCount / playersCount),
 				numberOfPlayers: playersCount,
+				numberOfConnectedPlayers: connectedPlayersCount,
 			});
 			console.log("submit answer rates");
 		}
@@ -1340,15 +1375,21 @@ exports.rateQuestions = async (params) => {
 
 		// check if all users has rated, end the game
 		const playersCount = game.players.filter(
+			(plyr) => plyr.status !== "left"
+		).length;
+		const connectedPlayersCount = game.players.filter(
 			(plyr) => plyr.status === "connected"
 		).length;
-		if (ratesCount === playersCount * playersCount) {
+
+		// if (ratesCount === playersCount * playersCount) {
+		if (ratesCount >= connectedPlayersCount * connectedPlayersCount) {
 			// everyone has answered, calculate and emit result!
 			calculateResult(gameId);
 		} else {
 			io.to(gameId).emit("submit answer", {
 				numberOfSubmitted: Math.floor(ratesCount / playersCount),
 				numberOfPlayers: playersCount,
+				numberOfConnectedPlayers: connectedPlayersCount,
 			});
 			console.log("submit question rates");
 		}
@@ -1676,14 +1717,16 @@ exports.keepMyScore = async (params) => {
 
 		let user = await User.findById(id);
 
-		const { avgRank, userTotalScore, userCheckpoint } =
-			user.statistics.survival;
-		const score = game.result.scoreboard.find((s) => s._id === user._id);
-		const newTotalScore = userTotalScore + score;
+		const { avgRank, totalScore, checkpoint } = user.statistics.survival;
+		const playerScoreborad = game.result.scoreboard.find(
+			(s) => s._id === user._id
+		);
+		const thisGameScore = playerScoreborad?.totalScore || 0;
+		const newTotalScore = totalScore + thisGameScore;
 		let updateCheckpoint = false;
 		// update checkpoint if applicable
 		const _scoreNeededForNextCheckpoint =
-			scoreNeededForNextCheckpoint(userCheckpoint);
+			scoreNeededForNextCheckpoint(checkpoint);
 		if (newTotalScore > _scoreNeededForNextCheckpoint) {
 			updateCheckpoint = true;
 		}
@@ -1695,7 +1738,7 @@ exports.keepMyScore = async (params) => {
 					(1.2 - avgRank / 25) * newTotalScore,
 				$inc: {
 					"assets.coins.bronze": -keepScorePrice,
-					"statistics.survival.totalScore": score,
+					"statistics.survival.totalScore": thisGameScore,
 					"statistics.survival.rebuys": 1,
 					...(updateCheckpoint ? { "statistics.survival.checkpoint": 1 } : {}),
 				},
@@ -1755,8 +1798,7 @@ const calculateResult = async (gameId) => {
 				return element.user_id.toString() === player._id.toString();
 			});
 
-			const answersRates = [];
-			const answersRatesRaw = [];
+			// ================ new aproach ================
 			for (let i = 0; i < questions.length; i++) {
 				const question = questions[i];
 				const questionWeight =
@@ -1766,17 +1808,38 @@ const calculateResult = async (gameId) => {
 					)?.rate || 1) /
 						100; // 1 => 1.01, 5 => 1.05
 
+				for (const qAnswer of question.answers) {
+					for (const aRate of qAnswer.rates) {
+						if (aRate.user_id.toString() === player._id.toString()) {
+							aRate.weightedRate = (aRate.rate || 1.01) * questionWeight;
+						} else {
+							aRate.weightedRate = aRate.rate || 1.01;
+						}
+					}
+				}
+			}
+
+			const answersRates = [];
+			const answersRatesRaw = [];
+			for (let i = 0; i < questions.length; i++) {
+				const question = questions[i];
+
 				const answer = question.answers.find(
 					(elm) => elm.user_id.toString() === player._id.toString()
 				);
 				const sumRates =
 					answer?.rates.reduce((n, { rate }) => n + rate, 0) || numberOfPlayers;
 				answersRatesRaw.push(sumRates);
-				answersRates.push(sumRates * questionWeight);
 
-				// loop on question.answers
-				// loop on answer.rates
-				// find rate.user_id and multiply with questionWeight
+				// ================ Old aproach ================
+				// answersRates.push(sumRates * questionWeight);
+
+				// ================ new aproach ================
+				const sumWeightedRates =
+					answer?.rates.reduce((n, { weightedRate }) => n + weightedRate, 0) ||
+					numberOfPlayers;
+
+				answersRates.push(sumWeightedRates);
 			}
 
 			const questionRate = questions[ownQuestionIndex].rates.reduce(

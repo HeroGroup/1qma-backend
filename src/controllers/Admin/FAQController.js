@@ -14,17 +14,19 @@ exports.getFAQs = async () => {
 
 exports.addFAQ = async (params) => {
 	try {
-		const { question, answer, order } = params;
-		if (!question) {
+		const { question, questionFa, answer, answerFa, order } = params;
+		if (!question || !questionFa) {
 			return fail("Invalid question!");
 		}
-		if (!answer) {
+		if (!answer || !answerFa) {
 			return fail("Invalid answer!");
 		}
 
 		const faq = new FAQ({
 			question,
+			questionFa,
 			answer,
+			answerFa,
 			order: order || 0,
 			isActive: true,
 		});
@@ -38,14 +40,15 @@ exports.addFAQ = async (params) => {
 
 exports.updateFAQ = async (params) => {
 	try {
-		const { id, question, answer, order, isActive } = params;
-		if (!id || !question || !answer) {
+		const { id, question, questionFa, answer, answerFa, order, isActive } =
+			params;
+		if (!id || !question || !questionFa || !answer || !answerFa) {
 			return fail("invalid parameters!");
 		}
 
 		const faq = await FAQ.findByIdAndUpdate(
 			id,
-			{ question, answer, order, isActive },
+			{ question, questionFa, answer, answerFa, order, isActive },
 			{ new: true }
 		);
 
@@ -73,8 +76,9 @@ exports.deleteFAQ = async (params) => {
 exports.getTerms = async () => {
 	try {
 		const terms = await Setting.findOne({ key: "TERMS_OF_SERVICE" });
+		const termsFa = await Setting.findOne({ key: "TERMS_OF_SERVICE_FA" });
 
-		return success("ok", terms);
+		return success("ok", { terms, termsFa });
 	} catch (e) {
 		return handleException(e);
 	}
@@ -83,8 +87,11 @@ exports.getTerms = async () => {
 exports.getPrivacyPolicies = async () => {
 	try {
 		const privacyPolicies = await Setting.findOne({ key: "PRIVACY_POLICIES" });
+		const privacyPoliciesFa = await Setting.findOne({
+			key: "PRIVACY_POLICIES_FA",
+		});
 
-		return success("ok", privacyPolicies);
+		return success("ok", { privacyPolicies, privacyPoliciesFa });
 	} catch (e) {
 		return handleException(e);
 	}
@@ -98,7 +105,12 @@ exports.updateTermsOfService = async (params) => {
 			{ upsert: true, new: true }
 		);
 
-		return success("Updated Successfully!", terms);
+		const termsFa = await Setting.findOneAndUpdate(
+			{ key: "TERMS_OF_SERVICE_FA" },
+			{ value: params.termsFa, name: "Terms of Service Fa" },
+			{ upsert: true, new: true }
+		);
+		return success("Updated Successfully!", { terms, termsFa });
 	} catch (e) {
 		return handleException(e);
 	}
@@ -106,13 +118,21 @@ exports.updateTermsOfService = async (params) => {
 
 exports.updatePrivacyPolicies = async (params) => {
 	try {
-		const terms = await Setting.findOneAndUpdate(
+		const privacyPolicies = await Setting.findOneAndUpdate(
 			{ key: "PRIVACY_POLICIES" },
 			{ value: params.privacyPolicies, name: "Privacy Policies" },
 			{ upsert: true, new: true }
 		);
 
-		return success("Updated Successfully!", terms);
+		const privacyPoliciesFa = await Setting.findOneAndUpdate(
+			{ key: "PRIVACY_POLICIES_FA" },
+			{ value: params.privacyPoliciesFa, name: "Privacy Policies Fa" },
+			{ upsert: true, new: true }
+		);
+		return success("Updated Successfully!", {
+			privacyPolicies,
+			privacyPoliciesFa,
+		});
 	} catch (e) {
 		return handleException(e);
 	}

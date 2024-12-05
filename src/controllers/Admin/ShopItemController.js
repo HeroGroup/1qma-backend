@@ -18,8 +18,9 @@ exports.getShopItems = async () => {
 
 exports.addShopItem = async (params, icon) => {
 	try {
-		const { type, description, details, realPrice, coinPrice } = params;
-		if (!params.type || !params.details) {
+		const { type, description, descriptionFa, details, realPrice, coinPrice } =
+			params;
+		if (!type || !details) {
 			return fail("invalid parameters!");
 		}
 
@@ -30,6 +31,7 @@ exports.addShopItem = async (params, icon) => {
 		const shopItem = new ShopItem({
 			type,
 			description,
+			descriptionFa,
 			details,
 			icon: icon?.path || "",
 			realPrice,
@@ -47,9 +49,17 @@ exports.addShopItem = async (params, icon) => {
 
 exports.updateShopItem = async (params, icon) => {
 	try {
-		const { id, type, description, details, realPrice, coinPrice, isActive } =
-			params;
-		if (!params.id) {
+		const {
+			id,
+			type,
+			description,
+			descriptionFa,
+			details,
+			realPrice,
+			coinPrice,
+			isActive,
+		} = params;
+		if (!id) {
 			return fail("invalid shop item id!");
 		}
 
@@ -67,6 +77,7 @@ exports.updateShopItem = async (params, icon) => {
 			{
 				type,
 				description,
+				descriptionFa,
 				details,
 				icon: iconPath,
 				realPrice,

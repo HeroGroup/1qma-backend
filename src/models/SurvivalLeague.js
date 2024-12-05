@@ -3,6 +3,7 @@ const { Schema } = mongoose;
 
 const survivalLeagueSchema = new Schema({
 	title: String,
+	titleFa: String,
 	icon: String,
 	startDate: Date,
 	endDate: Date,

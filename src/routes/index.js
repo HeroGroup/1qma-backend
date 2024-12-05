@@ -33,7 +33,7 @@ router.get("/FAQs", async (req, res) => {
  *     summary: fetch terms of service
  */
 router.get("/termsOfService", async (req, res) => {
-	res.json(await getTermsOfService());
+	res.json(await getTermsOfService(req.session.user?.preferedLanguage));
 });
 
 /**
@@ -45,7 +45,7 @@ router.get("/termsOfService", async (req, res) => {
  *     summary: fetch privacy policies
  */
 router.get("/privacyPolicies", async (req, res) => {
-	res.json(await getPrivacyPolicies());
+	res.json(await getPrivacyPolicies(req.session.user?.preferedLanguage));
 });
 
 module.exports = router;

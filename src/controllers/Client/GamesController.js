@@ -35,6 +35,7 @@ exports.games = async (
 				code: 1,
 				creator: 1,
 				category: 1,
+				numberOfPlayers: 1,
 				players: 1,
 				gameType: 1,
 				endedAt: 1,
@@ -100,6 +101,7 @@ exports.liveGames = async (type, category, page = 1, limit = 5) => {
 				players: 1,
 				gameType: 1,
 				createdAt: 1,
+				numberOfPlayers: 1,
 			}
 		)
 			.sort({ createdAt: -1 })
@@ -126,6 +128,7 @@ exports.friendsRecentGames = async (userId) => {
 				code: 1,
 				creator: 1,
 				category: 1,
+				numberOfPlayers: 1,
 				players: 1,
 				gameType: 1,
 				endedAt: 1,
@@ -141,9 +144,13 @@ exports.friendsRecentGames = async (userId) => {
 	}
 };
 
-exports.survivalScoreboard = async () => {
+exports.survivalScoreboard = async (lang) => {
 	try {
 		const survivalLeague = await SurvivalLeague.findOne({ isActive: true });
+		const faLangCondition = lang?.code === "fa";
+		const survivalTitle = faLangCondition
+			? survivalLeague?.titleFa || "بقا"
+			: survivalLeague?.title || "Survival";
 
 		const users = await User.find(
 			{
@@ -157,7 +164,7 @@ exports.survivalScoreboard = async () => {
 
 		return success("ok", {
 			users,
-			survivalTitle: survivalLeague?.title || "Survival",
+			survivalTitle,
 		});
 	} catch (e) {
 		return handleException(e);
@@ -180,6 +187,7 @@ exports.friendsRecentSurvivalGames = async (userId) => {
 				code: 1,
 				creator: 1,
 				category: 1,
+				numberOfPlayers: 1,
 				players: 1,
 				gameType: 1,
 				endedAt: 1,

@@ -38,6 +38,7 @@ router.get("/", async (req, res) => {
  *            type: object
  *            required:
  *              - title
+ *              - titleFa
  *              - icon
  *              - startDate
  *              - endDate
@@ -47,6 +48,9 @@ router.get("/", async (req, res) => {
  *              title:
  *                type: string
  *                default: 22 Bahman
+ *              titleFa:
+ *                type: string
+ *                default: ۲۲ بهمن
  *              startDate:
  *                type: string
  *                default: 2024-09-14
@@ -88,6 +92,7 @@ router.post(
  *            required:
  *              - id
  *              - title
+ *              - titleFa
  *              - icon
  *              - startDate
  *              - endDate
@@ -100,6 +105,9 @@ router.post(
  *              title:
  *                type: string
  *                default: 22 Bahman
+ *              titleFa:
+ *                type: string
+ *                default: ۲۲ بهمن
  *              startDate:
  *                type: string
  *                default: 2024-09-14
