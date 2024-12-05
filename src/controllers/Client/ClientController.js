@@ -106,7 +106,7 @@ exports.init = async (userId) => {
 			charityCategories,
 			answerWordsLimitation: answerWordsLimitationSetting?.value || 100,
 			user,
-			charityProgress,
+			charityProgress: charityProgress <= 100 ? charityProgress : 100,
 			sponsors,
 			frontAppVersion: frontAppVersionSetting?.value || "1.0.0",
 		});
@@ -1023,7 +1023,7 @@ exports.chooseCharityCategory = async (params) => {
 
 	return success("Thank you for making the world a better place.", {
 		user,
-		progress,
+		progress: progress <= 100 ? progress : 100,
 	});
 };
 
