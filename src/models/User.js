@@ -28,6 +28,8 @@ const userSchema = new Schema({
 	preferedCategories: Array,
 	accountType: Object,
 	preferedLanguage: Object,
+	enableAutoTranslate: Boolean,
+	targetLanguage: String,
 	preferedFont: String,
 	preferedCharity: Object,
 	defaultHomePage: String,
