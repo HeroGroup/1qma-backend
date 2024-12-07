@@ -144,9 +144,9 @@ exports.joinToWaitListWithEmailAndMobile = async (params, lang = "en") => {
 	}
 
 	// check mobile is present and valid
-	if (!validateMobile(params.mobile)) {
-		return fail("Enter a valid mobile phone!", params);
-	}
+	// if (!validateMobile(params.mobile)) {
+	// 	return fail("Enter a valid mobile phone!", params);
+	// }
 
 	// check email is available
 	const emailExists = await User.countDocuments({
@@ -158,13 +158,13 @@ exports.joinToWaitListWithEmailAndMobile = async (params, lang = "en") => {
 	}
 
 	// check phone is available
-	const mobileExists = await User.countDocuments({
-		mobile: params.mobile,
-		mobileVerified: true,
-	});
-	if (mobileExists > 0) {
-		return fail("This phone number is already in use!", params);
-	}
+	// const mobileExists = await User.countDocuments({
+	// 	mobile: params.mobile,
+	// 	mobileVerified: true,
+	// });
+	// if (mobileExists > 0) {
+	// 	return fail("This phone number is already in use!", params);
+	// }
 
 	const newUser = new User({
 		referCode: await createUniqueReferCode(),
@@ -186,7 +186,7 @@ exports.joinToWaitListWithEmailAndMobile = async (params, lang = "en") => {
 		emailTemplates.VERIFICATION,
 		lang
 	);
-	createMobileVerification(params.mobile);
+	// createMobileVerification(params.mobile);
 
 	return success(
 		`A verification code was sent to ${params.email}. Please check your spam folder as well!`,
@@ -519,26 +519,26 @@ exports.updateProfile = async (params) => {
 		}
 
 		// check mobile is and valid and unique
-		if (!validateMobile(params.mobile)) {
-			return fail("Enter a valid mobile phone!", params);
-		}
+		// if (!validateMobile(params.mobile)) {
+		// 	return fail("Enter a valid mobile phone!", params);
+		// }
 
 		// check phone is available
-		const mobileExists = await User.findOne({
-			mobile: params.mobile,
-			mobileVerified: true,
-			_id: { $ne: id },
-		});
-		if (mobileExists) {
-			return fail("This phone number is already in use!", params);
-		}
+		// const mobileExists = await User.findOne({
+		// 	mobile: params.mobile,
+		// 	mobileVerified: true,
+		// 	_id: { $ne: id },
+		// });
+		// if (mobileExists) {
+		// 	return fail("This phone number is already in use!", params);
+		// }
 
 		let user = await User.findById(id);
 
-		if (!user.mobileVerified || user.mobile !== params.mobile) {
-			createMobileVerification(params.mobile);
-			params["mobileVerified"] = false;
-		}
+		// if (!user.mobileVerified || user.mobile !== params.mobile) {
+		// 	createMobileVerification(params.mobile);
+		// 	params["mobileVerified"] = false;
+		// }
 
 		if (params.gender) {
 			const gender = genders.find((element) => element._id === params.gender);
