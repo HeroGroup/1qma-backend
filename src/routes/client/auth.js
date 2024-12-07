@@ -27,8 +27,9 @@ const {
 	userDetails,
 	deactivate,
 } = require("../../controllers/Client/AuthController");
-const { sameUser } = require("../../middlewares/sameUser");
+const { emailVerified } = require("../../middlewares/emailVerified");
 const { notLoggedIn } = require("../../middlewares/notLoggedIn");
+const { sameUser } = require("../../middlewares/sameUser");
 
 /**
  * @openapi
@@ -279,7 +280,11 @@ router.post("/setEmail", sameUser, async (req, res) => {
  *      - in: path
  */
 router.post("/setPassword", sameUser, async (req, res) => {
-	res.json(await setPassword(req.body));
+	const setPasswordResult = await setPassword(req.body);
+	if (setPasswordResult.status === 1) {
+		req.session.user = setPasswordResult.data;
+	}
+	res.json(setPasswordResult);
 });
 
 /**
@@ -312,13 +317,18 @@ router.post("/setPassword", sameUser, async (req, res) => {
  *                type: string
  *                default: en
  */
-router.post("/updateLanguagePreference", sameUser, async (req, res) => {
-	const choosePreferedLanguageResult = await choosePreferedLanguage(req.body);
-	if (choosePreferedLanguageResult.status === 1) {
-		req.session.user = choosePreferedLanguageResult.data;
+router.post(
+	"/updateLanguagePreference",
+	sameUser,
+	emailVerified,
+	async (req, res) => {
+		const choosePreferedLanguageResult = await choosePreferedLanguage(req.body);
+		if (choosePreferedLanguageResult.status === 1) {
+			req.session.user = choosePreferedLanguageResult.data;
+		}
+		res.json(choosePreferedLanguageResult);
 	}
-	res.json(choosePreferedLanguageResult);
-});
+);
 
 /**
  * @openapi
@@ -372,7 +382,7 @@ router.post("/updateLanguagePreference", sameUser, async (req, res) => {
  *                city: string
  *                default: shiraz
  */
-router.post("/updateProfile", sameUser, async (req, res) => {
+router.post("/updateProfile", sameUser, emailVerified, async (req, res) => {
 	const updateProfileResult = await updateProfile(req.body);
 	if (updateProfileResult.status === 1) {
 		req.session.user = updateProfileResult.data;
@@ -404,15 +414,20 @@ router.post("/updateProfile", sameUser, async (req, res) => {
  *                type: array
  *                default: [{_id: "6543234567890", name: "history"}]
  */
-router.post("/updateCategoryPreferences", sameUser, async (req, res) => {
-	const chooseCategoryPreferencesResult = await chooseCategoryPreferences(
-		req.body
-	);
-	if (chooseCategoryPreferencesResult.status === 1) {
-		req.session.user = chooseCategoryPreferencesResult.data;
+router.post(
+	"/updateCategoryPreferences",
+	sameUser,
+	emailVerified,
+	async (req, res) => {
+		const chooseCategoryPreferencesResult = await chooseCategoryPreferences(
+			req.body
+		);
+		if (chooseCategoryPreferencesResult.status === 1) {
+			req.session.user = chooseCategoryPreferencesResult.data;
+		}
+		res.json(chooseCategoryPreferencesResult);
 	}
-	res.json(chooseCategoryPreferencesResult);
-});
+);
 
 /**
  * @openapi
@@ -438,13 +453,18 @@ router.post("/updateCategoryPreferences", sameUser, async (req, res) => {
  *                type: array
  *                default: [{_id: "675638942659346598643", question: "what is your hobby?", answer: "I rather watch TV"}, {_id: "6543234567890", question: "which options best suit you?", answer: ["athlete", "animal lover"]}]
  */
-router.post("/answerFurtherQuestions", sameUser, async (req, res) => {
-	const answerFurtherQuestionsResult = await answerFurtherQuestions(req.body);
-	if (answerFurtherQuestionsResult.status === 1) {
-		req.session.user = answerFurtherQuestionsResult.data;
+router.post(
+	"/answerFurtherQuestions",
+	sameUser,
+	emailVerified,
+	async (req, res) => {
+		const answerFurtherQuestionsResult = await answerFurtherQuestions(req.body);
+		if (answerFurtherQuestionsResult.status === 1) {
+			req.session.user = answerFurtherQuestionsResult.data;
+		}
+		res.json(answerFurtherQuestionsResult);
 	}
-	res.json(answerFurtherQuestionsResult);
-});
+);
 
 /**
  * @openapi
@@ -470,7 +490,7 @@ router.post("/answerFurtherQuestions", sameUser, async (req, res) => {
  *                type: object
  *                default: {_id: "87654567898765", name: "Basic"}
  */
-router.post("/updateAccountType", sameUser, async (req, res) => {
+router.post("/updateAccountType", sameUser, emailVerified, async (req, res) => {
 	const chooseAccountTypeResult = await chooseAccountType(req.body);
 	if (chooseAccountTypeResult.status === 1) {
 		req.session.user = chooseAccountTypeResult.data;
