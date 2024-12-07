@@ -119,3 +119,19 @@ exports.registerQuestionTypes = {
 	MULTIPLE_OPTIONS: "multiple_options",
 	TOGGLE: "toggle",
 };
+
+exports.achievementConditions = {
+	LEVEL: "level",
+	XP: "xp",
+	GAMES_WON: "games won",
+	GAMES_CREATED: "games created",
+	GAMES_PLAYED: "games played",
+	REGISTERED_INVITEES: "invitees registered",
+};
+
+exports.achievementRewards = {
+	BRONZE: "bronze",
+	SILVER: "silver",
+	GOLD: "gold",
+	INVITATION: "invitation",
+};

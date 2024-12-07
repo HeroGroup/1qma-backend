@@ -22,6 +22,7 @@ const { swaggerSpec } = require("./src/services/swagger.js");
 const indexRoutes = require("./src/routes/index");
 
 const accountTypesRoutes = require("./src/routes/admin/accountTypes");
+const achievementsRoutes = require("./src/routes/admin/achievements");
 const adminRoutes = require("./src/routes/admin/_admin");
 const bugReportsRoutes = require("./src/routes/admin/bugReports");
 const bugTypesRoutes = require("./src/routes/admin/bugTypes");
@@ -166,6 +167,7 @@ async function main() {
 	app.use("/auth", authRoutes);
 	app.use("/admin", adminRoutes);
 	app.use("/admin/accountTypes", isAdmin, accountTypesRoutes);
+	app.use("/admin/achievements", isAdmin, achievementsRoutes);
 	app.use("/admin/bugReports", isAdmin, bugReportsRoutes);
 	app.use("/admin/bugTypes", isAdmin, bugTypesRoutes);
 	app.use("/admin/categories", isAdmin, categoriesRoutes);

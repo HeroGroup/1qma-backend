@@ -9,8 +9,15 @@ exports.handleException = (e) => {
 		e = new Error(e);
 	}
 
-	console.error(e.message);
-	return fail("Server Error");
+	const errorMessage = e.message;
+	const isProduction = env.environment === "production";
+
+	if (isProduction) {
+		console.error(errorMessage);
+		return fail("Server Error");
+	} else {
+		return fail(errorMessage);
+	}
 };
 
 exports.getRandomInt = (min, max) => {
