@@ -422,8 +422,13 @@ exports.setPassword = async (params) => {
 		}
 
 		// verification ok
-		// if they were in wait list, delete them from wait list
-		await User.deleteMany({ email, inWaitList: true });
+		// if they were in wait list or haven't completed sign up yet,
+		// delete them from wait list
+		await User.deleteMany({
+			_id: { $ne: objectId(id) },
+			email,
+			$or: [{ inWaitList: true }, { hasCompletedSignup: false }],
+		});
 
 		// update password
 		const newPassword = createHashedPasswordFromPlainText(password);
