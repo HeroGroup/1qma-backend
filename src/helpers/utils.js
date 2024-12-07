@@ -61,15 +61,14 @@ exports.getSocketClient = async (socketId) => {
 };
 
 exports.joinUserToGameRoom = async (socketId, room, email = "unknown") => {
-	console.log(`attempt to connect ${email} to ${room}`);
 	const socket = await this.getSocketClient(socketId);
 	if (socket) {
 		socket.join(room);
-		console.log(`${email} with socket id ${socketId} joined to ${room}`);
-
+		console.log(`${email} with socket id ${socketId} joined to ${room}.`);
 		return true;
 	}
 
+	console.log(`attempt to connect ${email} to ${room} failed!`);
 	return false;
 };
 

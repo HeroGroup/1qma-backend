@@ -56,7 +56,6 @@ const {
 	playerDisconnected,
 	reconnectPlayer,
 } = require("./src/controllers/Client/GameController");
-const User = require("./src/models/User.js");
 
 async function main() {
 	const isProduction = env.environment === "production";
@@ -215,8 +214,9 @@ async function main() {
 					userId = sessionData.user?._id;
 					sessionData.socketId = socketId;
 					sess.store.set(sessionId, sessionData);
-					await User.findByIdAndUpdate(userId, { socketId });
-					await reconnectPlayer(userId, socketId);
+					if (userId) {
+						await reconnectPlayer(userId, socketId);
+					}
 				}
 			});
 		}

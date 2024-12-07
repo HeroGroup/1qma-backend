@@ -716,7 +716,7 @@ exports.joinGame = async (params, socketId) => {
 			{ new: true }
 		);
 
-		if (game.status === gameStatuses.STARTED) {
+		if (isStarted || game.status === gameStatuses.STARTED) {
 			// shuffle question
 			const gameQuestions = game.questions;
 			shuffleArray(gameQuestions);
@@ -725,6 +725,11 @@ exports.joinGame = async (params, socketId) => {
 			// emit game is started
 			io.to(gameRoom).emit("start game", {});
 			console.log("start game");
+
+			// once again to make sure it is emitted to everyone
+			setTimeout(() => {
+				io.to(gameRoom).emit("start game", {});
+			}, 1000);
 		}
 
 		return success("You have successfully joined the game!", {
@@ -1635,14 +1640,22 @@ exports.playerDisconnected = async (params) => {
 
 exports.reconnectPlayer = async (userId, socketId) => {
 	if (!userId) {
-		console.log("invalid user id!");
+		console.log("reconnecting to game ... invalid user id!");
 		return;
 	}
 
 	if (!socketId) {
-		console.log("invalid socket id!");
+		console.log("reconnecting to game ... invalid socket id!");
 		return;
 	}
+
+	const player = await User.findById(userId);
+	if (!player) {
+		console.log("invalid player to re-join!");
+		return;
+	}
+
+	await User.findByIdAndUpdate(userId, { socketId });
 
 	const userGamesFilter = {
 		"players._id": objectId(userId),
@@ -1660,11 +1673,6 @@ exports.reconnectPlayer = async (userId, socketId) => {
 			},
 			{ arrayFilters: [{ "player._id": objectId(userId) }] }
 		);
-
-		const player = await User.findById(userId);
-		if (!player) {
-			console.log("invalid player!");
-		}
 
 		const {
 			_id: player_id,
