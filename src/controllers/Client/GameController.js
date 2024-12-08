@@ -382,6 +382,7 @@ exports.createGame = async (params, socketId) => {
 						},
 					],
 					rates: [],
+					passed: false,
 				},
 			],
 			status: gameStatuses.CREATED,
@@ -707,6 +708,7 @@ exports.joinGame = async (params, socketId) => {
 							},
 						],
 						rates: [],
+						passed: false,
 					},
 				},
 				...(isStarted
@@ -729,6 +731,7 @@ exports.joinGame = async (params, socketId) => {
 			// once again to make sure it is emitted to everyone
 			setTimeout(() => {
 				io.to(gameRoom).emit("start game", {});
+				console.log("start game 2");
 			}, 1000);
 		}
 
