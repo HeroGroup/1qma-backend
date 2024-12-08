@@ -1885,7 +1885,7 @@ const calculateResult = async (gameId) => {
 			return {
 				answerer,
 				answer: answerObj.answer,
-				languages: answerObj.language || env.defaultLanguage,
+				language: answerObj.language || env.defaultLanguage,
 				rate: answerObj.rates.reduce((n, { rate }) => n + rate, 0),
 			};
 		});
