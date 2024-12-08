@@ -1049,10 +1049,18 @@ exports.submitAnswer = async (params) => {
 			(plyr) => plyr.status === "connected"
 		).length;
 
-		if (numberOfSubmitted >= numberOfConnectedPlayers) {
+		if (
+			numberOfSubmitted >= numberOfConnectedPlayers &&
+			!game.questions[questionIndex].passed
+		) {
 			// emit next question
 			io.to(gameId).emit("next step", {});
 			console.log("next step: rate answers");
+			await Game.findByIdAndUpdate(
+				gameId,
+				{ "questions.$[i].passed": true },
+				{ arrayFilters: [{ "i.user_id": objectId(questionId) }] }
+			);
 		} else {
 			io.to(gameId).emit("submit answer", {
 				numberOfSubmitted,
