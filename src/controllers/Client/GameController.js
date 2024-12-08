@@ -1510,8 +1510,9 @@ exports.exitGame = async (params, socketId) => {
 		} = player;
 
 		// check if more than 30% of players have left, end (cancel) the game
-		const totalPlayers = game.players.length;
-		const leftPlayers = game.players.filter((plyr) => plyr.status === "left"); // plus this user who is leaving
+		const players = game.players;
+		const totalPlayers = players.length;
+		const leftPlayers = players.filter((plyr) => plyr.status === "left"); // plus this user who is leaving
 
 		let canceled = false;
 		if ((leftPlayers?.length || 0) + 1 / totalPlayers > 0.3) {
@@ -1519,6 +1520,11 @@ exports.exitGame = async (params, socketId) => {
 			canceled = true;
 			io.to(gameId).emit("cancel game", {});
 			console.log("cancel game");
+
+			// dispose all socket connections
+			for (const player of players) {
+				leaveRoom(player.socketId, gameId, player.email);
+			}
 		} else {
 			// remove player from game
 			leaveRoom(socketId, gameId, email);

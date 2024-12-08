@@ -659,6 +659,14 @@ exports.chooseAccountType = async (params) => {
 			key: "DEFAULT_NUMBER_OF_BRONZE_COINS",
 		});
 
+		const defaultNumberOfSilverCoins = await Setting.findOne({
+			key: "DEFAULT_NUMBER_OF_SILVER_COINS",
+		});
+
+		const defaultNumberOfGoldCoins = await Setting.findOne({
+			key: "DEFAULT_NUMBER_OF_GOLD_COINS",
+		});
+
 		const user = await User.findOneAndUpdate(
 			{ _id: idParam },
 			{
@@ -675,8 +683,8 @@ exports.chooseAccountType = async (params) => {
 				assets: {
 					coins: {
 						bronze: parseInt(defaultNumberOfBronzeCoins?.value) || 0,
-						silver: 0,
-						gold: 0,
+						silver: parseInt(defaultNumberOfSilverCoins?.value) || 0,
+						gold: parseInt(defaultNumberOfGoldCoins?.value) || 0,
 					},
 				},
 				statistics: {
@@ -717,6 +725,9 @@ exports.chooseAccountType = async (params) => {
 			},
 			{ new: true }
 		);
+
+		// check if referer is eligible for achievement
+		// user.referer._id
 
 		return success("Account type updated successfully!", user);
 	} catch (e) {
