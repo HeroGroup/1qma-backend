@@ -26,6 +26,7 @@ const gameSchema = new Schema({
 			],
 			rates: [{ user_id: mongoose.ObjectId, rate: Number }],
 			passed: Boolean,
+			ratesPassed: Boolean,
 		},
 	],
 	status: String,

@@ -383,6 +383,7 @@ exports.createGame = async (params, socketId) => {
 					],
 					rates: [],
 					passed: false,
+					ratesPassed: false,
 				},
 			],
 			status: gameStatuses.CREATED,
@@ -709,6 +710,7 @@ exports.joinGame = async (params, socketId) => {
 						],
 						rates: [],
 						passed: false,
+						ratesPassed: false,
 					},
 				},
 				...(isStarted
@@ -1272,10 +1274,19 @@ exports.rateAnswers = async (params) => {
 		).length;
 
 		// if (ratesCount >= playersCount * playersCount) {
-		if (ratesCount >= connectedPlayersCount * connectedPlayersCount) {
+		if (
+			ratesCount >= connectedPlayersCount * connectedPlayersCount &&
+			!game.questions[questionIndex].ratesPassed
+		) {
 			// everyone has answered, emit next question
 			io.to(gameId).emit("next step", {});
 			console.log("next step: next question");
+
+			await Game.findByIdAndUpdate(
+				gameId,
+				{ "questions.$[i].ratesPassed": true },
+				{ arrayFilters: [{ "i.user_id": objectId(questionId) }] }
+			);
 		} else {
 			io.to(gameId).emit("submit answer", {
 				numberOfSubmitted: Math.floor(ratesCount / playersCount),
