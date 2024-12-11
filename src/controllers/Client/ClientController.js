@@ -1133,7 +1133,7 @@ exports.contactUs = async (params) => {
 		}
 
 		sendEmail(
-			"navid.hero.1@gmail.com",
+			env.supportEmail,
 			emailTemplates.SUPPORT,
 			supportHtml(params.email, params.name, params.message)
 		);

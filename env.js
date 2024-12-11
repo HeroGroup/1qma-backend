@@ -58,6 +58,7 @@ module.exports = {
 		},
 	},
 	emailFrom: process.env.EMAIL_FROM,
+	supportEmail: process.env.SUPPORT_EMAIL_ADDRESS,
 	plivoId: process.env.PLIVO_ID,
 	plivoAuthToken: process.env.PLIVO_AUTH_TOKEN,
 	plivoSender: process.env.PLIVO_SENDER,
