@@ -1120,7 +1120,10 @@ exports.testLevelUp = async (socketId) => {
 
 exports.contactUs = async (params) => {
 	try {
-		return success("Thank you for contacting us.We will get back to you soon.");
+		return success(
+			"Thank you for contacting us.We will get back to you soon.",
+			params
+		);
 	} catch (e) {
 		return handleException(e);
 	}

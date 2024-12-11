@@ -1880,9 +1880,9 @@ const calculateResult = async (gameId) => {
 				// ================ new aproach ================
 				/* const sumWeightedRates =
 					answer?.rates.reduce((n, { weightedRate }) => n + weightedRate, 0) ||
-					numberOfPlayers; */
+					numberOfPlayers;
 
-				answersRates.push(sumWeightedRates);
+				answersRates.push(sumWeightedRates); */
 			}
 
 			const questionRate = questions[ownQuestionIndex].rates.reduce(
