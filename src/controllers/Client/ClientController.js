@@ -823,6 +823,7 @@ exports.questionPerformance = async (userId, questionId, params) => {
 			{
 				_id: 1,
 				endedAt: 1,
+				numberOfPlayers: 1,
 				players: 1,
 				questions: 1,
 			}
@@ -848,6 +849,7 @@ exports.questionPerformance = async (userId, questionId, params) => {
 			return {
 				_id: game.id,
 				endedAt: game.endedAt,
+				numberOfPlayers: game.numberOfPlayers,
 				question: {
 					question: question.question,
 					language: question.language || env.defaultLanguage,
@@ -1111,6 +1113,14 @@ exports.testLevelUp = async (socketId) => {
 		});
 
 		return success("ok");
+	} catch (e) {
+		return handleException(e);
+	}
+};
+
+exports.contactUs = async (params) => {
+	try {
+		return success("Thank you for contacting us.We will get back to you soon.");
 	} catch (e) {
 		return handleException(e);
 	}
