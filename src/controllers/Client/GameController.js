@@ -1835,7 +1835,7 @@ const calculateResult = async (gameId) => {
 			});
 
 			// ================ new aproach ================
-			for (let i = 0; i < questions.length; i++) {
+			/*for (let i = 0; i < questions.length; i++) {
 				const question = questions[i];
 				const questionWeight =
 					1 +
@@ -1853,12 +1853,19 @@ const calculateResult = async (gameId) => {
 						}
 					}
 				}
-			}
+			}*/
 
 			const answersRates = [];
 			const answersRatesRaw = [];
 			for (let i = 0; i < questions.length; i++) {
 				const question = questions[i];
+
+				const questionWeight =
+					1 +
+					(question.rates.find(
+						(r) => r.user_id.toString() === player._id.toString()
+					)?.rate || 1) /
+						100; // 1 => 1.01, 5 => 1.05
 
 				const answer = question.answers.find(
 					(elm) => elm.user_id.toString() === player._id.toString()
@@ -1868,12 +1875,12 @@ const calculateResult = async (gameId) => {
 				answersRatesRaw.push(sumRates);
 
 				// ================ Old aproach ================
-				// answersRates.push(sumRates * questionWeight);
+				answersRates.push(sumRates * questionWeight);
 
 				// ================ new aproach ================
-				const sumWeightedRates =
+				/* const sumWeightedRates =
 					answer?.rates.reduce((n, { weightedRate }) => n + weightedRate, 0) ||
-					numberOfPlayers;
+					numberOfPlayers; */
 
 				answersRates.push(sumWeightedRates);
 			}
