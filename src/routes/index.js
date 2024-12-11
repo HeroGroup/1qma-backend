@@ -5,6 +5,7 @@ const {
 	getFAQs,
 	getTermsOfService,
 	getPrivacyPolicies,
+	contactUs,
 } = require("../controllers/Client/ClientController");
 
 router.get("/", (req, res) => {
@@ -46,6 +47,38 @@ router.get("/termsOfService", async (req, res) => {
  */
 router.get("/privacyPolicies", async (req, res) => {
 	res.json(await getPrivacyPolicies(req.session.user?.preferedLanguage));
+});
+
+/**
+ * @openapi
+ * '/client/contactUs':
+ *  post:
+ *     tags:
+ *     - Client
+ *     summary: send a message
+ *     requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *           schema:
+ *            type: object
+ *            required:
+ *              - email
+ *              - name
+ *              - message
+ *            properties:
+ *              email:
+ *                type: string
+ *                default: navid@gmail.com
+ *              name:
+ *                type: string
+ *                format: Navid Hero
+ *              message:
+ *                type: string
+ *                format: Hello and thank you
+ */
+router.post("/contactUs", async (req, res) => {
+	res.json(await contactUs(req.body));
 });
 
 module.exports = router;
