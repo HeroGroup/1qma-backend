@@ -22,6 +22,7 @@ const {
 	gameStatuses,
 	introTypes,
 	notificationTypes,
+	emailTemplates,
 } = require("../../helpers/constants");
 const { findMyFriends } = require("../../helpers/findMyFriends");
 const {
@@ -38,6 +39,7 @@ const {
 	inviteFriendHtml,
 	inviteFriendHtmlFa,
 } = require("../../views/templates/html/inviteFriend");
+const { supportHtml } = require("../../views/templates/html/support");
 const { sendNotification } = require("./NotificationController");
 
 exports.init = async (userId) => {
@@ -1120,6 +1122,22 @@ exports.testLevelUp = async (socketId) => {
 
 exports.contactUs = async (params) => {
 	try {
+		const { email, name, message } = params;
+
+		if (!validateEmail(email)) {
+			return fail("invalid email address!");
+		}
+
+		if (!name || !message) {
+			return fail("invalid input parameters");
+		}
+
+		sendEmail(
+			"navid.hero.1@gmail.com",
+			emailTemplates.SUPPORT,
+			supportHtml(params.email, params.name, params.message)
+		);
+
 		return success(
 			"Thank you for contacting us.We will get back to you soon.",
 			params

@@ -98,6 +98,7 @@ exports.emailTemplates = {
 	RESET_PASSWORD: "reset password",
 	INVITE_FRIEND: "invitation",
 	INVITE_GAME: "game invite",
+	SUPPORT: "support",
 };
 
 exports.coinTypes = {
