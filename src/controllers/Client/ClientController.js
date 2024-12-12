@@ -1120,9 +1120,11 @@ exports.testLevelUp = async (socketId) => {
 	}
 };
 
-exports.contactUs = async (params) => {
+exports.contactUs = async (params, user) => {
 	try {
-		const { email, name, message } = params;
+		const email = user.email || params.email;
+		const name = `${user.firstName} ${user.lastName}` || params.name;
+		const { message } = params;
 
 		if (!validateEmail(email)) {
 			return fail("invalid email address!");

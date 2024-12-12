@@ -78,7 +78,7 @@ router.get("/privacyPolicies", async (req, res) => {
  *                format: Hello and thank you
  */
 router.post("/contactUs", async (req, res) => {
-	res.json(await contactUs(req.body));
+	res.json(await contactUs(req.body, req.session.user));
 });
 
 module.exports = router;
