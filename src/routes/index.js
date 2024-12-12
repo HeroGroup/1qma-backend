@@ -51,7 +51,7 @@ router.get("/privacyPolicies", async (req, res) => {
 
 /**
  * @openapi
- * '/client/contactUs':
+ * '/contactUs':
  *  post:
  *     tags:
  *     - Client

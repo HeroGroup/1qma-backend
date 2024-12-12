@@ -9,6 +9,6 @@ exports.supportHtml = (senderEmail, senderName, message) => {
 	</div>
 	<div>
 		<label>Message:</label>
-		<b>${message}</b>
+		<p>${message}</p>
 	</div>`;
 };
