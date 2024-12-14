@@ -12,8 +12,7 @@ exports.sanitizeRequestInputs = (req, res, next) => {
 	// req.body
 	const bodyNames = Object.keys(bodyParameters);
 	bodyNames.forEach((elm) => {
-		if (!sanitizeInputExceptions.includes(elm)) {
-			console.log(elm);
+		if (!sanitizeInputExceptions.includes(elm) && req.body[elm] !== null) {
 			req.body[elm] = sanitize(bodyParameters[elm]);
 		}
 	});
