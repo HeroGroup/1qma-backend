@@ -20,21 +20,25 @@ const {
 	transactionTypes,
 	gameTypeNames,
 } = require("../../helpers/constants");
+
 const Category = require("../../models/Category");
+const CharityCategory = require("../../models/CharityCategory");
 const Game = require("../../models/Game");
 const Question = require("../../models/Question");
 const Setting = require("../../models/Setting");
+const SurvivalLeague = require("../../models/SurvivalLeague");
 const User = require("../../models/User");
+
 const { sendNotification } = require("./NotificationController");
+const { addCoinTransaction } = require("./TransactionController");
+
 const sendEmail = require("../../services/mail");
+const { detectLanguage } = require("../../services/openai");
+
 const {
 	inviteGameHtml,
 	inviteGameHtmlFa,
 } = require("../../views/templates/html/inviteGame");
-const { addCoinTransaction } = require("./TransactionController");
-const CharityCategory = require("../../models/CharityCategory");
-const SurvivalLeague = require("../../models/SurvivalLeague");
-const { detectLanguage } = require("../../services/openai");
 
 const createOrGetQuestion = async (
 	questionId,
@@ -114,6 +118,7 @@ const createOrGetQuestion = async (
 				lastName: playAnonymously ? "" : lastName,
 				email,
 				profilePicture: playAnonymously ? "" : profilePicture,
+				playAnonymously,
 			},
 			score: 0,
 			plays: 0,
@@ -349,6 +354,7 @@ exports.createGame = async (params, socketId) => {
 				lastName: playAnonymously ? "" : lastName,
 				email: playAnonymously ? anonymousName : email,
 				profilePicture,
+				playAnonymously,
 			},
 			createMode: createModes.find((element) => element.id === createMode),
 			gameType: gameTypes.find((element) => element.id === gameType),
@@ -364,6 +370,7 @@ exports.createGame = async (params, socketId) => {
 					profilePicture,
 					socketId,
 					status: "connected",
+					playAnonymously,
 				},
 			],
 			questions: [
@@ -431,7 +438,9 @@ exports.createGame = async (params, socketId) => {
 
 					if (invitedUser) {
 						let title = "New Game!";
-						let message = `you have been invited to play this game created by ${creator.email}`;
+						let message = `you have been invited to play this game created by ${
+							playAnonymously ? anonymousName : email
+						}`;
 						let data = { type: notificationDataTypes.GAME_INVITE, gameId };
 
 						await sendNotification(
@@ -443,17 +452,20 @@ exports.createGame = async (params, socketId) => {
 						);
 
 						// email
+						const fullName = playAnonymously
+							? anonymousName
+							: `${firstName} ${lastName}`;
 						sendEmail(
 							invitedEmail,
 							"game invitation",
 							invitedUser.preferedLanguage === "fa"
 								? inviteGameHtmlFa(
 										`${env.frontAppUrl}/game/join?code=${game.code}`,
-										`${firstName} ${lastName}`
+										`${fullName}`
 								  )
 								: inviteGameHtml(
 										`${env.frontAppUrl}/game/join?code=${game.code}`,
-										`${firstName} ${lastName}`
+										`${fullName}`
 								  )
 						);
 
@@ -693,6 +705,7 @@ exports.joinGame = async (params, socketId) => {
 						profilePicture: profilePicture,
 						socketId,
 						status: "connected",
+						playAnonymously,
 					},
 					questions: {
 						_id: questionData.question_id,

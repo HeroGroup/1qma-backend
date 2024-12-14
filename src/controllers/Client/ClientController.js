@@ -415,6 +415,7 @@ exports.userDetails = async (id) => {
 			statistics: 1,
 			games: 1,
 			created_at: 1,
+			playAnonymously: 1,
 		});
 
 		if (!user) {
