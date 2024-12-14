@@ -1141,7 +1141,7 @@ exports.contactUs = async (params, user) => {
 		);
 
 		return success(
-			"Thank you for contacting us.We will get back to you soon.",
+			"Thank you for contacting us. We will get back to you soon.",
 			params
 		);
 	} catch (e) {
