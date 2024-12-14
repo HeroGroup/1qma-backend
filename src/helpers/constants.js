@@ -1,5 +1,6 @@
 exports.sanitizeInputExceptions = [
 	null,
+	undefined,
 	"password",
 	"passwordConfirmation",
 	"terms",
