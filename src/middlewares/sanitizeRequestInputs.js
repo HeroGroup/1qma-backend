@@ -12,7 +12,7 @@ exports.sanitizeRequestInputs = (req, res, next) => {
 	// req.body
 	const bodyNames = Object.keys(bodyParameters);
 	bodyNames.forEach((elm) => {
-		if (!sanitizeInputExceptions.includes(elm) && elm !== null) {
+		if (!sanitizeInputExceptions.includes(elm)) {
 			req.body[elm] = sanitize(bodyParameters[elm]);
 		}
 	});
@@ -20,13 +20,17 @@ exports.sanitizeRequestInputs = (req, res, next) => {
 	// req.params
 	const paramsNames = Object.keys(paramsParameters);
 	paramsNames.forEach((elm) => {
-		req.params[elm] = sanitize(paramsParameters[elm]);
+		if (!sanitizeInputExceptions.includes(elm)) {
+			req.params[elm] = sanitize(paramsParameters[elm]);
+		}
 	});
 
 	// req.query
 	const queryNames = Object.keys(queryParameters);
 	queryNames.forEach((elm) => {
-		req.query[elm] = sanitize(queryParameters[elm]);
+		if (!sanitizeInputExceptions.includes(elm)) {
+			req.query[elm] = sanitize(queryParameters[elm]);
+		}
 	});
 
 	next();
